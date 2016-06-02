@@ -1,14 +1,17 @@
 package main
 
 import (
-	_ "fmt"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
-	_ "golang.org/x/oauth2"
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+
+	"crypto/tls"
+	"net/http"
 )
 
 // Structure of the .hydra.yml file shared with Hydra
@@ -56,11 +59,25 @@ func main() {
 		Scopes:       []string{"core", "hydra.keys.get"},
 	}
 
+	// Skip verifying
+	// TODO: Remove when Hydra implements passing key-cert pairs
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, client)
+
 	// client := credentials.Client(context.Background())
-	_, err = credentials.Token(context.Background())
+	token, err := credentials.Token(ctx)
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Printf("Client Credentials flow completed, got:\n")
+	fmt.Printf("AccessToken:  %s\n", token.AccessToken)
+	fmt.Printf("TokenType:    %s\n", token.TokenType)
+	fmt.Printf("RefreshToken: %s\n", token.RefreshToken)
+	fmt.Printf("Expiry:       %s\n\n", token.Expiry)
 
 	r := gin.Default()
 	r.GET("/", handleConsent)
