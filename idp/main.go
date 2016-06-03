@@ -37,6 +37,23 @@ func handleConsent(c *gin.Context) {
 	c.JSON(200, gin.H{"challenge": data.Challenge})
 }
 
+func getKey(client *http.Client, set string, kind string) string {
+	url := os.Getenv("HYDRA_URL") + "/keys/" + set + "/" + kind
+	fmt.Printf("Url:       %s\n\n", url)
+
+	resp, err := client.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	return string(body)
+}
+
 func main() {
 
 	// IdP is has credentials preconfigured by hydra.
@@ -67,20 +84,25 @@ func main() {
 	client := &http.Client{Transport: tr}
 	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, client)
 
-	// client := credentials.Client(context.Background())
 	token, err := credentials.Token(ctx)
 	if err != nil {
 		panic(err)
 	}
 
+	c := credentials.Client(ctx)
+	// Here are the tokens we got from Hydra
 	fmt.Printf("Client Credentials flow completed, got:\n")
 	fmt.Printf("AccessToken:  %s\n", token.AccessToken)
 	fmt.Printf("TokenType:    %s\n", token.TokenType)
 	fmt.Printf("RefreshToken: %s\n", token.RefreshToken)
-	fmt.Printf("Expiry:       %s\n\n", token.Expiry)
+	fmt.Printf("Expiry:       %s\n", token.Expiry.Local())
+	fmt.Printf("\n")
+	fmt.Printf("Getting the JWK (needed for JWT verification):\n")
+	key := getKey(c, "consent.challenge", "public")
+	fmt.Printf("Key           %s\n", key)
 
-	r := gin.Default()
-	r.GET("/", handleConsent)
+	// r := gin.Default()
+	// r.GET("/", handleConsent)
 
-	r.Run(":3000")
+	// r.Run(":3000")
 }
