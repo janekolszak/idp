@@ -1,5 +1,5 @@
-hash: da7286ce2bacca2c9925649b0eda4e95563972a006838144e2986e35120483d6
-updated: 2016-06-02T00:09:24.993102795+02:00
+hash: d279100237139086f7c24920bc2c311b575a47198bb63a6b90068a39e6cf28f4
+updated: 2016-06-04T00:32:20.140791664+02:00
 imports:
 - name: github.com/gin-gonic/gin
   version: f931d1ea80ae95a6fc739213cdd9399bd2967fb6
@@ -12,6 +12,8 @@ imports:
   - proto
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/mendsley/gojwk
+  version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
@@ -19,6 +21,7 @@ imports:
 - name: golang.org/x/oauth2
   version: c406a4cc4ba462e5dc2f16225c5bd9488f9cbe10
   subpackages:
+  - clientcredentials
   - internal
 - name: google.golang.org/appengine
   version: 7f59a8c76b8594d06044bfe0bcbe475cb2020482

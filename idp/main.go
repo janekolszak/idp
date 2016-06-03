@@ -12,6 +12,8 @@ import (
 
 	"crypto/tls"
 	"net/http"
+
+	"github.com/mendsley/gojwk"
 )
 
 // Structure of the .hydra.yml file shared with Hydra

@@ -24,6 +24,7 @@ services:
     links:
       - hydra
     volumes:
+      # - "./idp:/go/src/github.com/janekolszak/hydra-idp-go:ro"
       - hydravolume:/root
     ports:
       - "3000:3000"
