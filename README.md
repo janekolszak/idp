@@ -2,13 +2,13 @@
 This is an example integration of a simple Identity Provide and [Hydra](https://github.com/ory-am/hydra)
 The IdP doesn't authenticate, it grants access to every request. Normally you'd add a step for user authentication, like checking user:password credentials.
 
-## Run
-Example uses **docker-compose** for orchestration. It starts two containers:
+## Instructions
+Example uses **docker-compose** for orchestration, it starts two containers:
 - **hydra** with in-memory database, listening on https://localhost:4444
 - **idp** listening on http://localhost:3000 (this should be https in production)
 
 #### Console 1:
-Start hydra and browse it's logs. Copy the client's credentials, you'll need them in Console 3.
+Start Hydra and browse it's logs. Copy the client's credentials, you'll need them in Console 3.
 ``` bash
 docker-compose up hydra
 ```
