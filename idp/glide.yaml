@@ -10,3 +10,4 @@ import:
   subpackages:
   - clientcredentials
 - package: gopkg.in/yaml.v2
+- package: github.com/dgrijalva/jwt-go
