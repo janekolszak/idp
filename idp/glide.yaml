@@ -1,6 +1,7 @@
 package: .
 version: ""
 import:
+- package: github.com/dgrijalva/jwt-go
 - package: github.com/gin-gonic/gin
 - package: github.com/mendsley/gojwk
 - package: golang.org/x/net
@@ -10,4 +11,3 @@ import:
   subpackages:
   - clientcredentials
 - package: gopkg.in/yaml.v2
-- package: github.com/dgrijalva/jwt-go
