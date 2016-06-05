@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"github.com/mendsley/gojwk"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -25,11 +24,6 @@ type Config struct {
 	ClusterURL   string `yaml:"cluster_url"`
 	ClientID     string `yaml:"client_id"`
 	ClientSecret string `yaml:"client_secret"`
-}
-
-// Form to parse when granting a consent
-type Consent struct {
-	Challenge string `form:"challenge" binding:"required"`
 }
 
 var (
@@ -182,25 +176,31 @@ func generateConsentToken(challenge *jwt.Token, subject string, scopes []string)
 }
 
 // Start serving the consent endpoint
-func serveConsentEndpoint() {
-	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		var data Consent
-		if c.Bind(&data) != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "BadRequest"})
+func run() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
-		challengeToken := getChallengeToken(data.Challenge)
+		challengeTokenString := r.Form.Get("challenge")
+		if challengeTokenString == "" {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		challengeToken := getChallengeToken(challengeTokenString)
 
 		consentTokenString := generateConsentToken(challengeToken, "joe@joe", []string{"read", "write"})
 
 		fmt.Printf("Access granted!\n")
 
 		// TODO: Redirect only after checking user's credentials.
-		c.Redirect(http.StatusFound, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenString)
+		http.Redirect(w, r, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenString, http.StatusFound)
 	})
 
-	r.Run(":3000")
+	http.ListenAndServe(":3000", nil)
 }
 
 func main() {
@@ -218,5 +218,5 @@ func main() {
 	getConsentKey()
 
 	// Start serving the consent endpoint
-	serveConsentEndpoint()
+	run()
 }
