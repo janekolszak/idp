@@ -22,3 +22,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+.tags
+.tags_sorted_by_file
