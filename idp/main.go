@@ -1,19 +1,9 @@
 package main
 
 import (
-	"crypto/rsa"
-	"crypto/tls"
-	"fmt"
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/mendsley/gojwk"
-	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"time"
 )
 
 // Structure of the .hydra.yml file shared with Hydra via a volume
@@ -29,15 +19,6 @@ type Config struct {
 var (
 	// Configuration file
 	config Config
-
-	// Http client form communicating with Hydra
-	client *http.Client
-
-	// Key for challenge JWT verification
-	verificationKey *rsa.PublicKey
-
-	// Key for signing the consent JWT
-	consentKey *rsa.PrivateKey
 )
 
 // IdP has its credentials preconfigured by Hydra.
@@ -53,170 +34,21 @@ func readConfig() {
 	}
 }
 
-// Gets the requested key from Hydra
-func getKey(client *http.Client, set string, kind string) *gojwk.Key {
-	url := os.Getenv("HYDRA_URL") + "/keys/" + set + "/" + kind
-	fmt.Printf("Url:         %s\n", url)
-
-	resp, err := client.Get(url)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	key, err := gojwk.Unmarshal(body)
-	if err != nil {
-		panic(err)
-	}
-
-	return key.Keys[0]
-}
-
-// Use the credentials to login to Hydra
-func loginToHydra() {
-	credentials := clientcredentials.Config{
-		ClientID:     config.ClientID,
-		ClientSecret: config.ClientSecret,
-		TokenURL:     os.Getenv("HYDRA_URL") + "/oauth2/token",
-		Scopes:       []string{"core", "hydra.keys.get"},
-	}
-
-	// Skip verifying the certificate
-	// TODO: Remove when Hydra implements passing key-cert pairs
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	c := &http.Client{Transport: tr}
-	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, c)
-
-	token, err := credentials.Token(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	// Here is the token we got from Hydra
-	fmt.Printf("Client Credentials flow completed, got:\n")
-	fmt.Printf("AccessToken: %s\n", token.AccessToken)
-	fmt.Printf("TokenType:   %s\n", token.TokenType)
-	fmt.Printf("Expiry:      %s\n\n", token.Expiry.Local())
-
-	client = credentials.Client(ctx)
-}
-
-// Downloads the hydra's public key
-func getVerificationKey() {
-	fmt.Printf("Getting the JWK (needed for JWT verification):\n")
-
-	key := getKey(client, "consent.challenge", "public")
-	fmt.Printf("Key type:    %s\n\n", key.Kty)
-
-	publicKey, err := key.DecodePublicKey()
-	if err != nil {
-		panic(err)
-	}
-
-	verificationKey = publicKey.(*rsa.PublicKey)
-}
-
-// Downloads the private key used for signing the consent
-func getConsentKey() {
-	fmt.Printf("Getting the JWK (needed for JWT signing):\n")
-
-	key := getKey(client, "consent.endpoint", "private")
-	fmt.Printf("Key type:    %s\n\n", key.Kty)
-
-	k, err := key.DecodePrivateKey()
-	if err != nil {
-		panic(err)
-	}
-
-	consentKey = k.(*rsa.PrivateKey)
-}
-
-// Parse and verify the challenge JWT
-func getChallengeToken(challengeString string) *jwt.Token {
-	token, err := jwt.Parse(challengeString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return verificationKey, nil
-	})
-
-	if err != nil || !token.Valid {
-		panic(err)
-	}
-
-	return token
-}
-
-// Generate the consent
-func generateConsentToken(challenge *jwt.Token, subject string, scopes []string) string {
-	now := time.Now()
-
-	token := jwt.New(jwt.SigningMethodRS256)
-	token.Claims["aud"] = challenge.Claims["aud"]
-	token.Claims["exp"] = now.Add(time.Minute * 5).Unix()
-	token.Claims["iat"] = now.Unix()
-	token.Claims["scp"] = scopes
-	token.Claims["sub"] = subject
-
-	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString(consentKey)
-	if err != nil {
-		panic(err)
-	}
-
-	return tokenString
-}
-
-// Start serving the consent endpoint
-func run() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := r.ParseForm()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		challengeTokenString := r.Form.Get("challenge")
-		if challengeTokenString == "" {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		challengeToken := getChallengeToken(challengeTokenString)
-
-		consentTokenString := generateConsentToken(challengeToken, "joe@joe", []string{"read", "write"})
-
-		fmt.Printf("Access granted!\n")
-
-		// TODO: Redirect only after checking user's credentials.
-		http.Redirect(w, r, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenString, http.StatusFound)
-	})
-
-	http.ListenAndServe(":3000", nil)
-}
-
 func main() {
 	// Read the configuration file
 	readConfig()
 
-	// Obtain a token from Hydra
-	// and get the http.Client that automatically passes that token to requests
-	loginToHydra()
+	idp := IdP{
+		HydraAddress: os.Getenv("HYDRA_URL"),
+		ClientID:     config.ClientID,
+		ClientSecret: config.ClientSecret,
+		Port:         3000,
+	}
 
-	// Obtain the public key used to verify consent challenge JWT
-	getVerificationKey()
+	err := idp.Connect()
+	if err != nil {
+		panic(err)
+	}
 
-	// Obtain the private key used to sign consents
-	getConsentKey()
-
-	// Start serving the consent endpoint
-	run()
+	idp.Run()
 }
