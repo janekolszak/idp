@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+
+  hydra:
+    container_name: hydra
+    build:
+      context: ./hydra
+    volumes:
+      - hydravolume:/root
+    ports:
+      - "4444:4444"
+    environment:
+      - SYSTEM_SECRET=passwordtutorialpasswordtutorial
+      - CONSENT_URL=http://localhost:3000
+    cpu_quota: 50000
+
+  idp:
+    container_name: idp
+    build:
+      context: ../
+    environment:
+      - HYDRA_URL=https://hydra:4444
+    links:
+      - hydra
+    volumes:
+      - hydravolume:/root
+    ports:
+      - "3000:3000"
+
+volumes:
+  hydravolume:
+    driver: local
