@@ -1,0 +1,32 @@
+hash: 188f2f41b254351f47ded619afdd21001112547f21956bc39690609e66ac55ab
+updated: 2016-06-05T23:33:44.673976475+02:00
+imports:
+- name: github.com/dgrijalva/jwt-go
+  version: 9b486c879bab3fde556ce8c27d9a2bb05d5b2c60
+- name: github.com/golang/protobuf
+  version: 3b06fc7a4cad73efce5fe6217ab6c33e7231ab4a
+  subpackages:
+  - proto
+- name: github.com/mendsley/gojwk
+  version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
+- name: golang.org/x/net
+  version: c4c3ea71919de159c9e246d7be66deb7f0a39a58
+  subpackages:
+  - context
+- name: golang.org/x/oauth2
+  version: c406a4cc4ba462e5dc2f16225c5bd9488f9cbe10
+  subpackages:
+  - clientcredentials
+  - internal
+- name: google.golang.org/appengine
+  version: 7f59a8c76b8594d06044bfe0bcbe475cb2020482
+  subpackages:
+  - urlfetch
+  - internal
+  - internal/urlfetch
+  - internal/base
+  - internal/datastore
+  - internal/remote_api
+- name: gopkg.in/yaml.v2
+  version: a83829b6f1293c91addabc89d0571c246397bbf4
+devImports: []

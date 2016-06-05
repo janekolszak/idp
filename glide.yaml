@@ -1,0 +1,12 @@
+package: .
+version: ""
+import:
+- package: github.com/dgrijalva/jwt-go
+- package: github.com/mendsley/gojwk
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: golang.org/x/oauth2
+  subpackages:
+  - clientcredentials
+- package: gopkg.in/yaml.v2
