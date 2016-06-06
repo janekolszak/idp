@@ -187,7 +187,7 @@ func (idp *IdP) Run() {
 
 		challengeTokenStr := r.Form.Get("challenge")
 		if challengeTokenStr == "" {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "No challenge token", http.StatusBadRequest)
 			return
 		}
 

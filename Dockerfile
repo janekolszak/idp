@@ -7,6 +7,6 @@ RUN go get github.com/Masterminds/glide
 RUN glide install
 RUN go install github.com/janekolszak/idp/idp
 
-ENTRYPOINT /go/bin/idp
+ENTRYPOINT /go/bin/idp -conf /root/.hydra.yml
 
 EXPOSE 4444
