@@ -14,12 +14,21 @@ import (
 	"time"
 )
 
+type CredentialsStore interface {
+	Init() error
+	Check(user string, password string) (bool, error)
+	Close() error
+}
+
 type IdP struct {
 	Port          int    `yaml:"port"`
 	ClientID      string `yaml:"client_id"`
 	ClientSecret  string `yaml:"client_secret"`
 	HydraAddress  string `yaml:"token_endpoint"`
 	TokenEndpoint string `yaml:"token_endpoint"`
+
+	// Checks if a user-password pair is valid
+	CredentialsStore CredentialsStore
 
 	// Http client form communicating with Hydra
 	client *http.Client
@@ -199,6 +208,13 @@ func (idp *IdP) Run() {
 
 		// TODO: Check session cookie if present
 		// TODO: Check credentials if present
+		// TODO: Get the credentials from the form
+		ok, err := idp.CredentialsStore.Check("user", "password")
+		if !ok {
+			// Bad credentials
+			http.Error(w, "Bad Credentials", http.StatusBadRequest)
+			return
+		}
 
 		consentTokenStr, err := idp.generateConsentToken(challengeToken, "joe@joe", []string{"read", "write"})
 		if err != nil {

@@ -53,10 +53,11 @@ func main() {
 	readConfig(*configPath)
 
 	idp := IdP{
-		HydraAddress: *hydraURL,
-		ClientID:     config.ClientID,
-		ClientSecret: config.ClientSecret,
-		Port:         3000,
+		HydraAddress:     *hydraURL,
+		ClientID:         config.ClientID,
+		ClientSecret:     config.ClientSecret,
+		Port:             3000,
+		CredentialsStore: ConstCredentialsStore{Answer: true},
 	}
 
 	err := idp.Connect()
