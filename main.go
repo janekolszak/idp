@@ -1,6 +1,9 @@
 package main
 
 import (
+	"./checkers"
+	"./core"
+
 	"flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
@@ -52,12 +55,12 @@ func main() {
 	// Read the configuration file
 	readConfig(*configPath)
 
-	idp := IdP{
-		HydraAddress:     *hydraURL,
-		ClientID:         config.ClientID,
-		ClientSecret:     config.ClientSecret,
-		Port:             3000,
-		CredentialsStore: ConstCredentialsStore{Answer: true},
+	idp := core.IdP{
+		HydraAddress: *hydraURL,
+		ClientID:     config.ClientID,
+		ClientSecret: config.ClientSecret,
+		Port:         3000,
+		Checker:      checkers.Const{Answer: true},
 	}
 
 	err := idp.Connect()

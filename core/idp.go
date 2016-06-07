@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"crypto/rsa"
@@ -14,12 +14,6 @@ import (
 	"time"
 )
 
-type CredentialsStore interface {
-	Init() error
-	Check(user string, password string) (bool, error)
-	Close() error
-}
-
 type IdP struct {
 	Port          int    `yaml:"port"`
 	ClientID      string `yaml:"client_id"`
@@ -28,7 +22,10 @@ type IdP struct {
 	TokenEndpoint string `yaml:"token_endpoint"`
 
 	// Checks if a user-password pair is valid
-	CredentialsStore CredentialsStore
+	Checker Checker
+
+	// Stores credentials. IdP only initializes and closes the Storage
+	Storage Storage
 
 	// Http client form communicating with Hydra
 	client *http.Client
@@ -209,7 +206,7 @@ func (idp *IdP) Run() {
 		// TODO: Check session cookie if present
 		// TODO: Check credentials if present
 		// TODO: Get the credentials from the form
-		ok, err := idp.CredentialsStore.Check("user", "password")
+		ok, err := idp.Checker.Check(r)
 		if !ok {
 			// Bad credentials
 			http.Error(w, "Bad Credentials", http.StatusBadRequest)
