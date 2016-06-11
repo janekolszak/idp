@@ -9,3 +9,5 @@ install:
 
 script:
   - go build
+  - go test github.com/janekolszak/idp/helpers
+  - go test github.com/janekolszak/idp/providers
