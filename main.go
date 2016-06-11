@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./checkers"
 	"./core"
+	"./providers"
 
 	"flag"
 	"fmt"
@@ -60,7 +60,7 @@ func main() {
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
 		Port:         3000,
-		Checker:      checkers.Const{Answer: true},
+		Provider:     providers.Const{Answer: true},
 	}
 
 	err := idp.Connect()

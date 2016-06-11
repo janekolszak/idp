@@ -22,10 +22,7 @@ type IdP struct {
 	TokenEndpoint string `yaml:"token_endpoint"`
 
 	// Checks if a user-password pair is valid
-	Checker Checker
-
-	// Stores credentials. IdP only initializes and closes the Storage
-	Storage Storage
+	Provider Provider
 
 	// Http client form communicating with Hydra
 	client *http.Client
@@ -206,8 +203,13 @@ func (idp *IdP) Run() {
 		// TODO: Check session cookie if present
 		// TODO: Check credentials if present
 		// TODO: Get the credentials from the form
-		ok, err := idp.Checker.Check(r)
-		if !ok {
+		err = idp.Provider.Check(r)
+		if err != nil {
+			// TODO: Log the real error
+			if err == ErrorAuthenticationFailure {
+				idp.Provider.Respond(w, r)
+				return
+			}
 			// Bad credentials
 			http.Error(w, "Bad Credentials", http.StatusBadRequest)
 			return
