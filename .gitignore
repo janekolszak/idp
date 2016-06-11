@@ -24,5 +24,5 @@ _testmain.go
 *.prof
 
 .tags
-.tags_sorted_by_file
+.tags_sorted_by_fileit
 idp
