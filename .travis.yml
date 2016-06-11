@@ -8,5 +8,5 @@ install:
   - glide install
 
 script:
-  - go test github.com/janekolszak/idp/helpers
-  - go test github.com/janekolszak/idp/providers
+  - go test ./helpers
+  - go test ./providers
