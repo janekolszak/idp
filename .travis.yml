@@ -8,5 +8,4 @@ install:
   - glide install
 
 script:
-  - go test ./helpers
-  - go test ./providers
+  - go build
