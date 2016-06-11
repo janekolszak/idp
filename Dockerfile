@@ -5,7 +5,7 @@ WORKDIR /go/src/github.com/janekolszak/idp
 
 RUN go get github.com/Masterminds/glide
 RUN glide install
-RUN go install github.com/janekolszak/idp/idp
+RUN go install github.com/janekolszak/idp
 
 ENTRYPOINT /go/bin/idp -conf /root/.hydra.yml
 

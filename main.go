@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./core"
-	"./providers"
+	"github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/providers"
 
 	"flag"
 	"fmt"

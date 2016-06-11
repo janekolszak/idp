@@ -1,8 +1,16 @@
-package: .
+package: github.com/janekolszak/idp
 version: ""
 import:
 - package: github.com/dgrijalva/jwt-go
+- package: github.com/janekolszak/idp
+  subpackages:
+  - core
+  - helpers
+  - providers
 - package: github.com/mendsley/gojwk
+- package: golang.org/x/crypto
+  subpackages:
+  - bcrypt
 - package: golang.org/x/net
   subpackages:
   - context

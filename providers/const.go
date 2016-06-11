@@ -1,7 +1,7 @@
 package providers
 
 import (
-	"../core"
+	"github.com/janekolszak/idp/core"
 	"net/http"
 )
 

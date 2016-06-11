@@ -1,9 +1,9 @@
 package helpers
 
 import (
-	"../core"
 	"bufio"
 	"encoding/csv"
+	"github.com/janekolszak/idp/core"
 	"io"
 	"os"
 )

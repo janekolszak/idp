@@ -1,8 +1,8 @@
 package providers
 
 import (
-	"../core"
-	"../helpers"
+	"github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/helpers"
 
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
