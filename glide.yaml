@@ -1,6 +1,7 @@
 package: github.com/janekolszak/idp
 version: ""
 import:
+- package: github.com/stretchr/testify/assert
 - package: github.com/dgrijalva/jwt-go
 - package: github.com/janekolszak/idp
   subpackages:

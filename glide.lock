@@ -1,14 +1,29 @@
-hash: 0dcb32ecf6fee6446026d6f596069b6bd7059f8d4344379183ac6667052c5869
-updated: 2016-06-11T20:53:16.685053901+02:00
+hash: 6f0035428c0596e1bfb3e7f724efce334dfa807079124f7baf0984759bd0ae94
+updated: 2016-06-11T22:23:16.067984905+02:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: c04502f106d7c5b3fae17c5da49a1bbdd3006b3c
+- name: github.com/golang/protobuf
+  version: 8616e8ee5e20a1704615e6c8d7afcdac06087a67
+  subpackages:
+  - proto
+- name: github.com/janekolszak/idp
+  version: ef0fd8e9697877b21bb4f20dae02df4d9b48dad8
+  subpackages:
+  - core
+  - providers
+  - helpers
 - name: github.com/mendsley/gojwk
   version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
+- name: github.com/stretchr/testify
+  version: 8d64eb7173c7753d6419fd4a9caf057398611364
+  subpackages:
+  - assert
 - name: golang.org/x/crypto
   version: 77f4136a99ffb5ecdbdd0226bd5cb146cf56bc0e
   subpackages:
   - bcrypt
+  - blowfish
 - name: golang.org/x/net
   version: 3f122ce3dbbe488b7e6a8bdb26f41edec852a40b
   subpackages:
@@ -17,6 +32,16 @@ imports:
   version: 65a8d08c6292395d47053be10b3c5e91960def76
   subpackages:
   - clientcredentials
+  - internal
+- name: google.golang.org/appengine
+  version: 7f59a8c76b8594d06044bfe0bcbe475cb2020482
+  subpackages:
+  - urlfetch
+  - internal
+  - internal/urlfetch
+  - internal/base
+  - internal/datastore
+  - internal/remote_api
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
 devImports: []
