@@ -40,7 +40,7 @@ func (c BasicAuth) Check(r *http.Request) error {
 	if err != nil {
 		// Prevent timing attack
 		bcrypt.CompareHashAndPassword([]byte{}, []byte(pass))
-		return err
+		return core.ErrorAuthenticationFailure
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))

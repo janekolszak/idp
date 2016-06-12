@@ -182,8 +182,10 @@ func (idp *IdP) generateConsentToken(challenge *jwt.Token, subject string, scope
 // Start serving the consent endpoint
 func (idp *IdP) Run() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("New request")
 		err := r.ParseForm()
 		if err != nil {
+			fmt.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -194,12 +196,15 @@ func (idp *IdP) Run() {
 			return
 		}
 
+		fmt.Println("New request")
 		challengeToken, err := idp.getChallengeToken(challengeTokenStr)
 		if err != nil {
+			fmt.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
+		fmt.Printf("Checking!\n")
 		// TODO: Check session cookie if present
 		// TODO: Check credentials if present
 		// TODO: Get the credentials from the form
@@ -207,10 +212,12 @@ func (idp *IdP) Run() {
 		if err != nil {
 			// TODO: Log the real error
 			if err == ErrorAuthenticationFailure {
+				fmt.Printf("Authentication Failure, responding!\n")
 				idp.Provider.Respond(w, r)
 				return
 			}
 			// Bad credentials
+			fmt.Println(err.Error())
 			http.Error(w, "Bad Credentials", http.StatusBadRequest)
 			return
 		}
