@@ -210,6 +210,7 @@ func (idp *IdP) Run() {
 		// TODO: Get the credentials from the form
 		err = idp.Provider.Check(r)
 		if err != nil {
+			fmt.Println(err.Error())
 			// TODO: Log the real error
 			if err == ErrorAuthenticationFailure {
 				fmt.Printf("Authentication Failure, responding!\n")

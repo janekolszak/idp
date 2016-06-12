@@ -33,7 +33,7 @@ func NewBasicAuth(htpasswdFileName string, realm string) (*BasicAuth, error) {
 func (c BasicAuth) Check(r *http.Request) error {
 	user, pass, ok := r.BasicAuth()
 	if !ok {
-		return fmt.Errorf("Bad Basic Auth format")
+		return core.ErrorAuthenticationFailure
 	}
 
 	hash, err := c.Htpasswd.Get(user)
