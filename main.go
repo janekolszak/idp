@@ -2,27 +2,18 @@ package main
 
 import (
 	"github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers"
 
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"github.com/julienschmidt/httprouter"
+	"net/http"
 )
-
-// Structure of the .hydra.yml file shared with Hydra via a volume
-type Config struct {
-	Port         int    `yaml:"port"`
-	Issuer       string `yaml:"issuer"`
-	ConsentURL   string `yaml:"consent_url"`
-	ClusterURL   string `yaml:"cluster_url"`
-	ClientID     string `yaml:"client_id"`
-	ClientSecret string `yaml:"client_secret"`
-}
 
 var (
 	// Configuration file
-	config Config
+	config *helpers.HydraConfig
 
 	// Command line options
 	// clientID     = flag.String("id", "dupa", "OAuth2 client ID of the IdP")
@@ -32,16 +23,9 @@ var (
 	htpasswdPath = flag.String("htpasswd", "/etc/idp/htpasswd", "Path to credentials in htpasswd format")
 )
 
-// IdP has its credentials preconfigured by Hydra.
-// This function parses the yaml file with that information
-func readConfig(path string) {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		panic(err)
+func Handler(h http.HandlerFunc) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		h.ServeHTTP(w, r)
 	}
 }
 
@@ -50,7 +34,7 @@ func main() {
 
 	flag.Parse()
 	// Read the configuration file
-	readConfig(*configPath)
+	config = helpers.NewHydraConfig(*configPath)
 
 	// Setup the provider
 	provider, err := providers.NewBasicAuth(*htpasswdPath, "localhost")
@@ -71,5 +55,9 @@ func main() {
 		panic(err)
 	}
 
-	idp.Run()
+	router := httprouter.New()
+	router.GET("/", Handler(idp.GetConsentGET()))
+	router.POST("/", Handler(idp.GetConsentPOST()))
+	http.ListenAndServe(":3000", router)
+
 }

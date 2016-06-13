@@ -179,9 +179,14 @@ func (idp *IdP) generateConsentToken(challenge *jwt.Token, subject string, scope
 	return tokenString, err
 }
 
-// Start serving the consent endpoint
-func (idp *IdP) Run() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+func (idp *IdP) GetConsentGET() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idp.Provider.Respond(w, r)
+	})
+}
+
+func (idp *IdP) GetConsentPOST() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("New request")
 		err := r.ParseForm()
 		if err != nil {
@@ -234,6 +239,4 @@ func (idp *IdP) Run() {
 		// TODO: Redirect only after checking user's credentials.
 		http.Redirect(w, r, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenStr, http.StatusFound)
 	})
-
-	http.ListenAndServe(":3000", nil)
 }
