@@ -1,8 +1,8 @@
 package: github.com/janekolszak/idp
 version: ""
 import:
-- package: github.com/stretchr/testify/assert
 - package: github.com/dgrijalva/jwt-go
+- package: github.com/julienschmidt/httprouter
 - package: github.com/mendsley/gojwk
 - package: golang.org/x/crypto
   subpackages:

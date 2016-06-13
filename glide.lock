@@ -1,14 +1,12 @@
-hash: 6f0035428c0596e1bfb3e7f724efce334dfa807079124f7baf0984759bd0ae94
-updated: 2016-06-13T00:59:05.186672194+02:00
+hash: fc5abc6c91c88f86d14351381bbec318c240ab5f2b3c09237d8a0504b2771092
+updated: 2016-06-13T22:47:46.403573159+02:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: c04502f106d7c5b3fae17c5da49a1bbdd3006b3c
+- name: github.com/julienschmidt/httprouter
+  version: 77366a47451a56bb3ba682481eed85b64fea14e8
 - name: github.com/mendsley/gojwk
   version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
-- name: github.com/stretchr/testify
-  version: 8d64eb7173c7753d6419fd4a9caf057398611364
-  subpackages:
-  - assert
 - name: golang.org/x/crypto
   version: f3241ce8505855877cc8a9717bd61a0f7c4ea83c
   subpackages:
