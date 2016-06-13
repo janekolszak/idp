@@ -1,4 +1,4 @@
-# Identity Provider (IdP) for Hydra
+# Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp)
 
 Under development
 
