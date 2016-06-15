@@ -1,8 +1,10 @@
-hash: fc5abc6c91c88f86d14351381bbec318c240ab5f2b3c09237d8a0504b2771092
-updated: 2016-06-13T22:47:46.403573159+02:00
+hash: 80a7c0d75f166e13f5b60f87127c98af5b0b590c4a9fc3dcf77c3eaf150ddeab
+updated: 2016-06-15T22:18:46.09180027+02:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: c04502f106d7c5b3fae17c5da49a1bbdd3006b3c
+- name: github.com/gorilla/sessions
+  version: 56ba4b0a11da87516629a57408a5f7e4c8ea7b0b
 - name: github.com/julienschmidt/httprouter
   version: 77366a47451a56bb3ba682481eed85b64fea14e8
 - name: github.com/mendsley/gojwk
