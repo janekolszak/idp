@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/sessions"
 	"github.com/mendsley/gojwk"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -14,15 +15,27 @@ import (
 	"time"
 )
 
+var encryptionkey = "something-very-secret"
+
+var store = sessions.NewCookieStore([]byte(encryptionkey))
+
+func init() {
+
+	store.Options = &sessions.Options{
+		// change domain to match your machine. Can be localhost
+		Domain:   "localhost",
+		Path:     "/",
+		MaxAge:   3600 * 3, // 3 hours
+		HttpOnly: true,
+	}
+}
+
 type IdP struct {
 	Port          int    `yaml:"port"`
 	ClientID      string `yaml:"client_id"`
 	ClientSecret  string `yaml:"client_secret"`
 	HydraAddress  string `yaml:"token_endpoint"`
 	TokenEndpoint string `yaml:"token_endpoint"`
-
-	// Checks if a user-password pair is valid
-	Provider Provider
 
 	// Http client form communicating with Hydra
 	client *http.Client
@@ -145,6 +158,10 @@ func (idp *IdP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
+		if idp == nil {
+			fmt.Println("DUPA")
+		}
+
 		return idp.verificationKey, nil
 	})
 
@@ -159,16 +176,44 @@ func (idp *IdP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 	return token, nil
 }
 
+func (idp *IdP) NewChallenge(r *http.Request) (*Challenge, error) {
+	err := r.ParseForm()
+	if err != nil {
+		return nil, ErrorBadRequest
+	}
+
+	tokenStr := r.Form.Get("challenge")
+	if tokenStr == "" {
+		// No challenge token
+		return nil, ErrorBadRequest
+	}
+
+	token, err := idp.getChallengeToken(tokenStr)
+	if err != nil {
+		return nil, ErrorBadChallengeToken
+	}
+
+	fmt.Printf("%s", token)
+
+	challenge := new(Challenge)
+	challenge.token = token
+	challenge.consentKey = idp.consentKey
+	challenge.TokenStr = tokenStr
+
+	return challenge, nil
+}
+
 // Generate the consent
 func (idp *IdP) generateConsentToken(challenge *jwt.Token, subject string, scopes []string) (string, error) {
 	now := time.Now()
 
 	token := jwt.New(jwt.SigningMethodRS256)
-	token.Claims["aud"] = challenge.Claims["aud"]
-	token.Claims["exp"] = now.Add(time.Minute * 5).Unix()
-	token.Claims["iat"] = now.Unix()
-	token.Claims["scp"] = scopes
-	token.Claims["sub"] = subject
+	claims := token.Claims.(jwt.MapClaims)
+	claims["aud"] = challenge.Claims.(jwt.MapClaims)["aud"]
+	claims["exp"] = now.Add(time.Minute * 5).Unix()
+	claims["iat"] = now.Unix()
+	claims["scp"] = scopes
+	claims["sub"] = subject
 
 	// Sign and get the complete encoded token as a string
 	tokenString, err := token.SignedString(idp.consentKey)
@@ -179,64 +224,59 @@ func (idp *IdP) generateConsentToken(challenge *jwt.Token, subject string, scope
 	return tokenString, err
 }
 
-func (idp *IdP) GetConsentGET() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		idp.Provider.Respond(w, r)
-	})
+func (idp *IdP) Close() {
+	fmt.Println("IdP closed")
+	idp.client = nil
+	idp.verificationKey = nil
+	idp.consentKey = nil
 }
 
-func (idp *IdP) GetConsentPOST() http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("New request")
-		err := r.ParseForm()
-		if err != nil {
-			fmt.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+// func (idp *IdP) GetConsentPOST() http.HandlerFunc {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		fmt.Println("New request")
 
-		challengeTokenStr := r.Form.Get("challenge")
-		if challengeTokenStr == "" {
-			http.Error(w, "No challenge token", http.StatusBadRequest)
-			return
-		}
+// 		session, _ := store.Get(r, "your-session-name")
 
-		fmt.Println("New request")
-		challengeToken, err := idp.getChallengeToken(challengeTokenStr)
-		if err != nil {
-			fmt.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+// 		// set some session values.
+// 		session.Values["banana"] = "yes"
+// 		session.Values[108] = 801
+// 		session.Values["username"] = "extract from twitter"
 
-		fmt.Printf("Checking!\n")
-		// TODO: Check session cookie if present
-		// TODO: Check credentials if present
-		// TODO: Get the credentials from the form
-		err = idp.Provider.Check(r)
-		if err != nil {
-			fmt.Println(err.Error())
-			// TODO: Log the real error
-			if err == ErrorAuthenticationFailure {
-				fmt.Printf("Authentication Failure, responding!\n")
-				idp.Provider.Respond(w, r)
-				return
-			}
-			// Bad credentials
-			fmt.Println(err.Error())
-			http.Error(w, "Bad Credentials", http.StatusBadRequest)
-			return
-		}
+// 		// Save
+// 		err := session.Save(r, w)
+// 		if err != nil {
+// 			fmt.Println("Session not saved!", err)
+// 		}
+// 		///
 
-		consentTokenStr, err := idp.generateConsentToken(challengeToken, "joe@joe", []string{"read", "write"})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+// 		fmt.Printf("Checking!\n")
+// 		// TODO: Check session cookie if present
+// 		// TODO: Check credentials if present
+// 		// TODO: Get the credentials from the form
+// 		err = idp.Provider.Check(r)
+// 		if err != nil {
+// 			fmt.Println(err.Error())
+// 			// TODO: Log the real error
+// 			if err == ErrorAuthenticationFailure {
+// 				fmt.Printf("Authentication Failure, responding!\n")
+// 				idp.Provider.Respond(w, r)
+// 				return
+// 			}
+// 			// Bad credentials
+// 			fmt.Println(err.Error())
+// 			http.Error(w, "Bad Credentials", http.StatusBadRequest)
+// 			return
+// 		}
 
-		fmt.Printf("Access granted!\n")
+// 		consentTokenStr, err := idp.generateConsentToken(challengeToken, "joe@joe", []string{"read", "write"})
+// 		if err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
 
-		// TODO: Redirect only after checking user's credentials.
-		http.Redirect(w, r, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenStr, http.StatusFound)
-	})
-}
+// 		fmt.Printf("Access granted!\n")
+
+// 		// TODO: Redirect only after checking user's credentials.
+// 		// http.Redirect(w, r, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenStr, http.StatusFound)
+// 	})
+// }

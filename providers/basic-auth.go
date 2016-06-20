@@ -12,30 +12,30 @@ import (
 // Basic Authentication checker.
 // Expects Storage to return plain text passwords
 type BasicAuth struct {
-	Htpasswd *helpers.Htpasswd
+	Htpasswd helpers.Htpasswd
 	Realm    string
 }
 
 func NewBasicAuth(htpasswdFileName string, realm string) (*BasicAuth, error) {
 	b := new(BasicAuth)
 
-	h, err := helpers.NewHtpasswd(htpasswdFileName)
+	err := b.Htpasswd.Load(htpasswdFileName)
 	if err != nil {
 		return nil, err
 	}
 
-	b.Htpasswd = h
 	b.Realm = realm
 
 	return b, nil
 }
 
-func (c BasicAuth) Check(r *http.Request) error {
+func (c *BasicAuth) Check(r *http.Request) error {
 	user, pass, ok := r.BasicAuth()
 	if !ok {
 		return core.ErrorAuthenticationFailure
 	}
 
+	fmt.Println(user)
 	hash, err := c.Htpasswd.Get(user)
 	if err != nil {
 		// Prevent timing attack
@@ -51,8 +51,8 @@ func (c BasicAuth) Check(r *http.Request) error {
 	return nil
 }
 
-func (c BasicAuth) Respond(w http.ResponseWriter, r *http.Request) error {
-	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm=%q`, c.Realm))
+func (c *BasicAuth) Respond(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm=%q`, "localhost"))
 	http.Error(w, "authorization failed", http.StatusUnauthorized)
 	return nil
 }

@@ -3,17 +3,20 @@ package helpers
 import (
 	"bufio"
 	"encoding/csv"
+	"fmt"
 	"github.com/janekolszak/idp/core"
 	"io"
 	"os"
+	"sync"
 )
 
 // TODO: Reload data if file changed
 type Htpasswd struct {
 	Hashes map[string]string
+	mtx    sync.RWMutex
 }
 
-func (h *Htpasswd) load(filename string) error {
+func (h *Htpasswd) Load(filename string) error {
 	f, err := os.OpenFile(filename, os.O_RDONLY, os.ModeExclusive)
 	if err != nil {
 		return err
@@ -26,6 +29,9 @@ func (h *Htpasswd) load(filename string) error {
 	r.TrimLeadingSpace = true
 	r.FieldsPerRecord = 2
 
+	h.mtx.Lock()
+	defer h.mtx.Unlock()
+
 	h.Hashes = make(map[string]string)
 	for {
 		fields, err := r.Read()
@@ -37,25 +43,22 @@ func (h *Htpasswd) load(filename string) error {
 			return err
 		}
 
+		fmt.Printf("%s %s\n", fields[0], fields[1])
 		h.Hashes[fields[0]] = fields[1]
 	}
 }
 
-func NewHtpasswd(filename string) (*Htpasswd, error) {
-	h := new(Htpasswd)
-
-	err := h.load(filename)
-	if err != nil {
-		return nil, err
-	}
-	return h, nil
-}
-
 func (h *Htpasswd) Get(user string) (string, error) {
+	h.mtx.RLock()
+	defer h.mtx.RUnlock()
+
 	hash, ok := h.Hashes[user]
 	if !ok {
+		fmt.Println("No user")
 		return "", core.ErrorNoSuchUser
 	}
+
+	fmt.Printf("%s %s\n", user, hash)
 
 	return hash, nil
 }

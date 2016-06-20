@@ -27,7 +27,7 @@ func TestCheck(t *testing.T) {
 	assert.Nil(err)
 
 	// Create the provider
-	provider, err := NewBasicAuth(testFileName, "example.com")
+	provider, err := MakeBasicAuth(testFileName, "example.com")
 	assert.Nil(err)
 
 	for _, user := range users {
@@ -52,7 +52,7 @@ func TestNoHeader(t *testing.T) {
 	assert.Nil(err)
 
 	// Create the provider
-	provider, err := NewBasicAuth(testFileName, "example.com")
+	provider, err := MakeBasicAuth(testFileName, "example.com")
 	assert.Nil(err)
 
 	r := &http.Request{}
