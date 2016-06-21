@@ -27,7 +27,7 @@ func TestHtpasswd(t *testing.T) {
 	// Load passwords
 	var h Htpasswd
 
-	err := h.Load(testFileName)
+	err = h.Load(testFileName)
 	assert.Nil(err)
 
 	// t.Log("index:", len(h.(map[string]string)))

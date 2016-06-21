@@ -58,7 +58,5 @@ func (h *Htpasswd) Get(user string) (string, error) {
 		return "", core.ErrorNoSuchUser
 	}
 
-	fmt.Printf("%s %s\n", user, hash)
-
 	return hash, nil
 }

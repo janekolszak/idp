@@ -52,7 +52,7 @@ func (c *BasicAuth) Check(r *http.Request) error {
 }
 
 func (c *BasicAuth) Respond(w http.ResponseWriter, r *http.Request) error {
-	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm=%q`, "localhost"))
+	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm=%q`, c.Realm))
 	http.Error(w, "authorization failed", http.StatusUnauthorized)
 	return nil
 }
