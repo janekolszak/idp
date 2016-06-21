@@ -8,6 +8,6 @@ install:
   - glide install
 
 script:
-  - go build
+  - go build github.com/janekolszak/idp/example/idp
   - go test github.com/janekolszak/idp/helpers
   - go test github.com/janekolszak/idp/providers
