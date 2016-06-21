@@ -19,6 +19,7 @@ type Challenge struct {
 
 	// Set in the challenge endpoint, after authenticated
 	User   string
+	Client string
 	Scopes []string
 }
 
