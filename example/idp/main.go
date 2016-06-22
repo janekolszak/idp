@@ -5,7 +5,6 @@ import (
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers"
 
-	"encoding/gob"
 	"flag"
 	"fmt"
 	"github.com/gorilla/sessions"
@@ -69,13 +68,11 @@ func HandleChallengeGET() httprouter.Handle {
 		challenge.Client = "C"
 		challenge.Scopes = []string{"1", "2", "3"}
 
-		session, err := store.Get(r, "challenge")
+		err = challenge.Save(w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			fmt.Println(err.Error())
+			provider.Respond(w, r)
 		}
-		session.AddFlash(challenge)
-		session.Save(r, w)
 
 		http.Redirect(w, r, "/consent?challenge="+challenge.TokenStr, http.StatusFound)
 	}
@@ -83,44 +80,17 @@ func HandleChallengeGET() httprouter.Handle {
 
 func HandleConsentGET() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-
-		// Prepare some data to insert into the template.
-
-		session, err := store.Get(r, "challenge")
+		challenge, err := core.GetChallenge(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		flashes := session.Flashes()
-		if len(flashes) == 0 {
-			// No flash value
-			// TODO: Handle error
-			return
-		}
-
-		data := flashes[0].(core.Challenge)
-		fmt.Println("Data ", data.User)
+		fmt.Println("Data ", challenge.User)
 
 		t := template.Must(template.New("tmpl").Parse(consent))
 
-		t.Execute(w, data)
-
-		// fmt.Println("Consentd!")
-		// TODO: Replace with a cookie
-		// challenge, err := idp.NewChallenge(r)
-		// if err != nil {
-		// 	fmt.Println(err.Error())
-		// 	provider.Respond(w, r)
-		// }
-
-		// err = challenge.GrantAccess(w, r, "joe@joe", []string{"read", "write"})
-		// if err != nil {
-		// 	// Server error
-		// 	fmt.Println(err.Error())
-		// 	provider.Respond(w, r)
-		// 	return
-		// }
+		t.Execute(w, challenge)
 	}
 }
 
@@ -136,9 +106,8 @@ func HandleConsentPOST() httprouter.Handle {
 
 		answer := r.Form.Get("answer")
 		if answer != "y" {
-			fmt.Println("2")
 			// No challenge token
-			return
+			// TODO: Handle negative answer
 		}
 
 		err = challenge.GrantAccess(w, r, "joe@joe", []string{"read", "write"})
@@ -153,8 +122,6 @@ func HandleConsentPOST() httprouter.Handle {
 
 func main() {
 	fmt.Println("Identity Provider started!")
-
-	gob.Register(core.Challenge{})
 
 	flag.Parse()
 	// Read the configuration file

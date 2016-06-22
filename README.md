@@ -36,3 +36,4 @@ hydra token user --skip-tls-verify --no-open
 - Form Provider
 - API for getting keys from Hydra
 - Encrypting cookies
+- Trusted clients that won't trigger asking user to agree upon scopes

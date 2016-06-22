@@ -17,7 +17,7 @@ import (
 
 var encryptionkey = "something-very-secret"
 
-var store = sessions.NewCookieStore([]byte(encryptionkey))
+var store = sessions.NewFilesystemStore("")
 
 func init() {
 
@@ -28,6 +28,7 @@ func init() {
 		MaxAge:   3600 * 3, // 3 hours
 		HttpOnly: true,
 	}
+	store.MaxLength(0)
 }
 
 type IdP struct {
