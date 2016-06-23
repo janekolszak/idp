@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/sessions"
 	"github.com/mendsley/gojwk"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -17,26 +16,29 @@ import (
 
 var encryptionkey = "something-very-secret"
 
-var store = sessions.NewFilesystemStore("")
+// var store = sessions.NewFilesystemStore("")
 
-func init() {
+// func init() {
 
-	store.Options = &sessions.Options{
-		// change domain to match your machine. Can be localhost
-		Domain:   "localhost",
-		Path:     "/",
-		MaxAge:   3600 * 3, // 3 hours
-		HttpOnly: true,
-	}
-	store.MaxLength(0)
-}
+// 	store.Options = &sessions.Options{
+// 		// change domain to match your machine. Can be localhost
+// 		Domain:   "localhost",
+// 		Path:     "/",
+// 		MaxAge:   3600 * 3, // 3 hours
+// 		HttpOnly: true,
+// 	}
+// 	store.MaxLength(0)
+// }
 
-type IdP struct {
+type IDP struct {
 	Port          int    `yaml:"port"`
 	ClientID      string `yaml:"client_id"`
 	ClientSecret  string `yaml:"client_secret"`
 	HydraAddress  string `yaml:"token_endpoint"`
 	TokenEndpoint string `yaml:"token_endpoint"`
+
+	// Storage backend that fullfills gorilla's sessions.Store interface
+	// Store sessions.Store
 
 	// Http client form communicating with Hydra
 	client *http.Client
@@ -48,7 +50,7 @@ type IdP struct {
 }
 
 // Gets the requested key from Hydra
-func (idp *IdP) getKey(set string, kind string) (*gojwk.Key, error) {
+func (idp *IDP) getKey(set string, kind string) (*gojwk.Key, error) {
 	url := idp.HydraAddress + "/keys/" + set + "/" + kind
 
 	resp, err := idp.client.Get(url)
@@ -71,7 +73,7 @@ func (idp *IdP) getKey(set string, kind string) (*gojwk.Key, error) {
 }
 
 // Downloads the hydra's public key
-func (idp *IdP) getVerificationKey() error {
+func (idp *IDP) getVerificationKey() error {
 	jwk, err := idp.getKey("consent.challenge", "public")
 	if err != nil {
 		return err
@@ -88,7 +90,7 @@ func (idp *IdP) getVerificationKey() error {
 }
 
 // Downloads the private key used for signing the consent
-func (idp *IdP) getConsentKey() error {
+func (idp *IDP) getConsentKey() error {
 	jwk, err := idp.getKey("consent.endpoint", "private")
 	if err != nil {
 		return err
@@ -104,7 +106,7 @@ func (idp *IdP) getConsentKey() error {
 	return err
 }
 
-func (idp *IdP) login() error {
+func (idp *IDP) login() error {
 	// Use the credentials to login to Hydra
 	credentials := clientcredentials.Config{
 		ClientID:     idp.ClientID,
@@ -132,7 +134,7 @@ func (idp *IdP) login() error {
 	return nil
 }
 
-func (idp *IdP) Connect() error {
+func (idp *IDP) Connect() error {
 	err := idp.login()
 	if err != nil {
 		return err
@@ -152,7 +154,7 @@ func (idp *IdP) Connect() error {
 }
 
 // Parse and verify the challenge JWT
-func (idp *IdP) getChallengeToken(challengeString string) (*jwt.Token, error) {
+func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(challengeString, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodRSA)
 		if !ok {
@@ -177,7 +179,7 @@ func (idp *IdP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (idp *IdP) NewChallenge(r *http.Request) (*Challenge, error) {
+func (idp *IDP) NewChallenge(r *http.Request) (*Challenge, error) {
 	err := r.ParseForm()
 	if err != nil {
 		return nil, ErrorBadRequest
@@ -205,7 +207,7 @@ func (idp *IdP) NewChallenge(r *http.Request) (*Challenge, error) {
 }
 
 // Generate the consent
-func (idp *IdP) generateConsentToken(challenge *jwt.Token, subject string, scopes []string) (string, error) {
+func (idp *IDP) generateConsentToken(challenge *jwt.Token, subject string, scopes []string) (string, error) {
 	now := time.Now()
 
 	token := jwt.New(jwt.SigningMethodRS256)
@@ -225,59 +227,9 @@ func (idp *IdP) generateConsentToken(challenge *jwt.Token, subject string, scope
 	return tokenString, err
 }
 
-func (idp *IdP) Close() {
-	fmt.Println("IdP closed")
+func (idp *IDP) Close() {
+	fmt.Println("IDP closed")
 	idp.client = nil
 	idp.verificationKey = nil
 	idp.consentKey = nil
 }
-
-// func (idp *IdP) GetConsentPOST() http.HandlerFunc {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Println("New request")
-
-// 		session, _ := store.Get(r, "your-session-name")
-
-// 		// set some session values.
-// 		session.Values["banana"] = "yes"
-// 		session.Values[108] = 801
-// 		session.Values["username"] = "extract from twitter"
-
-// 		// Save
-// 		err := session.Save(r, w)
-// 		if err != nil {
-// 			fmt.Println("Session not saved!", err)
-// 		}
-// 		///
-
-// 		fmt.Printf("Checking!\n")
-// 		// TODO: Check session cookie if present
-// 		// TODO: Check credentials if present
-// 		// TODO: Get the credentials from the form
-// 		err = idp.Provider.Check(r)
-// 		if err != nil {
-// 			fmt.Println(err.Error())
-// 			// TODO: Log the real error
-// 			if err == ErrorAuthenticationFailure {
-// 				fmt.Printf("Authentication Failure, responding!\n")
-// 				idp.Provider.Respond(w, r)
-// 				return
-// 			}
-// 			// Bad credentials
-// 			fmt.Println(err.Error())
-// 			http.Error(w, "Bad Credentials", http.StatusBadRequest)
-// 			return
-// 		}
-
-// 		consentTokenStr, err := idp.generateConsentToken(challengeToken, "joe@joe", []string{"read", "write"})
-// 		if err != nil {
-// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-// 			return
-// 		}
-
-// 		fmt.Printf("Access granted!\n")
-
-// 		// TODO: Redirect only after checking user's credentials.
-// 		// http.Redirect(w, r, challengeToken.Claims["redir"].(string)+"&consent="+consentTokenStr, http.StatusFound)
-// 	})
-// }

@@ -7,7 +7,6 @@ import (
 
 	"flag"
 	"fmt"
-	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"text/template"
@@ -36,8 +35,6 @@ var (
 	idp      core.IdP
 	provider *providers.BasicAuth
 	// mtx      sync.RWMutex
-
-	store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 	// Command line options
 	// clientID     = flag.String("id", "dupa", "OAuth2 client ID of the IdP")
