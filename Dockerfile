@@ -21,4 +21,4 @@ RUN go install github.com/janekolszak/idp/example/idp;
 
 ENTRYPOINT /go/bin/idp -conf /root/.hydra.yml
 
-EXPOSE 4444
+EXPOSE 3000
