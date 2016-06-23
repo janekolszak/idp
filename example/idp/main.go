@@ -7,6 +7,7 @@ import (
 
 	"flag"
 	"fmt"
+	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"text/template"
@@ -32,13 +33,13 @@ const (
 var (
 	// Configuration file
 	config   *helpers.HydraConfig
-	idp      core.IdP
+	idp      *core.IDP
 	provider *providers.BasicAuth
 	// mtx      sync.RWMutex
 
 	// Command line options
-	// clientID     = flag.String("id", "dupa", "OAuth2 client ID of the IdP")
-	// clientSecret = flag.String("secret", "asdf", "OAuth2 client secret")
+	// clientID     = flag.String("id", "someid", "OAuth2 client ID of the IdP")
+	// clientSecret = flag.String("secret", "somesecret", "OAuth2 client secret")
 	hydraURL     = flag.String("hydra", "https://hydra:4444", "Hydra's URL")
 	configPath   = flag.String("conf", ".hydra.yml", "Path to Hydra's configuration")
 	htpasswdPath = flag.String("htpasswd", "/etc/idp/htpasswd", "Path to credentials in htpasswd format")
@@ -122,7 +123,7 @@ func main() {
 
 	flag.Parse()
 	// Read the configuration file
-	config = helpers.NewHydraConfig(*configPath)
+	hydraConfig := helpers.NewHydraConfig(*configPath)
 
 	// Setup the provider
 	var err error
@@ -131,13 +132,14 @@ func main() {
 		panic(err)
 	}
 
-	// Setup Idp
-	idp = core.IdP{
-		HydraAddress: *hydraURL,
-		ClientID:     config.ClientID,
-		ClientSecret: config.ClientSecret,
-		Port:         3000,
+	config := core.IDPConfig{
+		HydraAddress:   *hydraURL,
+		ClientID:       hydraConfig.ClientID,
+		ClientSecret:   hydraConfig.ClientSecret,
+		ChallengeStore: sessions.NewCookieStore([]byte("something-very-secret")),
 	}
+
+	idp = core.NewIDP(&config)
 
 	// Connect with Hydra
 	err = idp.Connect()

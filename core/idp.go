@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/sessions"
 	"github.com/mendsley/gojwk"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -16,32 +17,19 @@ import (
 
 var encryptionkey = "something-very-secret"
 
-// var store = sessions.NewFilesystemStore("")
-
-// func init() {
-
-// 	store.Options = &sessions.Options{
-// 		// change domain to match your machine. Can be localhost
-// 		Domain:   "localhost",
-// 		Path:     "/",
-// 		MaxAge:   3600 * 3, // 3 hours
-// 		HttpOnly: true,
-// 	}
-// 	store.MaxLength(0)
-// }
+type IDPConfig struct {
+	ClientID       string `yaml:"client_id"`
+	ClientSecret   string `yaml:"client_secret"`
+	HydraAddress   string `yaml:"token_endpoint"`
+	ChallengeStore sessions.Store
+}
 
 type IDP struct {
-	Port          int    `yaml:"port"`
-	ClientID      string `yaml:"client_id"`
-	ClientSecret  string `yaml:"client_secret"`
-	HydraAddress  string `yaml:"token_endpoint"`
-	TokenEndpoint string `yaml:"token_endpoint"`
+	config *IDPConfig
 
-	// Storage backend that fullfills gorilla's sessions.Store interface
-	// Store sessions.Store
-
-	// Http client form communicating with Hydra
+	// Http client for communicating with Hydra
 	client *http.Client
+
 	// Key for challenge JWT verification
 	verificationKey *rsa.PublicKey
 
@@ -49,9 +37,18 @@ type IDP struct {
 	consentKey *rsa.PrivateKey
 }
 
+func NewIDP(config *IDPConfig) *IDP {
+	var idp = new(IDP)
+	idp.config = config
+
+	challengeStore = config.ChallengeStore
+
+	return idp
+}
+
 // Gets the requested key from Hydra
 func (idp *IDP) getKey(set string, kind string) (*gojwk.Key, error) {
-	url := idp.HydraAddress + "/keys/" + set + "/" + kind
+	url := idp.config.HydraAddress + "/keys/" + set + "/" + kind
 
 	resp, err := idp.client.Get(url)
 	if err != nil {
@@ -109,9 +106,9 @@ func (idp *IDP) getConsentKey() error {
 func (idp *IDP) login() error {
 	// Use the credentials to login to Hydra
 	credentials := clientcredentials.Config{
-		ClientID:     idp.ClientID,
-		ClientSecret: idp.ClientSecret,
-		TokenURL:     idp.HydraAddress + "/oauth2/token",
+		ClientID:     idp.config.ClientID,
+		ClientSecret: idp.config.ClientSecret,
+		TokenURL:     idp.config.HydraAddress + "/oauth2/token",
 		Scopes:       []string{"core", "hydra.keys.get"},
 	}
 

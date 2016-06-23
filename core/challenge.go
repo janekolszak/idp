@@ -9,16 +9,13 @@ import (
 	"time"
 )
 
-var (
-	// TODO: Move initialization to idp
-	ChallengeStore  = sessions.NewCookieStore([]byte("something-very-secret"))
+const (
 	FlashCookieName = "challenge"
 )
 
-func init() {
-	// Gob is used by gorilla sessions
-	gob.Register(&Challenge{})
-}
+var (
+	challengeStore sessions.Store
+)
 
 type Challenge struct {
 	token      *jwt.Token
@@ -34,8 +31,13 @@ type Challenge struct {
 	Scopes []string
 }
 
+func init() {
+	// Gob is used by gorilla sessions
+	gob.Register(&Challenge{})
+}
+
 func GetChallenge(r *http.Request) (*Challenge, error) {
-	session, err := ChallengeStore.Get(r, FlashCookieName)
+	session, err := challengeStore.Get(r, FlashCookieName)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +57,7 @@ func GetChallenge(r *http.Request) (*Challenge, error) {
 }
 
 func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
-	session, err := ChallengeStore.Get(r, FlashCookieName)
+	session, err := challengeStore.Get(r, FlashCookieName)
 	if err != nil {
 		return err
 	}
