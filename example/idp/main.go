@@ -78,7 +78,7 @@ func HandleChallengeGET() httprouter.Handle {
 
 func HandleConsentGET() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		challenge, err := core.GetChallenge(r)
+		challenge, err := core.GetChallenge(w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -106,6 +106,7 @@ func HandleConsentPOST() httprouter.Handle {
 		if answer != "y" {
 			// No challenge token
 			// TODO: Handle negative answer
+			return
 		}
 
 		err = challenge.GrantAccess(w, r, "joe@joe", []string{"read", "write"})

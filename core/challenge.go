@@ -36,7 +36,7 @@ func init() {
 	gob.Register(&Challenge{})
 }
 
-func GetChallenge(r *http.Request) (*Challenge, error) {
+func GetChallenge(w http.ResponseWriter, r *http.Request) (*Challenge, error) {
 	session, err := challengeStore.Get(r, FlashCookieName)
 	if err != nil {
 		return nil, err
@@ -53,6 +53,12 @@ func GetChallenge(r *http.Request) (*Challenge, error) {
 	}
 
 	var c = flashes[0].(*Challenge)
+
+	err = session.Save(r, w)
+	if err != nil {
+		return nil, err
+	}
+
 	return c, nil
 }
 
