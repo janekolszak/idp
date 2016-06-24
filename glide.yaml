@@ -4,6 +4,7 @@ import:
 - package: github.com/gorilla/sessions
 - package: github.com/julienschmidt/httprouter
 - package: github.com/mendsley/gojwk
+- package: github.com/stretchr/testify
 - package: golang.org/x/crypto
   subpackages:
   - bcrypt
