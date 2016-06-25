@@ -76,3 +76,12 @@ func TestRememberMeGet(t *testing.T) {
 	assert.True(rma.Check(hash))
 	assert.True(rmb.Check(hash))
 }
+
+func TestRememberMeNoCookieGet(t *testing.T) {
+	assert := assert.New(t)
+	r, err := http.NewRequest("GET", "/", nil)
+
+	rm, err := GetRememberMe(r, "remember")
+	assert.Nil(rm)
+	assert.NotNil(err)
+}
