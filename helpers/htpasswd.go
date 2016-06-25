@@ -3,7 +3,6 @@ package helpers
 import (
 	"bufio"
 	"encoding/csv"
-	"fmt"
 	"github.com/janekolszak/idp/core"
 	"io"
 	"os"
@@ -43,7 +42,6 @@ func (h *Htpasswd) Load(filename string) error {
 			return err
 		}
 
-		fmt.Printf("%s %s\n", fields[0], fields[1])
 		h.Hashes[fields[0]] = fields[1]
 	}
 }
@@ -54,7 +52,6 @@ func (h *Htpasswd) Get(user string) (string, error) {
 
 	hash, ok := h.Hashes[user]
 	if !ok {
-		fmt.Println("No user")
 		return "", core.ErrorNoSuchUser
 	}
 
