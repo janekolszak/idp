@@ -30,10 +30,10 @@ hydra token user --skip-tls-verify --no-open
 
 ## TODO:
 - Displaying scopes
-- Remember me cookie
-- Login/Logout/Logoutall endpoint
+- Login/Logout endpoint
 - Digest Auth Provider
 - Form Provider
 - API for getting keys from Hydra
 - Encrypting cookies
 - Trusted clients that won't trigger asking user to agree upon scopes
+

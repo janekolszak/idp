@@ -158,10 +158,6 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		if idp == nil {
-			fmt.Println("DUPA")
-		}
-
 		return idp.verificationKey, nil
 	})
 
@@ -199,6 +195,9 @@ func (idp *IDP) NewChallenge(r *http.Request) (*Challenge, error) {
 	challenge.token = token
 	challenge.consentKey = idp.consentKey
 	challenge.TokenStr = tokenStr
+
+	// claims := token.Claims.(jwt.MapClaims)
+	// fmt.Println(claims)
 
 	return challenge, nil
 }

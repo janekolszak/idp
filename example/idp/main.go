@@ -158,9 +158,11 @@ func main() {
 	}
 
 	config := core.IDPConfig{
-		HydraAddress:   *hydraURL,
-		ClientID:       hydraConfig.ClientID,
-		ClientSecret:   hydraConfig.ClientSecret,
+		HydraAddress: *hydraURL,
+		ClientID:     hydraConfig.ClientID,
+		ClientSecret: hydraConfig.ClientSecret,
+
+		// TODO: Don't use CookieStore here
 		ChallengeStore: sessions.NewCookieStore([]byte("something-very-secret")),
 	}
 
