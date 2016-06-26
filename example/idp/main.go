@@ -4,6 +4,7 @@ import (
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers"
+	"github.com/janekolszak/idp/providers/cookie"
 
 	"flag"
 	"fmt"
@@ -32,10 +33,10 @@ const (
 
 var (
 	// Configuration file
-	config   *helpers.HydraConfig
-	idp      *core.IDP
-	provider *providers.BasicAuth
-	// mtx      sync.RWMutex
+	config         *helpers.HydraConfig
+	idp            *core.IDP
+	provider       *providers.BasicAuth
+	cookieProvider *cookie.CookieAuth
 
 	// Command line options
 	// clientID     = flag.String("id", "someid", "OAuth2 client ID of the IdP")
@@ -43,26 +44,44 @@ var (
 	hydraURL     = flag.String("hydra", "https://hydra:4444", "Hydra's URL")
 	configPath   = flag.String("conf", ".hydra.yml", "Path to Hydra's configuration")
 	htpasswdPath = flag.String("htpasswd", "/etc/idp/htpasswd", "Path to credentials in htpasswd format")
+	cookieDBPath = flag.String("cookie-db", "/etc/idp/remember.db3", "Path to a database with remember me cookies")
 )
 
 func HandleChallengeGET() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Println("Challenge!")
-		err := provider.Check(r)
-		if err != nil {
-			// Authentication failed, or any other error
-			fmt.Println(err.Error())
-			provider.Respond(w, r)
-			return
+
+		user, err := cookieProvider.Check(r)
+		if err == nil {
+			fmt.Println("Authenticated with Cookie")
+		} else {
+			// Can't authenticate with "Remember Me" cookie,
+			// so try with another provider:
+
+			user, err := provider.Check(r)
+			if err != nil {
+				// Authentication failed, or any other error
+				fmt.Println(err.Error())
+				provider.Respond(w, r)
+				return
+			}
+			fmt.Println("Authenticated with Basic Auth")
+
+			// Authentication success, save the "Remember Me" cookie
+			err = cookieProvider.Add(w, r, user)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 
 		challenge, err := idp.NewChallenge(r)
 		if err != nil {
 			fmt.Println(err.Error())
 			provider.Respond(w, r)
+			return
 		}
 
-		challenge.User = "U"
+		challenge.User = user
 		challenge.Client = "C"
 		challenge.Scopes = []string{"1", "2", "3"}
 
@@ -126,9 +145,14 @@ func main() {
 	// Read the configuration file
 	hydraConfig := helpers.NewHydraConfig(*configPath)
 
-	// Setup the provider
+	// Setup the providers
 	var err error
 	provider, err = providers.NewBasicAuth(*htpasswdPath, "localhost")
+	if err != nil {
+		panic(err)
+	}
+
+	cookieProvider, err = cookie.NewCookieAuth(*cookieDBPath)
 	if err != nil {
 		panic(err)
 	}

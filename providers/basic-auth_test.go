@@ -35,12 +35,14 @@ func TestCheck(t *testing.T) {
 		assert.Nil(err)
 
 		r.SetBasicAuth(user, "password")
-		err = provider.Check(r)
+		u, err := provider.Check(r)
 		assert.Nil(err)
+		assert.Equal(u, user)
 
 		r.SetBasicAuth(user, "badpassword")
-		err = provider.Check(r)
+		u, err = provider.Check(r)
 		assert.NotNil(err)
+		assert.Equal(u, "")
 	}
 }
 
@@ -57,7 +59,7 @@ func TestNoHeader(t *testing.T) {
 
 	r := &http.Request{}
 
-	err = provider.Check(r)
+	_, err = provider.Check(r)
 	assert.NotNil(err)
 }
 

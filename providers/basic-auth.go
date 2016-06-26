@@ -29,26 +29,27 @@ func NewBasicAuth(htpasswdFileName string, realm string) (*BasicAuth, error) {
 	return b, nil
 }
 
-func (c *BasicAuth) Check(r *http.Request) error {
+func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 	user, pass, ok := r.BasicAuth()
 	if !ok {
-		return core.ErrorAuthenticationFailure
+		err = core.ErrorAuthenticationFailure
+		return
 	}
 
-	fmt.Println(user)
 	hash, err := c.Htpasswd.Get(user)
 	if err != nil {
 		// Prevent timing attack
 		bcrypt.CompareHashAndPassword([]byte{}, []byte(pass))
-		return core.ErrorAuthenticationFailure
+		err = core.ErrorAuthenticationFailure
+		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
 	if err != nil {
-		return core.ErrorAuthenticationFailure
+		err = core.ErrorAuthenticationFailure
 	}
 
-	return nil
+	return
 }
 
 func (c *BasicAuth) Respond(w http.ResponseWriter, r *http.Request) error {

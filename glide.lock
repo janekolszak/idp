@@ -1,5 +1,5 @@
-hash: 37c13b29e2d192684a9842ed9ff2ac704717dd6c8a17719d73ffcd5dce665bb2
-updated: 2016-06-25T14:32:25.100129509+02:00
+hash: 2546b01acf67d386298db581f131e98492d15c0b1b5b2d270c1ba054d43ef9e8
+updated: 2016-06-26T23:15:21.899845158+02:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: f0777076321ab64f6efc15a82d9d23b98539b943
@@ -15,6 +15,8 @@ imports:
   version: 56ba4b0a11da87516629a57408a5f7e4c8ea7b0b
 - name: github.com/julienschmidt/httprouter
   version: 77366a47451a56bb3ba682481eed85b64fea14e8
+- name: github.com/mattn/go-sqlite3
+  version: 3b3f1d01b2696af5501697c35629048c227586ab
 - name: github.com/mendsley/gojwk
   version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
 - name: github.com/satori/go.uuid
