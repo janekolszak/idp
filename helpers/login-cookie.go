@@ -19,7 +19,7 @@ var (
 	rememberMeStore sessions.Store
 )
 
-type RememberMe struct {
+type LoginCookie struct {
 	cookieName string
 
 	// Selector is assigned by
@@ -29,75 +29,75 @@ type RememberMe struct {
 
 func init() {
 	// Gob is used by gorilla sessions
-	gob.Register(&RememberMe{})
+	gob.Register(&LoginCookie{})
 
 	// TODO: Initialize somewhere else
 	rememberMeStore = sessions.NewCookieStore([]byte("something-very-secret"))
 }
 
-func NewRememberMe(selector string, cookieName string) (*RememberMe, error) {
-	var rm = new(RememberMe)
+func NewLoginCookie(selector string, cookieName string) (*LoginCookie, error) {
+	var l = new(LoginCookie)
 
-	rm.Selector = selector
-	rm.cookieName = cookieName
+	l.Selector = selector
+	l.cookieName = cookieName
 
 	if selector == "" {
 		uniqueID := uuid.NewV1()
-		rm.Selector = uniqueID.String()
+		l.Selector = uniqueID.String()
 	}
 
-	return rm, nil
+	return l, nil
 }
 
-func GetRememberMe(r *http.Request, cookieName string) (*RememberMe, error) {
+func GetLoginCookie(r *http.Request, cookieName string) (*LoginCookie, error) {
 	session, err := rememberMeStore.Get(r, cookieName)
 	if err != nil {
 		return nil, err
 	}
 
-	rm, ok := session.Values["r"].(*RememberMe)
+	l, ok := session.Values["r"].(*LoginCookie)
 	if !ok {
 		return nil, errors.New("Bad remember me cookie format")
 	}
 
-	rm.cookieName = cookieName
+	l.cookieName = cookieName
 
-	return rm, nil
+	return l, nil
 }
 
 // Compute the sha-256
-func (rm *RememberMe) validatorHash() string {
+func (l *LoginCookie) validatorHash() string {
 	hasher := sha1.New()
-	hasher.Write([]byte(rm.Validator))
+	hasher.Write([]byte(l.Validator))
 	return base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 }
 
 // Fills Validator with a new value and return it's sha-256 hash.
 // This hash, together with Selector need to be saved for later comparison.
-func (rm *RememberMe) GenerateValidator() (string, error) {
+func (l *LoginCookie) GenerateValidator() (string, error) {
 	b := make([]byte, rememberMeValidatorLen)
 	_, err := rand.Read(b)
 	if err != nil {
 		return "", err
 	}
 
-	rm.Validator = base64.URLEncoding.EncodeToString(b)
+	l.Validator = base64.URLEncoding.EncodeToString(b)
 
-	return rm.validatorHash(), nil
+	return l.validatorHash(), nil
 }
 
 // Check if Validator value is valid...
-func (rm *RememberMe) Check(value string) bool {
-	return rm.validatorHash() == value
+func (l *LoginCookie) Check(value string) bool {
+	return l.validatorHash() == value
 }
 
-func (rm *RememberMe) Save(w http.ResponseWriter, r *http.Request) error {
-	session, err := rememberMeStore.Get(r, rm.cookieName)
+func (l *LoginCookie) Save(w http.ResponseWriter, r *http.Request) error {
+	session, err := rememberMeStore.Get(r, l.cookieName)
 	if err != nil {
 		return err
 	}
 
-	session.Values["r"] = rm
+	session.Values["r"] = l
 
 	return session.Save(r, w)
 }
