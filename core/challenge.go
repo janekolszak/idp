@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	FlashCookieName = "challenge"
+	SessionCookieName = "challenge"
 )
 
 var (
@@ -21,11 +21,12 @@ type Challenge struct {
 	token      *jwt.Token
 	consentKey *rsa.PrivateKey
 
+	// TODO: Add sessions.Session field
+
 	// TODO: Remove
 	TokenStr string
 
 	// Set in the challenge endpoint, after authenticated.
-	// Those fields will be saved in a flash cookie
 	User   string
 	Client string
 	Scopes []string
@@ -37,22 +38,15 @@ func init() {
 }
 
 func GetChallenge(w http.ResponseWriter, r *http.Request) (*Challenge, error) {
-	session, err := challengeStore.Get(r, FlashCookieName)
+	session, err := challengeStore.Get(r, SessionCookieName)
 	if err != nil {
 		return nil, err
 	}
 
-	flashes := session.Flashes()
-	if len(flashes) != 1 {
-		if len(flashes) == 0 {
-			return nil, ErrorNoChallengeCookie
-		} else {
-			// TODO: Maybe it's possible to handle this case?
-			return nil, ErrorTooMuchChallengeCookies
-		}
+	c, ok := session.Values[SessionCookieName].(*Challenge)
+	if !ok {
+		return nil, ErrorBadChallengeCookie
 	}
-
-	var c = flashes[0].(*Challenge)
 
 	err = session.Save(r, w)
 	if err != nil {
@@ -63,11 +57,11 @@ func GetChallenge(w http.ResponseWriter, r *http.Request) (*Challenge, error) {
 }
 
 func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
-	session, err := challengeStore.Get(r, FlashCookieName)
+	session, err := challengeStore.Get(r, SessionCookieName)
 	if err != nil {
 		return err
 	}
-	session.AddFlash(c)
+	session.Values[SessionCookieName] = c
 	return session.Save(r, w)
 }
 
@@ -87,6 +81,19 @@ func (c *Challenge) GrantAccess(w http.ResponseWriter, r *http.Request, subject 
 
 	// Sign and get the complete encoded token as a string
 	tokenString, err := token.SignedString(c.consentKey)
+	if err != nil {
+		return err
+	}
+
+	// Remove the challenge data from the cookie
+	// TODO: Remove the cookie instead
+	session, err := challengeStore.Get(r, SessionCookieName)
+	if err != nil {
+		return err
+	}
+	delete(session.Values, SessionCookieName)
+	session.Options.MaxAge = -1
+	err = session.Save(r, w)
 	if err != nil {
 		return err
 	}
