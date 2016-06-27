@@ -58,7 +58,7 @@ func HandleChallengeGET() httprouter.Handle {
 			// Can't authenticate with "Remember Me" cookie,
 			// so try with another provider:
 
-			user, err := provider.Check(r)
+			user, err = provider.Check(r)
 			if err != nil {
 				// Authentication failed, or any other error
 				fmt.Println(err.Error())
@@ -67,11 +67,12 @@ func HandleChallengeGET() httprouter.Handle {
 			}
 			fmt.Println("Authenticated with Basic Auth")
 
-			// Authentication success, save the "Remember Me" cookie
-			err = cookieProvider.Add(w, r, user)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
+		}
+
+		// Authentication success, save the "Remember Me" cookie
+		err = cookieProvider.Add(w, r, user)
+		if err != nil {
+			fmt.Println(err.Error())
 		}
 
 		challenge, err := idp.NewChallenge(r)

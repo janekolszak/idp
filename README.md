@@ -1,8 +1,14 @@
 # Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp)
 
-Under development
+**Under development**
 
 If you're looking for an example IdP integration with Hydra - it's [here](https://github.com/janekolszak/hydra-idp-go).
+
+
+## About
+Writing a general, all purpose Identity Provider is beyond me. 
+Instead I want to provide this little playground with different tools that you can use to create your own ideal IdP.
+
 
 ## Running the example:
 #### Console 1:
@@ -17,7 +23,7 @@ Start IdP and browse it's logs
 ``` bash
 cd example
 docker-compose up idp
-```
+``` 
 
 #### Console 3
 Perform some experiments like:
@@ -36,4 +42,3 @@ hydra token user --skip-tls-verify --no-open
 - API for getting keys from Hydra
 - Encrypting cookies
 - Trusted clients that won't trigger asking user to agree upon scopes
-

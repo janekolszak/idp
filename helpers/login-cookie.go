@@ -19,6 +19,7 @@ var (
 	rememberMeStore sessions.Store
 )
 
+// Implementation of https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence#title.2
 type LoginCookie struct {
 	cookieName string
 
