@@ -83,8 +83,6 @@ func HandleChallengeGET() httprouter.Handle {
 		}
 
 		challenge.User = user
-		challenge.Client = "C"
-		challenge.Scopes = []string{"1", "2", "3"}
 
 		err = challenge.Save(w, r)
 		if err != nil {

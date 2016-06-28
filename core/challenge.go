@@ -23,13 +23,16 @@ type Challenge struct {
 
 	// TODO: Add sessions.Session field
 
+	Client   string
+	Expires  time.Time
+	Redirect string
+	Scopes   []string
+
 	// TODO: Remove
 	TokenStr string
 
 	// Set in the challenge endpoint, after authenticated.
-	User   string
-	Client string
-	Scopes []string
+	User string
 }
 
 func init() {

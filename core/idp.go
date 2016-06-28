@@ -189,15 +189,23 @@ func (idp *IDP) NewChallenge(r *http.Request) (*Challenge, error) {
 		return nil, ErrorBadChallengeToken
 	}
 
-	fmt.Printf("%s", token)
-
 	challenge := new(Challenge)
 	challenge.token = token
 	challenge.consentKey = idp.consentKey
 	challenge.TokenStr = tokenStr
 
-	// claims := token.Claims.(jwt.MapClaims)
-	// fmt.Println(claims)
+	claims := token.Claims.(jwt.MapClaims)
+	challenge.Client = claims["aud"].(string)
+	challenge.Redirect = claims["redir"].(string)
+	challenge.Expires = time.Unix(int64(claims["exp"].(float64)), 0)
+	scopes := claims["scp"].([]interface{})
+	challenge.Scopes = make([]string, len(scopes), len(scopes))
+
+	for i, scope := range scopes {
+		challenge.Scopes[i] = scope.(string)
+	}
+
+	fmt.Println(claims)
 
 	return challenge, nil
 }
