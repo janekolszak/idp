@@ -4,11 +4,11 @@
 
 If you're looking for an example IdP integration with Hydra - it's [here](https://github.com/janekolszak/hydra-idp-go).
 
+Let me know if you wan't to take part in the development to speed things up.
 
 ## About
 Writing a general, all purpose Identity Provider is beyond me. 
 Instead I want to provide this little playground with different tools that you can use to create your own ideal IdP.
-
 
 ## Running the example:
 #### Console 1:
@@ -35,10 +35,12 @@ hydra token user --skip-tls-verify --no-open
 ```
 
 ## TODO:
-- Displaying scopes
 - Login/Logout endpoint
 - Digest Auth Provider
-- Form Provider
+- Form Provider (BasicAuth via HTML forms + storage backend)
 - API for getting keys from Hydra
+- Caching Client information
 - Encrypting cookies
 - Trusted clients that won't trigger asking user to agree upon scopes
+- Storage backend for the CookieProvider
+- Register user endpoint
