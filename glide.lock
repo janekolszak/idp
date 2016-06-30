@@ -1,10 +1,10 @@
-hash: 2546b01acf67d386298db581f131e98492d15c0b1b5b2d270c1ba054d43ef9e8
-updated: 2016-06-26T23:15:21.899845158+02:00
+hash: bd06822bcf0e5b9564aad41b5959e7cb41593507e2347d9a6c881b3b7b73c253
+updated: 2016-06-30T22:54:17.961956027+02:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: f0777076321ab64f6efc15a82d9d23b98539b943
 - name: github.com/golang/protobuf
-  version: 0c1f6d65b5a189c2250d10e71a5506f06f9fa0a0
+  version: 3852dcfda249c2097355a6aabb199a28d97b30df
   subpackages:
   - proto
 - name: github.com/gorilla/context
@@ -19,6 +19,8 @@ imports:
   version: 3b3f1d01b2696af5501697c35629048c227586ab
 - name: github.com/mendsley/gojwk
   version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
+- name: github.com/patrickmn/go-cache
+  version: 1881a9bccb818787f68c52bfba648c6cf34c34fa
 - name: github.com/satori/go.uuid
   version: 879c5887cd475cd7864858769793b2ceb0d44feb
 - name: github.com/stretchr/testify
@@ -29,7 +31,7 @@ imports:
   - bcrypt
   - blowfish
 - name: golang.org/x/net
-  version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
+  version: 8e573f4005aa312856df2ea97c32b9beac70dd89
   subpackages:
   - context
 - name: golang.org/x/oauth2
