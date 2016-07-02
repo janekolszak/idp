@@ -44,3 +44,7 @@ hydra token user --skip-tls-verify --no-open
 - Trusted clients that won't trigger asking user to agree upon scopes
 - Storage backend for the CookieProvider
 - Register user endpoint
+- Use hydra's client library
+- Handle expirtion of challenge tokens
+- Handle errors from hydra
+- Pass negative answer to hydra

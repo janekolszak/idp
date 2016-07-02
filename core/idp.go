@@ -43,8 +43,6 @@ func NewIDP(config *IDPConfig) *IDP {
 	var idp = new(IDP)
 	idp.config = config
 
-	challengeStore = config.ChallengeStore
-
 	// TODO: Pass TTL and refresh period from config
 	idp.keyCache = cache.New(5*time.Minute, 30*time.Second)
 	return idp
@@ -176,40 +174,53 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (idp *IDP) NewChallenge(r *http.Request) (*Challenge, error) {
-	err := r.ParseForm()
-	if err != nil {
-		return nil, ErrorBadRequest
-	}
+func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
+	return idp.consentKey, nil
+}
 
-	tokenStr := r.Form.Get("challenge")
+func (idp *IDP) NewChallenge(r *http.Request) (challenge *Challenge, err error) {
+	tokenStr := r.FormValue("challenge")
 	if tokenStr == "" {
 		// No challenge token
-		return nil, ErrorBadRequest
+		err = ErrorBadRequest
+		return
 	}
 
 	token, err := idp.getChallengeToken(tokenStr)
 	if err != nil {
-		return nil, ErrorBadChallengeToken
+		return
 	}
 
-	challenge := new(Challenge)
-	challenge.token = token
-	challenge.consentKey = idp.consentKey
-	challenge.TokenStr = tokenStr
+	challenge = new(Challenge)
+	challenge.idp = idp
 
+	// Get data from the challenge jwt
 	claims := token.Claims.(jwt.MapClaims)
 	challenge.Client = claims["aud"].(string)
 	challenge.Redirect = claims["redir"].(string)
 	challenge.Expires = time.Unix(int64(claims["exp"].(float64)), 0)
+
 	scopes := claims["scp"].([]interface{})
 	challenge.Scopes = make([]string, len(scopes), len(scopes))
-
 	for i, scope := range scopes {
 		challenge.Scopes[i] = scope.(string)
 	}
 
-	fmt.Println(claims)
+	return
+}
+
+func (idp *IDP) GetChallenge(r *http.Request) (*Challenge, error) {
+	session, err := idp.config.ChallengeStore.Get(r, SessionCookieName)
+	if err != nil {
+		return nil, err
+	}
+
+	challenge, ok := session.Values[SessionCookieName].(*Challenge)
+	if !ok {
+		return nil, ErrorBadChallengeCookie
+	}
+
+	challenge.idp = idp
 
 	return challenge, nil
 }

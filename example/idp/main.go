@@ -91,13 +91,13 @@ func HandleChallengeGET() httprouter.Handle {
 			provider.Respond(w, r)
 		}
 
-		http.Redirect(w, r, "/consent?challenge="+challenge.TokenStr, http.StatusFound)
+		http.Redirect(w, r, "/consent", http.StatusFound)
 	}
 }
 
 func HandleConsentGET() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		challenge, err := core.GetChallenge(w, r)
+		challenge, err := idp.GetChallenge(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -115,20 +115,22 @@ func HandleConsentPOST() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 		fmt.Println("Consent POST!")
-		challenge, err := idp.NewChallenge(r)
+		challenge, err := idp.GetChallenge(r)
 		if err != nil {
 			fmt.Println(err.Error())
 			provider.Respond(w, r)
 		}
 
-		answer := r.Form.Get("answer")
+		answer := r.FormValue("answer")
+		fmt.Println("Answer: ", answer)
+
 		if answer != "y" {
 			// No challenge token
 			// TODO: Handle negative answer
 			return
 		}
 
-		err = challenge.GrantAccess(w, r, "joe@joe", []string{"read", "write"})
+		err = challenge.GrantAccessToAll(w, r)
 		if err != nil {
 			// Server error
 			fmt.Println(err.Error())
