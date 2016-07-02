@@ -77,14 +77,12 @@ func HandleChallengeGET() httprouter.Handle {
 			fmt.Println(err.Error())
 		}
 
-		challenge, err := idp.NewChallenge(r)
+		challenge, err := idp.NewChallenge(r, user)
 		if err != nil {
 			fmt.Println(err.Error())
 			provider.Respond(w, r)
 			return
 		}
-
-		challenge.User = user
 
 		err = challenge.Save(w, r)
 		if err != nil {
@@ -186,6 +184,5 @@ func main() {
 	router.POST("/consent", HandleConsentPOST())
 	http.ListenAndServe(":3000", router)
 
-	provider = nil
 	idp.Close()
 }

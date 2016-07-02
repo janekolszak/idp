@@ -230,7 +230,7 @@ func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
 	return key, nil
 }
 
-func (idp *IDP) NewChallenge(r *http.Request) (challenge *Challenge, err error) {
+func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge, err error) {
 	tokenStr := r.FormValue("challenge")
 	if tokenStr == "" {
 		// No challenge token
@@ -240,10 +240,12 @@ func (idp *IDP) NewChallenge(r *http.Request) (challenge *Challenge, err error) 
 
 	token, err := idp.getChallengeToken(tokenStr)
 	if err != nil {
+		// Most probably, token can't be verified or parsed
 		return
 	}
 
 	challenge = new(Challenge)
+	challenge.User = user
 	challenge.idp = idp
 
 	// Get data from the challenge jwt
