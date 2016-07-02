@@ -16,13 +16,20 @@ import (
 	"time"
 )
 
+const (
+	VerifyPublicKey   = "VerifyPublic"
+	ConsentPrivateKey = "ConsentPrivate"
+)
+
 var encryptionkey = "something-very-secret"
 
 type IDPConfig struct {
-	ClientID       string `yaml:"client_id"`
-	ClientSecret   string `yaml:"client_secret"`
-	HydraAddress   string `yaml:"token_endpoint"`
-	ChallengeStore sessions.Store
+	ClientID                string        `yaml:"client_id"`
+	ClientSecret            string        `yaml:"client_secret"`
+	HydraAddress            string        `yaml:"hydra_address"`
+	KeyCacheExpiration      time.Duration `yaml:"key_cache_expiration"`
+	KeyCacheCleanupInterval time.Duration `yaml:"key_cache_cleanup_interval"`
+	ChallengeStore          sessions.Store
 }
 
 type IDP struct {
@@ -31,12 +38,8 @@ type IDP struct {
 	// Http client for communicating with Hydra
 	client *http.Client
 
-	// Key for challenge JWT verification
-	verificationKey *rsa.PublicKey
-
-	// Key for signing the consent JWT
-	consentKey *rsa.PrivateKey
-	keyCache   *cache.Cache
+	// Cache for all private and public keys
+	keyCache *cache.Cache
 }
 
 func NewIDP(config *IDPConfig) *IDP {
@@ -44,8 +47,34 @@ func NewIDP(config *IDPConfig) *IDP {
 	idp.config = config
 
 	// TODO: Pass TTL and refresh period from config
-	idp.keyCache = cache.New(5*time.Minute, 30*time.Second)
+	idp.keyCache = cache.New(config.KeyCacheExpiration, config.KeyCacheCleanupInterval)
+	idp.keyCache.OnEvicted(func(key string, value interface{}) { idp.refreshKeyCache(key) })
+
 	return idp
+}
+
+// Called when key expires
+func (idp *IDP) refreshKeyCache(key string) {
+	switch key {
+	case VerifyPublicKey:
+		verifyKey, err := idp.getVerificationKey()
+		if err != nil {
+			return
+		}
+		idp.keyCache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+		return
+
+	case ConsentPrivateKey:
+		consentKey, err := idp.getConsentKey()
+		if err != nil {
+			return
+		}
+		idp.keyCache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+		return
+
+	default:
+		return
+	}
 }
 
 // Gets the requested key from Hydra
@@ -72,37 +101,33 @@ func (idp *IDP) getKey(set string, kind string) (*gojwk.Key, error) {
 }
 
 // Downloads the hydra's public key
-func (idp *IDP) getVerificationKey() error {
+func (idp *IDP) getVerificationKey() (*rsa.PublicKey, error) {
 	jwk, err := idp.getKey("consent.challenge", "public")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	key, err := jwk.DecodePublicKey()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	idp.verificationKey = key.(*rsa.PublicKey)
-
-	return err
+	return key.(*rsa.PublicKey), err
 }
 
 // Downloads the private key used for signing the consent
-func (idp *IDP) getConsentKey() error {
+func (idp *IDP) getConsentKey() (*rsa.PrivateKey, error) {
 	jwk, err := idp.getKey("consent.endpoint", "private")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	key, err := jwk.DecodePrivateKey()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	idp.consentKey = key.(*rsa.PrivateKey)
-
-	return err
+	return key.(*rsa.PrivateKey), err
 }
 
 func (idp *IDP) login() error {
@@ -139,15 +164,18 @@ func (idp *IDP) Connect() error {
 		return err
 	}
 
-	err = idp.getVerificationKey()
+	verifyKey, err := idp.getVerificationKey()
 	if err != nil {
 		return err
 	}
 
-	err = idp.getConsentKey()
+	consentKey, err := idp.getConsentKey()
 	if err != nil {
 		return err
 	}
+
+	idp.keyCache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+	idp.keyCache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
 
 	return err
 }
@@ -160,7 +188,7 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return idp.verificationKey, nil
+		return idp.GetVerificationKey()
 	})
 
 	if err != nil {
@@ -175,7 +203,31 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 }
 
 func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
-	return idp.consentKey, nil
+	data, ok := idp.keyCache.Get(ConsentPrivateKey)
+	if !ok {
+		return nil, ErrorNoKey
+	}
+
+	key, ok := data.(*rsa.PrivateKey)
+	if !ok {
+		return nil, ErrorBadKey
+	}
+
+	return key, nil
+}
+
+func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
+	data, ok := idp.keyCache.Get(VerifyPublicKey)
+	if !ok {
+		return nil, ErrorNoKey
+	}
+
+	key, ok := data.(*rsa.PublicKey)
+	if !ok {
+		return nil, ErrorBadKey
+	}
+
+	return key, nil
 }
 
 func (idp *IDP) NewChallenge(r *http.Request) (challenge *Challenge, err error) {
@@ -225,30 +277,10 @@ func (idp *IDP) GetChallenge(r *http.Request) (*Challenge, error) {
 	return challenge, nil
 }
 
-// Generate the consent
-func (idp *IDP) generateConsentToken(challenge *jwt.Token, subject string, scopes []string) (string, error) {
-	now := time.Now()
-
-	token := jwt.New(jwt.SigningMethodRS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["aud"] = challenge.Claims.(jwt.MapClaims)["aud"]
-	claims["exp"] = now.Add(time.Minute * 5).Unix()
-	claims["iat"] = now.Unix()
-	claims["scp"] = scopes
-	claims["sub"] = subject
-
-	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString(idp.consentKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, err
-}
-
 func (idp *IDP) Close() {
 	fmt.Println("IDP closed")
 	idp.client = nil
-	idp.verificationKey = nil
-	idp.consentKey = nil
+
+	// Removes all keys from the cache
+	idp.keyCache.Flush()
 }

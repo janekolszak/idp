@@ -12,6 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"text/template"
+	"time"
 )
 
 const (
@@ -160,11 +161,13 @@ func main() {
 	}
 
 	config := core.IDPConfig{
-		HydraAddress: *hydraURL,
-		ClientID:     hydraConfig.ClientID,
-		ClientSecret: hydraConfig.ClientSecret,
+		HydraAddress:            *hydraURL,
+		ClientID:                hydraConfig.ClientID,
+		ClientSecret:            hydraConfig.ClientSecret,
+		KeyCacheExpiration:      10 * time.Minute,
+		KeyCacheCleanupInterval: 30 * time.Second,
 
-		// TODO: Don't use CookieStore here
+		// TODO: [IMPORTANT] Don't use CookieStore here
 		ChallengeStore: sessions.NewCookieStore([]byte("something-very-secret")),
 	}
 

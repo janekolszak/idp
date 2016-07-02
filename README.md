@@ -46,5 +46,7 @@ hydra token user --skip-tls-verify --no-open
 - Register user endpoint
 - Use hydra's client library
 - Handle expirtion of challenge tokens
+- Handle expirtion of remember me cookies
 - Handle errors from hydra
 - Pass negative answer to hydra
+- Parsing configuration file in examples
