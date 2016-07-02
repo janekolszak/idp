@@ -67,8 +67,7 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	// Remove the challenge data from the cookie
-	// TODO: Remove the cookie instead
+	// Remove the cookie
 	session, err := c.idp.config.ChallengeStore.Get(r, SessionCookieName)
 	if err != nil {
 		return err
@@ -78,6 +77,11 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 	err = session.Save(r, w)
 	if err != nil {
 		return err
+	}
+
+	// All this work could have been too long (fetching key might be time consuming)
+	if c.Expires.Before(time.Now()) {
+		return ErrorChallengeExpired
 	}
 
 	http.Redirect(w, r, c.Redirect+"&consent="+tokenString, http.StatusFound)

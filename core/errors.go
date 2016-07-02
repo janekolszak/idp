@@ -11,6 +11,7 @@ var (
 	ErrorBadChallengeToken     = errors.New("bad challenge token format")
 	ErrorNoChallengeCookie     = errors.New("challenge token isn't stored in a cookie")
 	ErrorBadChallengeCookie    = errors.New("bad format of the challenge cookie")
+	ErrorChallengeExpired      = errors.New("bad format of the challenge cookie")
 	ErrorNoKey                 = errors.New("there's no key in the cache")
 	ErrorBadKey                = errors.New("bad key stored in the cache ")
 )

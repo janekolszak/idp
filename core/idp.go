@@ -243,16 +243,22 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 		// Most probably, token can't be verified or parsed
 		return
 	}
+	claims := token.Claims.(jwt.MapClaims)
 
 	challenge = new(Challenge)
-	challenge.User = user
-	challenge.idp = idp
+	challenge.Expires = time.Unix(int64(claims["exp"].(float64)), 0)
+	if challenge.Expires.Before(time.Now()) {
+		challenge = nil
+		err = ErrorChallengeExpired
+		return
+	}
 
 	// Get data from the challenge jwt
-	claims := token.Claims.(jwt.MapClaims)
 	challenge.Client = claims["aud"].(string)
 	challenge.Redirect = claims["redir"].(string)
-	challenge.Expires = time.Unix(int64(claims["exp"].(float64)), 0)
+
+	challenge.User = user
+	challenge.idp = idp
 
 	scopes := claims["scp"].([]interface{})
 	challenge.Scopes = make([]string, len(scopes), len(scopes))
@@ -272,6 +278,10 @@ func (idp *IDP) GetChallenge(r *http.Request) (*Challenge, error) {
 	challenge, ok := session.Values[SessionCookieName].(*Challenge)
 	if !ok {
 		return nil, ErrorBadChallengeCookie
+	}
+
+	if challenge.Expires.Before(time.Now()) {
+		return nil, ErrorChallengeExpired
 	}
 
 	challenge.idp = idp
