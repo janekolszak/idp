@@ -7,6 +7,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"github.com/mendsley/gojwk"
+	"github.com/patrickmn/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -35,6 +36,7 @@ type IDP struct {
 
 	// Key for signing the consent JWT
 	consentKey *rsa.PrivateKey
+	keyCache   *cache.Cache
 }
 
 func NewIDP(config *IDPConfig) *IDP {
@@ -43,6 +45,8 @@ func NewIDP(config *IDPConfig) *IDP {
 
 	challengeStore = config.ChallengeStore
 
+	// TODO: Pass TTL and refresh period from config
+	idp.keyCache = cache.New(5*time.Minute, 30*time.Second)
 	return idp
 }
 
