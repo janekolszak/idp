@@ -1,5 +1,5 @@
-hash: bd06822bcf0e5b9564aad41b5959e7cb41593507e2347d9a6c881b3b7b73c253
-updated: 2016-06-30T22:54:17.961956027+02:00
+hash: d0a269d7e7cf7895b655982fdce2db542b9e6d4994c10080e33b26f4ed222581
+updated: 2016-07-03T23:56:40.584819751+02:00
 imports:
 - name: github.com/dgrijalva/jwt-go
   version: f0777076321ab64f6efc15a82d9d23b98539b943
@@ -19,6 +19,8 @@ imports:
   version: 3b3f1d01b2696af5501697c35629048c227586ab
 - name: github.com/mendsley/gojwk
   version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
+- name: github.com/ory-am/hydra
+  version: c045418860b3f7582b9826e197b0cf5d46c0ff47
 - name: github.com/patrickmn/go-cache
   version: 1881a9bccb818787f68c52bfba648c6cf34c34fa
 - name: github.com/satori/go.uuid
@@ -31,11 +33,11 @@ imports:
   - bcrypt
   - blowfish
 - name: golang.org/x/net
-  version: 8e573f4005aa312856df2ea97c32b9beac70dd89
+  version: b400c2eff1badec7022a8c8f5bea058b6315eed7
   subpackages:
   - context
 - name: golang.org/x/oauth2
-  version: 65a8d08c6292395d47053be10b3c5e91960def76
+  version: df5b72659a3b1789a345ea643bb7c28442681652
   subpackages:
   - clientcredentials
   - internal
