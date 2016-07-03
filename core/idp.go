@@ -19,17 +19,19 @@ import (
 const (
 	VerifyPublicKey   = "VerifyPublic"
 	ConsentPrivateKey = "ConsentPrivate"
+	ClientInfo        = "ClientInfo"
 )
 
 var encryptionkey = "something-very-secret"
 
 type IDPConfig struct {
-	ClientID                string        `yaml:"client_id"`
-	ClientSecret            string        `yaml:"client_secret"`
-	HydraAddress            string        `yaml:"hydra_address"`
-	KeyCacheExpiration      time.Duration `yaml:"key_cache_expiration"`
-	KeyCacheCleanupInterval time.Duration `yaml:"key_cache_cleanup_interval"`
-	ChallengeStore          sessions.Store
+	ClientID              string        `yaml:"client_id"`
+	ClientSecret          string        `yaml:"client_secret"`
+	HydraAddress          string        `yaml:"hydra_address"`
+	KeyCacheExpiration    time.Duration `yaml:"key_cache_expiration"`
+	ClientCacheExpiration time.Duration `yaml:"client_cache_expiration"`
+	CacheCleanupInterval  time.Duration `yaml:"cache_cleanup_interval"`
+	ChallengeStore        sessions.Store
 }
 
 type IDP struct {
@@ -39,7 +41,7 @@ type IDP struct {
 	client *http.Client
 
 	// Cache for all private and public keys
-	keyCache *cache.Cache
+	cache *cache.Cache
 }
 
 func NewIDP(config *IDPConfig) *IDP {
@@ -47,21 +49,21 @@ func NewIDP(config *IDPConfig) *IDP {
 	idp.config = config
 
 	// TODO: Pass TTL and refresh period from config
-	idp.keyCache = cache.New(config.KeyCacheExpiration, config.KeyCacheCleanupInterval)
-	idp.keyCache.OnEvicted(func(key string, value interface{}) { idp.refreshKeyCache(key) })
+	idp.cache = cache.New(config.KeyCacheExpiration, config.CacheCleanupInterval)
+	idp.cache.OnEvicted(func(key string, value interface{}) { idp.refreshCache(key) })
 
 	return idp
 }
 
-// Called when key expires
-func (idp *IDP) refreshKeyCache(key string) {
+// Called when any key expires
+func (idp *IDP) refreshCache(key string) {
 	switch key {
 	case VerifyPublicKey:
 		verifyKey, err := idp.getVerificationKey()
 		if err != nil {
 			return
 		}
-		idp.keyCache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+		idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
 		return
 
 	case ConsentPrivateKey:
@@ -69,7 +71,15 @@ func (idp *IDP) refreshKeyCache(key string) {
 		if err != nil {
 			return
 		}
-		idp.keyCache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+		idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+		return
+
+	case ClientInfo:
+		// consentKey, err := idp.getConsentKey()
+		// if err != nil {
+		// 	return
+		// }
+		// idp.cache.Set(ClientInfo, consentKey, idp.config.ClientCacheExpiration)
 		return
 
 	default:
@@ -174,8 +184,8 @@ func (idp *IDP) Connect() error {
 		return err
 	}
 
-	idp.keyCache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
-	idp.keyCache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+	idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+	idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
 
 	return err
 }
@@ -203,7 +213,7 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 }
 
 func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
-	data, ok := idp.keyCache.Get(ConsentPrivateKey)
+	data, ok := idp.cache.Get(ConsentPrivateKey)
 	if !ok {
 		return nil, ErrorNoKey
 	}
@@ -217,7 +227,7 @@ func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
 }
 
 func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
-	data, ok := idp.keyCache.Get(VerifyPublicKey)
+	data, ok := idp.cache.Get(VerifyPublicKey)
 	if !ok {
 		return nil, ErrorNoKey
 	}
@@ -294,5 +304,5 @@ func (idp *IDP) Close() {
 	idp.client = nil
 
 	// Removes all keys from the cache
-	idp.keyCache.Flush()
+	idp.cache.Flush()
 }
