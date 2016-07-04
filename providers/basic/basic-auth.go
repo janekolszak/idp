@@ -31,6 +31,7 @@ func NewBasicAuth(htpasswdFileName string, realm string) (*BasicAuth, error) {
 func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 	user, pass, ok := r.BasicAuth()
 	if !ok {
+		user = ""
 		err = core.ErrorAuthenticationFailure
 		return
 	}
@@ -39,12 +40,14 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 	if err != nil {
 		// Prevent timing attack
 		bcrypt.CompareHashAndPassword([]byte{}, []byte(pass))
+		user = ""
 		err = core.ErrorAuthenticationFailure
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
 	if err != nil {
+		user = ""
 		err = core.ErrorAuthenticationFailure
 	}
 

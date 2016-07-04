@@ -10,4 +10,5 @@ install:
 script:
   - go build github.com/janekolszak/idp/example/idp
   - go test github.com/janekolszak/idp/helpers
+  - go test github.com/janekolszak/idp/providers/basic
   - go test github.com/janekolszak/idp/providers/cookie
