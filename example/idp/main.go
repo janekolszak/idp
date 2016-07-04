@@ -162,7 +162,7 @@ func main() {
 	}
 
 	config := core.IDPConfig{
-		HydraAddress:          *hydraURL,
+		ClusterURL:            *hydraURL,
 		ClientID:              hydraConfig.ClientID,
 		ClientSecret:          hydraConfig.ClientSecret,
 		KeyCacheExpiration:    10 * time.Minute,

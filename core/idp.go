@@ -7,6 +7,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"github.com/mendsley/gojwk"
+	hydra "github.com/ory-am/hydra/sdk"
 	"github.com/patrickmn/go-cache"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -27,7 +28,7 @@ var encryptionkey = "something-very-secret"
 type IDPConfig struct {
 	ClientID              string        `yaml:"client_id"`
 	ClientSecret          string        `yaml:"client_secret"`
-	HydraAddress          string        `yaml:"hydra_address"`
+	ClusterURL            string        `yaml:"hydra_address"`
 	KeyCacheExpiration    time.Duration `yaml:"key_cache_expiration"`
 	ClientCacheExpiration time.Duration `yaml:"client_cache_expiration"`
 	CacheCleanupInterval  time.Duration `yaml:"cache_cleanup_interval"`
@@ -36,6 +37,9 @@ type IDPConfig struct {
 
 type IDP struct {
 	config *IDPConfig
+
+	// Communication with Hydra
+	hc *hydra.Client
 
 	// Http client for communicating with Hydra
 	client *http.Client
@@ -89,7 +93,7 @@ func (idp *IDP) refreshCache(key string) {
 
 // Gets the requested key from Hydra
 func (idp *IDP) getKey(set string, kind string) (*gojwk.Key, error) {
-	url := idp.config.HydraAddress + "/keys/" + set + "/" + kind
+	url := idp.config.ClusterURL + "/keys/" + set + "/" + kind
 
 	resp, err := idp.client.Get(url)
 	if err != nil {
@@ -145,7 +149,7 @@ func (idp *IDP) login() error {
 	credentials := clientcredentials.Config{
 		ClientID:     idp.config.ClientID,
 		ClientSecret: idp.config.ClientSecret,
-		TokenURL:     idp.config.HydraAddress + "/oauth2/token",
+		TokenURL:     idp.config.ClusterURL + "/oauth2/token",
 		Scopes:       []string{"core", "hydra.keys.get"},
 	}
 
@@ -169,7 +173,14 @@ func (idp *IDP) login() error {
 }
 
 func (idp *IDP) Connect() error {
-	err := idp.login()
+	var err error
+	idp.hc, err = hydra.Connect(
+		hydra.ClientID(idp.config.ClientID),
+		hydra.ClientSecret(idp.config.ClientSecret),
+		hydra.ClusterURL(idp.config.ClusterURL),
+	)
+
+	err = idp.login()
 	if err != nil {
 		return err
 	}
