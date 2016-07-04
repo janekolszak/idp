@@ -1,4 +1,4 @@
-package providers
+package basic
 
 import (
 	"github.com/janekolszak/idp/core"
