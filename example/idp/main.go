@@ -34,7 +34,7 @@ const (
 
 var (
 	idp            *core.IDP
-	provider       *basic.BasicAuth
+	provider       core.Provider
 	cookieProvider *cookie.CookieAuth
 
 	// Command line options
