@@ -4,7 +4,7 @@
 
 If you're looking for an example IdP integration with Hydra - it's [here](https://github.com/janekolszak/hydra-idp-go).
 
-Let me know if you wan't to take part in the development to speed things up.
+Let me know if you wan't to take part in the development to speed things up. Join the conversation on Gitter: [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
 
 ## About
 Writing a general, all purpose Identity Provider is beyond me. 
