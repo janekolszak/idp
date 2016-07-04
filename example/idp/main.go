@@ -33,8 +33,6 @@ const (
 )
 
 var (
-	// Configuration file
-	config         *helpers.HydraConfig
 	idp            *core.IDP
 	provider       *providers.BasicAuth
 	cookieProvider *cookie.CookieAuth
