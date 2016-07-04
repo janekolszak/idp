@@ -32,7 +32,7 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 	user, pass, ok := r.BasicAuth()
 	if !ok {
 		err = core.ErrorAuthenticationFailure
-		return user, err
+		return
 	}
 
 	hash, err := c.Htpasswd.Get(user)
@@ -40,7 +40,7 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 		// Prevent timing attack
 		bcrypt.CompareHashAndPassword([]byte{}, []byte(pass))
 		err = core.ErrorAuthenticationFailure
-		return "", err
+		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
@@ -48,7 +48,7 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 		err = core.ErrorAuthenticationFailure
 	}
 
-	return user, err
+	return
 }
 
 func (c *BasicAuth) Respond(w http.ResponseWriter, r *http.Request) error {
