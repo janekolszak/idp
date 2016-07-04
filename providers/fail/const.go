@@ -1,8 +1,9 @@
-package providers
+package fail
 
 import (
-	"github.com/janekolszak/idp/core"
 	"net/http"
+
+	"github.com/janekolszak/idp/core"
 )
 
 // Well.. at least it's the fastest possible checker implementation..

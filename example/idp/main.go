@@ -1,18 +1,18 @@
 package main
 
 import (
-	"github.com/janekolszak/idp/core"
-	"github.com/janekolszak/idp/helpers"
-	"github.com/janekolszak/idp/providers"
-	"github.com/janekolszak/idp/providers/cookie"
-
 	"flag"
 	"fmt"
-	"github.com/gorilla/sessions"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"text/template"
 	"time"
+
+	"github.com/gorilla/sessions"
+	"github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/helpers"
+	"github.com/janekolszak/idp/providers/basic"
+	"github.com/janekolszak/idp/providers/cookie"
+	"github.com/julienschmidt/httprouter"
 )
 
 const (
@@ -27,16 +27,14 @@ const (
 		<input type="submit" name="answer" value="y">
 		<input type="submit" name="answer" value="n">
 	</form>
-	
+
  	</body></html>
 	`
 )
 
 var (
-	// Configuration file
-	config         *helpers.HydraConfig
 	idp            *core.IDP
-	provider       *providers.BasicAuth
+	provider       core.Provider
 	cookieProvider *cookie.CookieAuth
 
 	// Command line options
@@ -151,7 +149,7 @@ func main() {
 
 	// Setup the providers
 	var err error
-	provider, err = providers.NewBasicAuth(*htpasswdPath, "localhost")
+	provider, err = basic.NewBasicAuth(*htpasswdPath, "localhost")
 	if err != nil {
 		panic(err)
 	}
