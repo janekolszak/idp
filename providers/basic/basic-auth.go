@@ -1,18 +1,17 @@
 package basic
 
 import (
-	"github.com/janekolszak/idp/core"
-	"github.com/janekolszak/idp/helpers"
-
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
+
+	"github.com/janekolszak/idp/core"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Basic Authentication checker.
 // Expects Storage to return plain text passwords
 type BasicAuth struct {
-	Htpasswd helpers.Htpasswd
+	Htpasswd Htpasswd
 	Realm    string
 }
 
