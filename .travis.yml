@@ -8,7 +8,9 @@ install:
   - glide install
 
 script:
-  - go build github.com/janekolszak/idp/example/idp
-  - go test github.com/janekolszak/idp/helpers
-  - go test github.com/janekolszak/idp/providers/basic
-  - go test github.com/janekolszak/idp/providers/cookie
+  - go build ./example/idp
+  - go test ./helpers
+  - go test ./providers/basic
+  - go test ./providers/cookie
+  - go test ./providers/form
+  - go test ./userdb/memory
