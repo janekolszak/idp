@@ -19,7 +19,11 @@ func (p Const) Check(*http.Request) error {
 	return core.ErrorAuthenticationFailure
 }
 
-func (s Const) Respond(w http.ResponseWriter, r *http.Request) error {
+func (s Const) WriteError(w http.ResponseWriter, r *http.Request) error {
 	http.Error(w, "authorization failed", http.StatusUnauthorized)
+	return nil
+}
+
+func (s Const) Write(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
