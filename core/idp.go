@@ -99,7 +99,7 @@ func (idp *IDP) getVerificationKey() (*rsa.PublicKey, error) {
 
 	rsaKey, ok := hjwk.First(jwk.Keys).Key.(*rsa.PublicKey)
 	if !ok {
-		return nil, errors.New("Could not convert to RSA Public Key")
+		return nil, ErrorBadPublicKey
 	}
 
 	return rsaKey, nil
@@ -114,7 +114,7 @@ func (idp *IDP) getConsentKey() (*rsa.PrivateKey, error) {
 
 	rsaKey, ok := hjwk.First(jwk.Keys).Key.(*rsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("Could not convert to RSA Private Key")
+		return nil, ErrorBadPrivateKey
 	}
 
 	return rsaKey, nil
