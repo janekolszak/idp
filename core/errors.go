@@ -16,4 +16,6 @@ var (
 	ErrorNoKey                 = errors.New("there's no key in the cache")
 	ErrorBadKey                = errors.New("bad key stored in the cache ")
 	ErrorInvalidConfig         = errors.New("invalid config")
+	ErrorBadPublicKey          = errors.New("cannot conver to public key")
+	ErrorBadPrivateKey         = errors.New("cannot conver to private key")
 )

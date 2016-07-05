@@ -2,44 +2,47 @@ package core
 
 import (
 	"crypto/rsa"
-	"crypto/tls"
 	"fmt"
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/sessions"
-	"github.com/mendsley/gojwk"
-	"github.com/patrickmn/go-cache"
-	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
-	"io/ioutil"
 	"net/http"
 	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/sessions"
+	hjwk "github.com/ory-am/hydra/jwk"
+	hoauth2 "github.com/ory-am/hydra/oauth2"
+	hydra "github.com/ory-am/hydra/sdk"
+	"github.com/patrickmn/go-cache"
 )
 
 const (
 	VerifyPublicKey   = "VerifyPublic"
 	ConsentPrivateKey = "ConsentPrivate"
+	ClientInfo        = "ClientInfo"
 )
 
 var encryptionkey = "something-very-secret"
 
 type IDPConfig struct {
-	ClientID                string        `yaml:"client_id"`
-	ClientSecret            string        `yaml:"client_secret"`
-	HydraAddress            string        `yaml:"hydra_address"`
-	KeyCacheExpiration      time.Duration `yaml:"key_cache_expiration"`
-	KeyCacheCleanupInterval time.Duration `yaml:"key_cache_cleanup_interval"`
-	ChallengeStore          sessions.Store
+	ClientID              string        `yaml:"client_id"`
+	ClientSecret          string        `yaml:"client_secret"`
+	ClusterURL            string        `yaml:"hydra_address"`
+	KeyCacheExpiration    time.Duration `yaml:"key_cache_expiration"`
+	ClientCacheExpiration time.Duration `yaml:"client_cache_expiration"`
+	CacheCleanupInterval  time.Duration `yaml:"cache_cleanup_interval"`
+	ChallengeStore        sessions.Store
 }
 
 type IDP struct {
 	config *IDPConfig
 
+	// Communication with Hydra
+	hc *hydra.Client
+
 	// Http client for communicating with Hydra
 	client *http.Client
 
 	// Cache for all private and public keys
-	keyCache *cache.Cache
+	cache *cache.Cache
 }
 
 func NewIDP(config *IDPConfig) *IDP {
@@ -47,21 +50,21 @@ func NewIDP(config *IDPConfig) *IDP {
 	idp.config = config
 
 	// TODO: Pass TTL and refresh period from config
-	idp.keyCache = cache.New(config.KeyCacheExpiration, config.KeyCacheCleanupInterval)
-	idp.keyCache.OnEvicted(func(key string, value interface{}) { idp.refreshKeyCache(key) })
+	idp.cache = cache.New(config.KeyCacheExpiration, config.CacheCleanupInterval)
+	idp.cache.OnEvicted(func(key string, value interface{}) { idp.refreshCache(key) })
 
 	return idp
 }
 
-// Called when key expires
-func (idp *IDP) refreshKeyCache(key string) {
+// Called when any key expires
+func (idp *IDP) refreshCache(key string) {
 	switch key {
 	case VerifyPublicKey:
 		verifyKey, err := idp.getVerificationKey()
 		if err != nil {
 			return
 		}
-		idp.keyCache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+		idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
 		return
 
 	case ConsentPrivateKey:
@@ -69,7 +72,15 @@ func (idp *IDP) refreshKeyCache(key string) {
 		if err != nil {
 			return
 		}
-		idp.keyCache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+		idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+		return
+
+	case ClientInfo:
+		// consentKey, err := idp.getConsentKey()
+		// if err != nil {
+		// 	return
+		// }
+		// idp.cache.Set(ClientInfo, consentKey, idp.config.ClientCacheExpiration)
 		return
 
 	default:
@@ -77,89 +88,46 @@ func (idp *IDP) refreshKeyCache(key string) {
 	}
 }
 
-// Gets the requested key from Hydra
-func (idp *IDP) getKey(set string, kind string) (*gojwk.Key, error) {
-	url := idp.config.HydraAddress + "/keys/" + set + "/" + kind
-
-	resp, err := idp.client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	key, err := gojwk.Unmarshal(body)
-	if err != nil {
-		return nil, err
-	}
-
-	return key.Keys[0], nil
-}
-
 // Downloads the hydra's public key
 func (idp *IDP) getVerificationKey() (*rsa.PublicKey, error) {
-	jwk, err := idp.getKey("consent.challenge", "public")
+
+	jwk, err := idp.hc.JWK.GetKey(hoauth2.ConsentChallengeKey, "public")
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := jwk.DecodePublicKey()
-	if err != nil {
-		return nil, err
+	rsaKey, ok := hjwk.First(jwk.Keys).Key.(*rsa.PublicKey)
+	if !ok {
+		return nil, ErrorBadPublicKey
 	}
 
-	return key.(*rsa.PublicKey), err
+	return rsaKey, nil
 }
 
 // Downloads the private key used for signing the consent
 func (idp *IDP) getConsentKey() (*rsa.PrivateKey, error) {
-	jwk, err := idp.getKey("consent.endpoint", "private")
+	jwk, err := idp.hc.JWK.GetKey(hoauth2.ConsentEndpointKey, "private")
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := jwk.DecodePrivateKey()
-	if err != nil {
-		return nil, err
+	rsaKey, ok := hjwk.First(jwk.Keys).Key.(*rsa.PrivateKey)
+	if !ok {
+		return nil, ErrorBadPrivateKey
 	}
 
-	return key.(*rsa.PrivateKey), err
-}
-
-func (idp *IDP) login() error {
-	// Use the credentials to login to Hydra
-	credentials := clientcredentials.Config{
-		ClientID:     idp.config.ClientID,
-		ClientSecret: idp.config.ClientSecret,
-		TokenURL:     idp.config.HydraAddress + "/oauth2/token",
-		Scopes:       []string{"core", "hydra.keys.get"},
-	}
-
-	// Skip verifying the certificate
-	// TODO: Remove when Hydra implements passing key-cert pairs
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	c := &http.Client{Transport: tr}
-	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, c)
-
-	// Prefetch the token - tests the connection``
-	_, err := credentials.Token(ctx)
-	if err != nil {
-		return err
-	}
-
-	idp.client = credentials.Client(ctx)
-
-	return nil
+	return rsaKey, nil
 }
 
 func (idp *IDP) Connect() error {
-	err := idp.login()
+	var err error
+	idp.hc, err = hydra.Connect(
+		hydra.ClientID(idp.config.ClientID),
+		hydra.ClientSecret(idp.config.ClientSecret),
+		hydra.ClusterURL(idp.config.ClusterURL),
+		hydra.SkipTLSVerify(),
+	)
+
 	if err != nil {
 		return err
 	}
@@ -174,8 +142,8 @@ func (idp *IDP) Connect() error {
 		return err
 	}
 
-	idp.keyCache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
-	idp.keyCache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+	idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+	idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
 
 	return err
 }
@@ -203,7 +171,7 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 }
 
 func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
-	data, ok := idp.keyCache.Get(ConsentPrivateKey)
+	data, ok := idp.cache.Get(ConsentPrivateKey)
 	if !ok {
 		return nil, ErrorNoKey
 	}
@@ -217,7 +185,7 @@ func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
 }
 
 func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
-	data, ok := idp.keyCache.Get(VerifyPublicKey)
+	data, ok := idp.cache.Get(VerifyPublicKey)
 	if !ok {
 		return nil, ErrorNoKey
 	}
@@ -294,5 +262,5 @@ func (idp *IDP) Close() {
 	idp.client = nil
 
 	// Removes all keys from the cache
-	idp.keyCache.Flush()
+	idp.cache.Flush()
 }

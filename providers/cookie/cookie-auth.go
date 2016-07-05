@@ -84,7 +84,11 @@ func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
 	return
 }
 
-func (c *CookieAuth) Respond(w http.ResponseWriter, r *http.Request) error {
+func (c *CookieAuth) WriteError(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+func (c *CookieAuth) Write(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 

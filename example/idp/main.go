@@ -62,7 +62,7 @@ func HandleChallengeGET() httprouter.Handle {
 			if err != nil {
 				// Authentication failed, or any other error
 				fmt.Println(err.Error())
-				provider.Respond(w, r)
+				provider.WriteError(w, r)
 				return
 			}
 			fmt.Println("Authenticated with Basic Auth")
@@ -79,14 +79,15 @@ func HandleChallengeGET() httprouter.Handle {
 		challenge, err := idp.NewChallenge(r, user)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
 			return
 		}
 
 		err = challenge.Save(w, r)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
+			return
 		}
 
 		http.Redirect(w, r, "/consent", http.StatusFound)
@@ -116,7 +117,8 @@ func HandleConsentPOST() httprouter.Handle {
 		challenge, err := idp.GetChallenge(r)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
+			return
 		}
 
 		answer := r.FormValue("answer")
@@ -125,6 +127,7 @@ func HandleConsentPOST() httprouter.Handle {
 		if answer != "y" {
 			// No challenge token
 			// TODO: Handle negative answer
+			challenge.RefuseAccess(w, r)
 			return
 		}
 
@@ -132,7 +135,7 @@ func HandleConsentPOST() httprouter.Handle {
 		if err != nil {
 			// Server error
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
 			return
 		}
 	}
@@ -167,11 +170,12 @@ func main() {
 	}
 
 	config := core.IDPConfig{
-		HydraAddress:            *hydraURL,
-		ClientID:                hydraConfig.ClientID,
-		ClientSecret:            hydraConfig.ClientSecret,
-		KeyCacheExpiration:      10 * time.Minute,
-		KeyCacheCleanupInterval: 30 * time.Second,
+		ClusterURL:            *hydraURL,
+		ClientID:              hydraConfig.ClientID,
+		ClientSecret:          hydraConfig.ClientSecret,
+		KeyCacheExpiration:    10 * time.Minute,
+		ClientCacheExpiration: 10 * time.Minute,
+		CacheCleanupInterval:  30 * time.Second,
 
 		// TODO: [IMPORTANT] Don't use CookieStore here
 		ChallengeStore: sessions.NewCookieStore([]byte("something-very-secret")),

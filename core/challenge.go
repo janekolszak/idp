@@ -42,6 +42,10 @@ func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
 	return session.Save(r, w)
 }
 
+func (c *Challenge) RefuseAccess(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, c.Redirect+"&consent=false", http.StatusFound)
+}
+
 func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) error {
 	now := time.Now()
 
@@ -79,7 +83,8 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	// All this work could have been too long (fetching key might be time consuming)
+	// All this work might have taken too long (fetching key may be time consuming)
+	// so check token expiration
 	if c.Expires.Before(time.Now()) {
 		return ErrorChallengeExpired
 	}
