@@ -61,7 +61,7 @@ func HandleChallengeGET() httprouter.Handle {
 			if err != nil {
 				// Authentication failed, or any other error
 				fmt.Println(err.Error())
-				provider.Respond(w, r)
+				provider.WriteError(w, r)
 				return
 			}
 			fmt.Println("Authenticated with Basic Auth")
@@ -78,14 +78,14 @@ func HandleChallengeGET() httprouter.Handle {
 		challenge, err := idp.NewChallenge(r, user)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
 			return
 		}
 
 		err = challenge.Save(w, r)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
 			return
 		}
 
@@ -116,7 +116,7 @@ func HandleConsentPOST() httprouter.Handle {
 		challenge, err := idp.GetChallenge(r)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
 			return
 		}
 
@@ -134,7 +134,7 @@ func HandleConsentPOST() httprouter.Handle {
 		if err != nil {
 			// Server error
 			fmt.Println(err.Error())
-			provider.Respond(w, r)
+			provider.WriteError(w, r)
 			return
 		}
 	}
