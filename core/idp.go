@@ -2,7 +2,6 @@ package core
 
 import (
 	"crypto/rsa"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
