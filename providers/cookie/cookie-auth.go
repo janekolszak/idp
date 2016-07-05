@@ -5,9 +5,10 @@ import (
 	"github.com/janekolszak/idp/helpers"
 
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -84,7 +85,7 @@ func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
 	return
 }
 
-func (c *CookieAuth) WriteError(w http.ResponseWriter, r *http.Request) error {
+func (c *CookieAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {
 	return nil
 }
 

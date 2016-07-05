@@ -8,5 +8,5 @@ import (
 type Provider interface {
 	Check(r *http.Request) (user string, err error)
 	Write(w http.ResponseWriter, r *http.Request) error
-	WriteError(w http.ResponseWriter, r *http.Request) error
+	WriteError(w http.ResponseWriter, r *http.Request, err error) error
 }

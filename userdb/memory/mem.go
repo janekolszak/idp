@@ -78,6 +78,7 @@ func (s *Store) Check(username, password string) error {
 	return nil
 }
 
+// TODO: add complexity requirements
 func (s *Store) Add(username, password string) error {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()

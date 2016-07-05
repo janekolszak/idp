@@ -12,6 +12,7 @@ import (
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/basic"
 	"github.com/janekolszak/idp/providers/cookie"
+	"github.com/janekolszak/idp/providers/form"
 	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/julienschmidt/httprouter"
 )
@@ -31,6 +32,22 @@ const (
 
  	</body></html>
 	`
+
+	loginform = `
+<html>
+<head>
+</head>
+<body>
+<form method="post">
+username <input type="text" name="username"><br>
+password <input type="password" name="password" autocomplete="off"><br>
+<input type="submit">
+<hr>
+{{.}}
+
+<body>
+</html>
+`
 )
 
 var (
@@ -45,6 +62,7 @@ var (
 	configPath   = flag.String("conf", ".hydra.yml", "Path to Hydra's configuration")
 	htpasswdPath = flag.String("htpasswd", "/etc/idp/htpasswd", "Path to credentials in htpasswd format")
 	cookieDBPath = flag.String("cookie-db", "/etc/idp/remember.db3", "Path to a database with remember me cookies")
+	useForm      = flag.Bool("form", false, "use HTML form for authentication")
 )
 
 func HandleChallengeGET() httprouter.Handle {
@@ -62,11 +80,10 @@ func HandleChallengeGET() httprouter.Handle {
 			if err != nil {
 				// Authentication failed, or any other error
 				fmt.Println(err.Error())
-				provider.WriteError(w, r)
+				provider.WriteError(w, r, err)
 				return
 			}
 			fmt.Println("Authenticated with Basic Auth")
-
 		}
 
 		// Authentication success, save the "Remember Me" cookie
@@ -79,14 +96,14 @@ func HandleChallengeGET() httprouter.Handle {
 		challenge, err := idp.NewChallenge(r, user)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.WriteError(w, r)
+			provider.WriteError(w, r, err)
 			return
 		}
 
 		err = challenge.Save(w, r)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.WriteError(w, r)
+			provider.WriteError(w, r, err)
 			return
 		}
 
@@ -117,7 +134,7 @@ func HandleConsentPOST() httprouter.Handle {
 		challenge, err := idp.GetChallenge(r)
 		if err != nil {
 			fmt.Println(err.Error())
-			provider.WriteError(w, r)
+			provider.WriteError(w, r, err)
 			return
 		}
 
@@ -135,7 +152,7 @@ func HandleConsentPOST() httprouter.Handle {
 		if err != nil {
 			// Server error
 			fmt.Println(err.Error())
-			provider.WriteError(w, r)
+			provider.WriteError(w, r, err)
 			return
 		}
 	}
@@ -159,9 +176,21 @@ func main() {
 		panic(err)
 	}
 
-	provider, err = basic.NewBasicAuth(userdb, "localhost")
-	if err != nil {
-		panic(err)
+	if *useForm {
+		provider, err = form.NewFormAuth(form.Config{
+			LoginForm:          loginform,
+			LoginUsernameField: "username",
+			LoginPasswordField: "password",
+			UserStore:          userdb,
+		})
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		provider, err = basic.NewBasicAuth(userdb, "localhost")
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	cookieProvider, err = cookie.NewCookieAuth(*cookieDBPath)

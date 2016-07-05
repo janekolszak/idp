@@ -1,6 +1,7 @@
 package form
 
 import (
+	"html/template"
 	"net/http"
 
 	"github.com/janekolszak/idp/core"
@@ -42,6 +43,22 @@ func (f *FormAuth) Check(r *http.Request) (user string, err error) {
 	return
 }
 
-func (a *FormAuth) Respond(w http.ResponseWriter, r *http.Request) error {
+func (a *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {
+	msg := ""
+	if r.Method == "POST" && err != nil {
+		switch err {
+		case core.ErrorAuthenticationFailure:
+			msg = "Authentication failed"
+
+		default:
+			msg = "An error occurred"
+		}
+	}
+	t := template.Must(template.New("tmpl").Parse(a.LoginForm))
+	t.Execute(w, msg)
+	return nil
+}
+
+func (a *FormAuth) Write(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }

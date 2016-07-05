@@ -84,7 +84,7 @@ func TestRespond(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, err := http.NewRequest("GET", "/", nil)
 
-	err = provider.WriteError(w, r)
+	err = provider.WriteError(w, r, nil)
 	assert.Nil(err)
 	assert.Equal(w.HeaderMap["Www-Authenticate"], []string{`Basic realm="example.com"`}, "Bad header")
 	assert.Equal(w.HeaderMap["Content-Type"], []string{`text/plain; charset=utf-8`}, "Bad header")
