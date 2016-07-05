@@ -1,9 +1,10 @@
-package basic
+package memory
 
 import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/janekolszak/idp/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,6 +19,25 @@ const (
 
 var htpasswdUsers = []string{"user1", "user2", "user3", "user4"}
 
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	s, err := NewMemStore()
+	assert.Nil(err)
+
+	err = s.Check("bob", "")
+	assert.Equal(core.ErrorNoSuchUser, err)
+
+	err = s.Add("bob", "bob123")
+	assert.Nil(err)
+
+	err = s.Check("bob", "")
+	assert.Equal(core.ErrorAuthenticationFailure, err)
+
+	err = s.Check("bob", "bob123")
+	assert.Nil(err)
+}
+
 func TestHtpasswd(t *testing.T) {
 	assert := assert.New(t)
 
@@ -25,16 +45,14 @@ func TestHtpasswd(t *testing.T) {
 	err := ioutil.WriteFile(htpasswdTestFileName, []byte(htpasswdFileContents), 0644)
 	assert.Nil(err)
 
-	// Load passwords
-	var h Htpasswd
+	s, err := NewMemStore()
 
-	err = h.Load(htpasswdTestFileName)
+	// Load passwords
+	err = s.LoadHtpasswd(htpasswdTestFileName)
 	assert.Nil(err)
 
 	// t.Log("index:", len(h.(map[string]string)))
 	for _, user := range htpasswdUsers {
-		hash, err := h.Get(user)
-		assert.Nil(err)
-		assert.Equal(hash, "hash", "Bad password")
+		assert.Equal("hash", s.hashes[user])
 	}
 }

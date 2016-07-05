@@ -12,6 +12,7 @@ import (
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/basic"
 	"github.com/janekolszak/idp/providers/cookie"
+	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -145,8 +146,17 @@ func main() {
 	hydraConfig := helpers.NewHydraConfig(*configPath)
 
 	// Setup the providers
-	var err error
-	provider, err = basic.NewBasicAuth(*htpasswdPath, "localhost")
+	userdb, err := memory.NewMemStore()
+	if err != nil {
+		panic(err)
+	}
+
+	err = userdb.LoadHtpasswd(*htpasswdPath)
+	if err != nil {
+		panic(err)
+	}
+
+	provider, err = basic.NewBasicAuth(userdb, "localhost")
 	if err != nil {
 		panic(err)
 	}

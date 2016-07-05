@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,15 +21,26 @@ const (
 
 var users = []string{"user1", "user2", "user3", "user4"}
 
-func TestCheck(t *testing.T) {
-	assert := assert.New(t)
-
-	// Prepare file
-	err := ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
+func createUsers(assert *assert.Assertions) *memory.Store {
+	userdb, err := memory.NewMemStore()
 	assert.Nil(err)
 
+	// Prepare file
+	err = ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
+	assert.Nil(err)
+
+	err = userdb.LoadHtpasswd(testFileName)
+	assert.Nil(err)
+
+	return userdb
+}
+
+func TestCheck(t *testing.T) {
+	assert := assert.New(t)
+	userdb := createUsers(assert)
+
 	// Create the provider
-	provider, err := NewBasicAuth(testFileName, "example.com")
+	provider, err := NewBasicAuth(userdb, "example.com")
 	assert.Nil(err)
 
 	for _, user := range users {
@@ -49,13 +61,10 @@ func TestCheck(t *testing.T) {
 
 func TestNoHeader(t *testing.T) {
 	assert := assert.New(t)
-
-	// Prepare file
-	err := ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
-	assert.Nil(err)
+	userdb := createUsers(assert)
 
 	// Create the provider
-	provider, err := NewBasicAuth(testFileName, "example.com")
+	provider, err := NewBasicAuth(userdb, "example.com")
 	assert.Nil(err)
 
 	r := &http.Request{}
@@ -66,13 +75,10 @@ func TestNoHeader(t *testing.T) {
 
 func TestRespond(t *testing.T) {
 	assert := assert.New(t)
-
-	// Prepare file
-	err := ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
-	assert.Nil(err)
+	userdb := createUsers(assert)
 
 	// Create the provider
-	provider, err := NewBasicAuth(testFileName, "example.com")
+	provider, err := NewBasicAuth(userdb, "example.com")
 	assert.Nil(err)
 
 	w := httptest.NewRecorder()

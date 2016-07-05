@@ -5,27 +5,22 @@ import (
 	"net/http"
 
 	"github.com/janekolszak/idp/core"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/janekolszak/idp/userdb"
 )
 
 // Basic Authentication checker.
 // Expects Storage to return plain text passwords
 type BasicAuth struct {
-	Htpasswd Htpasswd
-	Realm    string
+	UserStore userdb.Store
+	Realm     string
 }
 
-func NewBasicAuth(htpasswdFileName string, realm string) (*BasicAuth, error) {
-	b := new(BasicAuth)
-
-	err := b.Htpasswd.Load(htpasswdFileName)
-	if err != nil {
-		return nil, err
+func NewBasicAuth(users userdb.Store, realm string) (*BasicAuth, error) {
+	b := BasicAuth{
+		UserStore: users,
+		Realm:     realm,
 	}
-
-	b.Realm = realm
-
-	return b, nil
+	return &b, nil
 }
 
 func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
@@ -36,19 +31,11 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 		return
 	}
 
-	hash, err := c.Htpasswd.Get(user)
+	err = c.UserStore.Check(user, pass)
 	if err != nil {
-		// Prevent timing attack
-		bcrypt.CompareHashAndPassword([]byte{}, []byte(pass))
 		user = ""
 		err = core.ErrorAuthenticationFailure
 		return
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
-	if err != nil {
-		user = ""
-		err = core.ErrorAuthenticationFailure
 	}
 
 	return
