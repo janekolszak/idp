@@ -14,4 +14,6 @@ var (
 	ErrorChallengeExpired      = errors.New("bad format of the challenge cookie")
 	ErrorNoKey                 = errors.New("there's no key in the cache")
 	ErrorBadKey                = errors.New("bad key stored in the cache ")
+	ErrorBadPublicKey          = errors.New("cannot conver to public key")
+	ErrorBadPrivateKey         = errors.New("cannot conver to private key")
 )

@@ -2,19 +2,16 @@ package core
 
 import (
 	"crypto/rsa"
-	"crypto/tls"
 	"fmt"
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/sessions"
-	"github.com/mendsley/gojwk"
-	hydra "github.com/ory-am/hydra/sdk"
-	"github.com/patrickmn/go-cache"
-	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
-	"io/ioutil"
 	"net/http"
 	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/sessions"
+	hjwk "github.com/ory-am/hydra/jwk"
+	hoauth2 "github.com/ory-am/hydra/oauth2"
+	hydra "github.com/ory-am/hydra/sdk"
+	"github.com/patrickmn/go-cache"
 )
 
 const (
@@ -91,85 +88,35 @@ func (idp *IDP) refreshCache(key string) {
 	}
 }
 
-// Gets the requested key from Hydra
-func (idp *IDP) getKey(set string, kind string) (*gojwk.Key, error) {
-	url := idp.config.ClusterURL + "/keys/" + set + "/" + kind
-
-	resp, err := idp.client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	key, err := gojwk.Unmarshal(body)
-	if err != nil {
-		return nil, err
-	}
-
-	return key.Keys[0], nil
-}
-
 // Downloads the hydra's public key
 func (idp *IDP) getVerificationKey() (*rsa.PublicKey, error) {
-	jwk, err := idp.getKey("consent.challenge", "public")
+
+	jwk, err := idp.hc.JWK.GetKey(hoauth2.ConsentChallengeKey, "public")
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := jwk.DecodePublicKey()
-	if err != nil {
-		return nil, err
+	rsaKey, ok := hjwk.First(jwk.Keys).Key.(*rsa.PublicKey)
+	if !ok {
+		return nil, ErrorBadPublicKey
 	}
 
-	return key.(*rsa.PublicKey), err
+	return rsaKey, nil
 }
 
 // Downloads the private key used for signing the consent
 func (idp *IDP) getConsentKey() (*rsa.PrivateKey, error) {
-	jwk, err := idp.getKey("consent.endpoint", "private")
+	jwk, err := idp.hc.JWK.GetKey(hoauth2.ConsentEndpointKey, "private")
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := jwk.DecodePrivateKey()
-	if err != nil {
-		return nil, err
+	rsaKey, ok := hjwk.First(jwk.Keys).Key.(*rsa.PrivateKey)
+	if !ok {
+		return nil, ErrorBadPrivateKey
 	}
 
-	return key.(*rsa.PrivateKey), err
-}
-
-func (idp *IDP) login() error {
-	// Use the credentials to login to Hydra
-	credentials := clientcredentials.Config{
-		ClientID:     idp.config.ClientID,
-		ClientSecret: idp.config.ClientSecret,
-		TokenURL:     idp.config.ClusterURL + "/oauth2/token",
-		Scopes:       []string{"core", "hydra.keys.get"},
-	}
-
-	// Skip verifying the certificate
-	// TODO: Remove when Hydra implements passing key-cert pairs
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	c := &http.Client{Transport: tr}
-	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, c)
-
-	// Prefetch the token - tests the connection``
-	_, err := credentials.Token(ctx)
-	if err != nil {
-		return err
-	}
-
-	idp.client = credentials.Client(ctx)
-
-	return nil
+	return rsaKey, nil
 }
 
 func (idp *IDP) Connect() error {
@@ -178,9 +125,9 @@ func (idp *IDP) Connect() error {
 		hydra.ClientID(idp.config.ClientID),
 		hydra.ClientSecret(idp.config.ClientSecret),
 		hydra.ClusterURL(idp.config.ClusterURL),
+		hydra.SkipTLSVerify(),
 	)
 
-	err = idp.login()
 	if err != nil {
 		return err
 	}
