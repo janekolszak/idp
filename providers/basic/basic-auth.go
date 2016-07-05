@@ -59,3 +59,7 @@ func (c *BasicAuth) WriteError(w http.ResponseWriter, r *http.Request) error {
 	http.Error(w, "authorization failed", http.StatusUnauthorized)
 	return nil
 }
+
+func (c *BasicAuth) Write(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
