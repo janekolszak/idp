@@ -1,4 +1,5 @@
 # Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp)
+[![Coverage Status](https://coveralls.io/repos/github/janekolszak/idp/badge.svg?branch=master)](https://coveralls.io/github/janekolszak/idp?branch=master)
 
 **Under development**
 
