@@ -12,8 +12,6 @@ import (
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/basic"
 	"github.com/janekolszak/idp/providers/cookie"
-	"github.com/janekolszak/idp/providers/form"
-	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -32,22 +30,6 @@ const (
 
  	</body></html>
 	`
-
-	loginform = `
-<html>
-<head>
-</head>
-<body>
-<form method="post">
-username <input type="text" name="username"><br>
-password <input type="password" name="password" autocomplete="off"><br>
-<input type="submit">
-<hr>
-{{.}}
-
-<body>
-</html>
-`
 )
 
 var (
@@ -62,7 +44,6 @@ var (
 	configPath   = flag.String("conf", ".hydra.yml", "Path to Hydra's configuration")
 	htpasswdPath = flag.String("htpasswd", "/etc/idp/htpasswd", "Path to credentials in htpasswd format")
 	cookieDBPath = flag.String("cookie-db", "/etc/idp/remember.db3", "Path to a database with remember me cookies")
-	useForm      = flag.Bool("form", false, "use HTML form for authentication")
 )
 
 func HandleChallengeGET() httprouter.Handle {
@@ -166,31 +147,10 @@ func main() {
 	hydraConfig := helpers.NewHydraConfig(*configPath)
 
 	// Setup the providers
-	userdb, err := memory.NewMemStore()
+	var err error
+	provider, err = basic.NewBasicAuth(*htpasswdPath, "localhost")
 	if err != nil {
 		panic(err)
-	}
-
-	err = userdb.LoadHtpasswd(*htpasswdPath)
-	if err != nil {
-		panic(err)
-	}
-
-	if *useForm {
-		provider, err = form.NewFormAuth(form.Config{
-			LoginForm:          loginform,
-			LoginUsernameField: "username",
-			LoginPasswordField: "password",
-			UserStore:          userdb,
-		})
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		provider, err = basic.NewBasicAuth(userdb, "localhost")
-		if err != nil {
-			panic(err)
-		}
 	}
 
 	cookieProvider, err = cookie.NewCookieAuth(*cookieDBPath)

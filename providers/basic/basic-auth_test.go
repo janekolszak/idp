@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,26 +20,15 @@ const (
 
 var users = []string{"user1", "user2", "user3", "user4"}
 
-func createUsers(assert *assert.Assertions) *memory.Store {
-	userdb, err := memory.NewMemStore()
-	assert.Nil(err)
-
-	// Prepare file
-	err = ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
-	assert.Nil(err)
-
-	err = userdb.LoadHtpasswd(testFileName)
-	assert.Nil(err)
-
-	return userdb
-}
-
 func TestCheck(t *testing.T) {
 	assert := assert.New(t)
-	userdb := createUsers(assert)
+
+	// Prepare file
+	err := ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
+	assert.Nil(err)
 
 	// Create the provider
-	provider, err := NewBasicAuth(userdb, "example.com")
+	provider, err := NewBasicAuth(testFileName, "example.com")
 	assert.Nil(err)
 
 	for _, user := range users {
@@ -61,10 +49,13 @@ func TestCheck(t *testing.T) {
 
 func TestNoHeader(t *testing.T) {
 	assert := assert.New(t)
-	userdb := createUsers(assert)
+
+	// Prepare file
+	err := ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
+	assert.Nil(err)
 
 	// Create the provider
-	provider, err := NewBasicAuth(userdb, "example.com")
+	provider, err := NewBasicAuth(testFileName, "example.com")
 	assert.Nil(err)
 
 	r := &http.Request{}
@@ -75,16 +66,19 @@ func TestNoHeader(t *testing.T) {
 
 func TestRespond(t *testing.T) {
 	assert := assert.New(t)
-	userdb := createUsers(assert)
+
+	// Prepare file
+	err := ioutil.WriteFile(testFileName, []byte(htpasswdFile), 0644)
+	assert.Nil(err)
 
 	// Create the provider
-	provider, err := NewBasicAuth(userdb, "example.com")
+	provider, err := NewBasicAuth(testFileName, "example.com")
 	assert.Nil(err)
 
 	w := httptest.NewRecorder()
 	r, err := http.NewRequest("GET", "/", nil)
 
-	err = provider.WriteError(w, r, nil)
+	err = provider.WriteError(w, r)
 	assert.Nil(err)
 	assert.Equal(w.HeaderMap["Www-Authenticate"], []string{`Basic realm="example.com"`}, "Bad header")
 	assert.Equal(w.HeaderMap["Content-Type"], []string{`text/plain; charset=utf-8`}, "Bad header")
