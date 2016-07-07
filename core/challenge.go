@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/gob"
 	jwt "github.com/dgrijalva/jwt-go"
+	hclient "github.com/ory-am/hydra/client"
 	// "github.com/gorilla/sessions"
 	"net/http"
 	"time"
@@ -18,7 +19,7 @@ type Challenge struct {
 
 	// TODO: Add sessions.Session field
 
-	Client   string
+	Client   *hclient.Client
 	Expires  time.Time
 	Redirect string
 	Scopes   []string
@@ -54,7 +55,7 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 	token := jwt.New(jwt.SigningMethodRS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["aud"] = c.Client
+	claims["aud"] = c.Client.GetID()
 	claims["exp"] = now.Add(time.Minute * 5).Unix()
 	claims["iat"] = now.Unix()
 	claims["scp"] = c.Scopes

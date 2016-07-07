@@ -17,17 +17,16 @@ import (
 
 const (
 	consent = `<html><head></head><body>
-	Hi {{.User}}!
-	Do you agree to grant {{.Client}} access to those scopes?
-	{{range .Scopes}}
-	{{.}}
-	{{end}}
-
-	<form method="post">
-		<input type="submit" name="answer" value="y">
-		<input type="submit" name="answer" value="n">
-	</form>
-
+	<p>User:        {{.User}} </p>
+	<p>Client Name: {{.Client.Name}} </p>
+	<p>Scopes:      {{range .Scopes}} {{.}} {{end}} </p>
+	<p>Do you agree to grant access to those scopes? </p>
+	<p>
+		<form method="post">
+			<input type="submit" name="answer" value="y">
+			<input type="submit" name="answer" value="n">
+		</form>
+	</p>
  	</body></html>
 	`
 )

@@ -8,6 +8,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
+	hclient "github.com/ory-am/hydra/client"
 	hjwk "github.com/ory-am/hydra/jwk"
 	hoauth2 "github.com/ory-am/hydra/oauth2"
 	hydra "github.com/ory-am/hydra/sdk"
@@ -76,11 +77,13 @@ func (idp *IDP) refreshCache(key string) {
 		return
 
 	case ClientInfo:
-		// consentKey, err := idp.getConsentKey()
-		// if err != nil {
-		// 	return
-		// }
-		// idp.cache.Set(ClientInfo, consentKey, idp.config.ClientCacheExpiration)
+
+		clients, err := idp.hc.Client.GetClients()
+		if err != nil {
+			return
+		}
+		idp.cache.Set(ClientInfo, clients, idp.config.ClientCacheExpiration)
+
 		return
 
 	default:
@@ -142,8 +145,14 @@ func (idp *IDP) Connect() error {
 		return err
 	}
 
+	clients, err := idp.hc.Client.GetClients()
+	if err != nil {
+		return err
+	}
+
 	idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
 	idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
+	idp.cache.Set(ClientInfo, clients, idp.config.ClientCacheExpiration)
 
 	return err
 }
@@ -173,7 +182,7 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
 	data, ok := idp.cache.Get(ConsentPrivateKey)
 	if !ok {
-		return nil, ErrorNoKey
+		return nil, ErrorNotInCache
 	}
 
 	key, ok := data.(*rsa.PrivateKey)
@@ -187,7 +196,7 @@ func (idp *IDP) GetConsentKey() (*rsa.PrivateKey, error) {
 func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
 	data, ok := idp.cache.Get(VerifyPublicKey)
 	if !ok {
-		return nil, ErrorNoKey
+		return nil, ErrorNotInCache
 	}
 
 	key, ok := data.(*rsa.PublicKey)
@@ -196,6 +205,25 @@ func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
 	}
 
 	return key, nil
+}
+
+func (idp *IDP) GetClient(clientID string) (*hclient.Client, error) {
+	data, ok := idp.cache.Get(ClientInfo)
+	if !ok {
+		return nil, ErrorNotInCache
+	}
+
+	clients, ok := data.(map[string]*hclient.Client)
+	if !ok {
+		return nil, ErrorNotInCache
+	}
+
+	client, ok := clients[clientID]
+	if !ok {
+		return nil, ErrorNoSuchClient
+	}
+
+	return client, nil
 }
 
 func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge, err error) {
@@ -222,7 +250,11 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 	}
 
 	// Get data from the challenge jwt
-	challenge.Client = claims["aud"].(string)
+	challenge.Client, err = idp.GetClient(claims["aud"].(string))
+	if err != nil {
+		return nil, err
+	}
+
 	challenge.Redirect = claims["redir"].(string)
 
 	challenge.User = user
