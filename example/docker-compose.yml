@@ -19,6 +19,21 @@ services:
     container_name: idp
     build:
       context: ../
+      dockerfile: idp-basicauth.dockerfile
+    environment:
+      - HYDRA_URL=https://hydra:4444
+    links:
+      - hydra
+    volumes:
+      - hydravolume:/root
+    ports:
+      - "3000:3000"
+
+  idp-form:
+    container_name: idp-form
+    build:
+      context: ../
+      dockerfile: idp-form.dockerfile
     environment:
       - HYDRA_URL=https://hydra:4444
     links:
