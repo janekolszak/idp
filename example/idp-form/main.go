@@ -10,8 +10,9 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/helpers"
-	"github.com/janekolszak/idp/providers/basic"
 	"github.com/janekolszak/idp/providers/cookie"
+	"github.com/janekolszak/idp/providers/form"
+	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -29,6 +30,22 @@ const (
 	</p>
  	</body></html>
 	`
+
+	loginform = `
+<html>
+<head>
+</head>
+<body>
+<form method="post">
+username <input type="text" name="username"><br>
+password <input type="password" name="password" autocomplete="off"><br>
+<input type="submit">
+<hr>
+{{.}}
+
+<body>
+</html>
+`
 )
 
 var (
@@ -146,8 +163,22 @@ func main() {
 	hydraConfig := helpers.NewHydraConfig(*configPath)
 
 	// Setup the providers
-	var err error
-	provider, err = basic.NewBasicAuth(*htpasswdPath, "localhost")
+	userdb, err := memory.NewMemStore()
+	if err != nil {
+		panic(err)
+	}
+
+	err = userdb.LoadHtpasswd(*htpasswdPath)
+	if err != nil {
+		panic(err)
+	}
+
+	provider, err = form.NewFormAuth(form.Config{
+		LoginForm:          loginform,
+		LoginUsernameField: "username",
+		LoginPasswordField: "password",
+		UserStore:          userdb,
+	})
 	if err != nil {
 		panic(err)
 	}

@@ -5,9 +5,10 @@ import (
 	"github.com/janekolszak/idp/helpers"
 
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -37,7 +38,7 @@ func NewCookieAuth(filename string) (*CookieAuth, error) {
 		// There was no file before
 
 		sqlStmt := `
-		CREATE TABLE cookieauth (selector  VARCHAR(20) NOT NULL PRIMARY KEY, 
+		CREATE TABLE cookieauth (selector  VARCHAR(20) NOT NULL PRIMARY KEY,
 	                             validator TEXT NOT NULL,
 	                             user      TEXT NOT NULL);`
 
@@ -84,7 +85,7 @@ func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
 	return
 }
 
-func (c *CookieAuth) WriteError(w http.ResponseWriter, r *http.Request) error {
+func (c *CookieAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {
 	return nil
 }
 
@@ -119,9 +120,9 @@ func (c *CookieAuth) saveToDB(selector, hash, user string) (err error) {
 	return
 }
 
-// TODO: Selector shoud be created by the database, here it's automatically generated
+// TODO: Selector should be created by the database, here it's automatically generated
 func (c *CookieAuth) Add(w http.ResponseWriter, r *http.Request, user string) (err error) {
-	l, err := helpers.NewLoginCookie("", "remember")
+	l, err := helpers.NewLoginCookie("", rememberMeCookieName)
 	if err != nil {
 		return
 	}
