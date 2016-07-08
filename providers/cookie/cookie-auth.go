@@ -50,6 +50,7 @@ func (c *CookieAuth) Check(r *http.Request) (selector, user string, err error) {
 func (c *CookieAuth) SetCookie(w http.ResponseWriter, r *http.Request, user string) (err error) {
 	l := helpers.LoginCookie{
 		CookieName: rememberMeCookieName,
+		MaxAge:     c.MaxAge,
 	}
 
 	hash, err := l.GenerateValidator()
@@ -72,6 +73,7 @@ func (c *CookieAuth) UpdateCookie(w http.ResponseWriter, r *http.Request, select
 	l := helpers.LoginCookie{
 		Selector:   selector,
 		CookieName: rememberMeCookieName,
+		MaxAge:     c.MaxAge,
 	}
 
 	hash, err := l.GenerateValidator()

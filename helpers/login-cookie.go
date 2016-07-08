@@ -8,6 +8,7 @@ import (
 	"errors"
 	"github.com/gorilla/sessions"
 	"net/http"
+	"time"
 )
 
 const (
@@ -23,6 +24,7 @@ type LoginCookie struct {
 	Selector   string
 	Validator  string
 	CookieName string
+	MaxAge     time.Duration
 }
 
 func init() {
@@ -82,6 +84,7 @@ func (l *LoginCookie) Save(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	session.Values["r"] = l
+	session.Options.MaxAge = int(l.MaxAge.Seconds())
 
 	return session.Save(r, w)
 }

@@ -166,7 +166,7 @@ func main() {
 
 	cookieProvider = &cookie.CookieAuth{
 		Store:  dbCookieStore,
-		MaxAge: time.Minute * 1,
+		MaxAge: time.Second * 30,
 	}
 
 	config := core.IDPConfig{
