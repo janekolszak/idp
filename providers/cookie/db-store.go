@@ -2,6 +2,7 @@ package cookie
 
 import (
 	"database/sql"
+	"time"
 )
 
 type DBStore struct {
@@ -24,9 +25,10 @@ func NewDBStore(driverName, databaseSourceName string) (*DBStore, error) {
 	}
 
 	sqlStmt := `
-		CREATE TABLE  IF NOT EXISTS cookieauth (selector  VARCHAR(20) NOT NULL PRIMARY KEY,
-					                            validator TEXT NOT NULL,
-					                            user      TEXT NOT NULL);`
+		CREATE TABLE  IF NOT EXISTS cookieauth (selector   VARCHAR(20) NOT NULL PRIMARY KEY,
+					                            validator  TEXT NOT NULL,
+					                            user       TEXT NOT NULL,
+					                            expiration DATETIME);`
 
 	_, err = s.db.Exec(sqlStmt)
 	if err != nil {
@@ -34,7 +36,7 @@ func NewDBStore(driverName, databaseSourceName string) (*DBStore, error) {
 	}
 
 	// Prepare statements
-	s.getStmt, err = s.db.Prepare("SELECT validator, user FROM cookieauth WHERE selector = ?")
+	s.getStmt, err = s.db.Prepare("SELECT validator, user, expiration FROM cookieauth WHERE selector = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func NewDBStore(driverName, databaseSourceName string) (*DBStore, error) {
 	return s, nil
 }
 
-func (s *DBStore) Upsert(selector, user, hash string) (err error) {
+func (s *DBStore) Upsert(selector, user, hash string, expiration time.Time) (err error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return
@@ -55,13 +57,13 @@ func (s *DBStore) Upsert(selector, user, hash string) (err error) {
 		err = tx.Commit()
 	}()
 
-	stmt, err := tx.Prepare("INSERT INTO cookieauth(selector, validator, user) values(?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO cookieauth(selector, validator, user, expiration) values(?, ?, ?, ?)")
 	if err != nil {
 		return
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(selector, hash, user)
+	_, err = stmt.Exec(selector, hash, user, expiration)
 	if err != nil {
 		return
 	}
@@ -69,8 +71,8 @@ func (s *DBStore) Upsert(selector, user, hash string) (err error) {
 	return
 }
 
-func (s *DBStore) Get(selector string) (user string, hash string, err error) {
-	err = s.getStmt.QueryRow(selector).Scan(&hash, &user)
+func (s *DBStore) Get(selector string) (user, hash string, expiration time.Time, err error) {
+	err = s.getStmt.QueryRow(selector).Scan(&hash, &user, &expiration)
 	return
 }
 

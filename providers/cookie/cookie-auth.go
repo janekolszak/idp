@@ -5,6 +5,7 @@ import (
 	"github.com/janekolszak/idp/helpers"
 
 	"net/http"
+	"time"
 )
 
 const (
@@ -12,10 +13,13 @@ const (
 )
 
 type CookieAuth struct {
-	Store Store
+	Store  Store
+	MaxAge time.Duration
 }
 
 func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
+	var now = time.Now()
+
 	l, err := helpers.GetLoginCookie(r, rememberMeCookieName)
 	if err != nil {
 		return
@@ -24,8 +28,13 @@ func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
 	// TODO: Validate selector, shouldn't be too long etc.
 
 	var hash string
-	user, hash, err = c.Store.Get(l.Selector)
+	user, hash, expires, err := c.Store.Get(l.Selector)
 	if err != nil {
+		return
+	}
+
+	if expires.Before(now) {
+		err = core.ErrorSessionExpired
 		return
 	}
 
@@ -51,7 +60,7 @@ func (c *CookieAuth) Add(w http.ResponseWriter, r *http.Request, user string) (e
 	//TODO: Reuse selector
 
 	// First save to the database
-	err = c.Store.Upsert(l.Selector, user, hash)
+	err = c.Store.Upsert(l.Selector, user, hash, time.Now().Add(c.MaxAge))
 	if err != nil {
 		return
 	}

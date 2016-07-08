@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -25,7 +26,8 @@ func TestAdd(t *testing.T) {
 	defer store.Close()
 
 	c := CookieAuth{
-		Store: store,
+		Store:  store,
+		MaxAge: time.Minute * 1,
 	}
 
 	for _, user := range users {
