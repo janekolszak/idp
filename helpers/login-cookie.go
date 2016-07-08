@@ -3,6 +3,7 @@ package helpers
 import (
 	"crypto/rand"
 	"crypto/sha1"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/gob"
 	"errors"
@@ -74,7 +75,8 @@ func (l *LoginCookie) GenerateValidator() (string, error) {
 
 // Check if Validator value is valid...
 func (l *LoginCookie) Check(value string) bool {
-	return l.validatorHash() == value
+	// Prevents timing atack
+	return subtle.ConstantTimeCompare([]byte(l.validatorHash()), []byte(value)) == 1
 }
 
 func (l *LoginCookie) Save(w http.ResponseWriter, r *http.Request) error {
