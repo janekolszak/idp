@@ -74,6 +74,7 @@ func HandleChallengeGET() httprouter.Handle {
 			err = cookieProvider.UpdateCookie(w, r, selector, user)
 			if err != nil {
 				fmt.Println(err.Error())
+				return
 			}
 		} else {
 			// Can't authenticate with "Remember Me" cookie,
@@ -192,7 +193,7 @@ func main() {
 		panic(err)
 	}
 
-	cookieProvider := &cookie.CookieAuth{
+	cookieProvider = &cookie.CookieAuth{
 		Store:  dbCookieStore,
 		MaxAge: time.Minute * 1,
 	}
