@@ -17,7 +17,7 @@ type CookieAuth struct {
 	MaxAge time.Duration
 }
 
-func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
+func (c *CookieAuth) Check(r *http.Request) (selector, user string, err error) {
 	var now = time.Now()
 
 	l, err := helpers.GetLoginCookie(r, rememberMeCookieName)
@@ -42,14 +42,14 @@ func (c *CookieAuth) Check(r *http.Request) (user string, err error) {
 		err = core.ErrorBadRequest
 	}
 
+	selector = l.Selector
+
 	return
 }
 
-// TODO: Selector should be created by the database, here it's automatically generated
-func (c *CookieAuth) Add(w http.ResponseWriter, r *http.Request, user string) (err error) {
-	l, err := helpers.NewLoginCookie("", rememberMeCookieName)
-	if err != nil {
-		return
+func (c *CookieAuth) SetCookie(w http.ResponseWriter, r *http.Request, user string) (err error) {
+	l := helpers.LoginCookie{
+		CookieName: rememberMeCookieName,
 	}
 
 	hash, err := l.GenerateValidator()
@@ -57,10 +57,30 @@ func (c *CookieAuth) Add(w http.ResponseWriter, r *http.Request, user string) (e
 		return
 	}
 
-	//TODO: Reuse selector
+	// First save to the database
+	l.Selector, err = c.Store.Insert(user, hash, time.Now().Add(c.MaxAge))
+	if err != nil {
+		return
+	}
+
+	// Then save to the cookie
+	err = l.Save(w, r)
+	return
+}
+
+func (c *CookieAuth) UpdateCookie(w http.ResponseWriter, r *http.Request, selector, user string) (err error) {
+	l := helpers.LoginCookie{
+		Selector:   selector,
+		CookieName: rememberMeCookieName,
+	}
+
+	hash, err := l.GenerateValidator()
+	if err != nil {
+		return
+	}
 
 	// First save to the database
-	err = c.Store.Upsert(l.Selector, user, hash, time.Now().Add(c.MaxAge))
+	err = c.Store.Update(selector, user, hash, time.Now().Add(c.MaxAge))
 	if err != nil {
 		return
 	}

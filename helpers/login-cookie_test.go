@@ -8,22 +8,10 @@ import (
 	"testing"
 )
 
-func TestLoginCookieNew(t *testing.T) {
-	assert := assert.New(t)
-
-	l, err := NewLoginCookie("", "")
-	assert.Nil(err)
-	assert.NotEqual(l.Selector, "")
-
-	l, err = NewLoginCookie("1234", "")
-	assert.Equal(l.Selector, "1234")
-}
-
 func TestLoginCookieValidator(t *testing.T) {
 	assert := assert.New(t)
 
-	l, err := NewLoginCookie("1", "")
-	assert.Nil(err)
+	l := LoginCookie{}
 
 	a, err := l.GenerateValidator()
 	assert.Nil(err)
@@ -39,10 +27,12 @@ func TestLoginCookieValidator(t *testing.T) {
 func TestLoginCookieSave(t *testing.T) {
 	assert := assert.New(t)
 
-	l, err := NewLoginCookie("1", "remember")
-	assert.Nil(err)
+	l := LoginCookie{
+		Selector:   "1",
+		CookieName: "remember",
+	}
 
-	_, err = l.GenerateValidator()
+	_, err := l.GenerateValidator()
 	assert.Nil(err)
 
 	w := httptest.NewRecorder()
@@ -57,8 +47,10 @@ func TestLoginCookieGet(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, err := http.NewRequest("GET", "/", nil)
 
-	la, err := NewLoginCookie("1", "remember")
-	assert.Nil(err)
+	la := LoginCookie{
+		Selector:   "1",
+		CookieName: "remember",
+	}
 
 	hash, err := la.GenerateValidator()
 	assert.Nil(err)

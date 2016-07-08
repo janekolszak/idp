@@ -2,6 +2,7 @@ package cookie
 
 import (
 	"database/sql"
+	"github.com/satori/go.uuid"
 	"time"
 )
 
@@ -44,7 +45,12 @@ func NewDBStore(driverName, databaseSourceName string) (*DBStore, error) {
 	return s, nil
 }
 
-func (s *DBStore) Upsert(selector, user, hash string, expiration time.Time) (err error) {
+func (s *DBStore) Insert(user, hash string, expiration time.Time) (selector string, err error) {
+
+	// TODO: Database should generate the selector, but is can't be sequential
+	uniqueID := uuid.NewV1()
+	selector = uniqueID.String()
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		return
@@ -67,6 +73,30 @@ func (s *DBStore) Upsert(selector, user, hash string, expiration time.Time) (err
 	if err != nil {
 		return
 	}
+
+	return
+}
+
+func (s *DBStore) Update(selector, user, hash string, expiration time.Time) (err error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	stmt, err := tx.Prepare("UPDATE cookieauth SET validator=?, expiration =? WHERE selector=?")
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(hash, expiration, selector)
 
 	return
 }

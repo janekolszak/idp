@@ -7,7 +7,6 @@ import (
 	"encoding/gob"
 	"errors"
 	"github.com/gorilla/sessions"
-	"github.com/satori/go.uuid"
 	"net/http"
 )
 
@@ -21,11 +20,9 @@ var (
 
 // Implementation of https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence#title.2
 type LoginCookie struct {
-	cookieName string
-
-	// Selector is assigned by
-	Selector  string
-	Validator string
+	Selector   string
+	Validator  string
+	CookieName string
 }
 
 func init() {
@@ -34,20 +31,6 @@ func init() {
 
 	// TODO: Initialize somewhere else
 	rememberMeStore = sessions.NewCookieStore([]byte("something-very-secret"))
-}
-
-func NewLoginCookie(selector string, cookieName string) (*LoginCookie, error) {
-	var l = new(LoginCookie)
-
-	l.Selector = selector
-	l.cookieName = cookieName
-
-	if selector == "" {
-		uniqueID := uuid.NewV1()
-		l.Selector = uniqueID.String()
-	}
-
-	return l, nil
 }
 
 func GetLoginCookie(r *http.Request, cookieName string) (*LoginCookie, error) {
@@ -61,7 +44,7 @@ func GetLoginCookie(r *http.Request, cookieName string) (*LoginCookie, error) {
 		return nil, errors.New("Bad remember me cookie format")
 	}
 
-	l.cookieName = cookieName
+	l.CookieName = cookieName
 
 	return l, nil
 }
@@ -93,7 +76,7 @@ func (l *LoginCookie) Check(value string) bool {
 }
 
 func (l *LoginCookie) Save(w http.ResponseWriter, r *http.Request) error {
-	session, err := rememberMeStore.Get(r, l.cookieName)
+	session, err := rememberMeStore.Get(r, l.CookieName)
 	if err != nil {
 		return err
 	}

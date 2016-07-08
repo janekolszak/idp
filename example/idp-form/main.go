@@ -14,6 +14,8 @@ import (
 	"github.com/janekolszak/idp/providers/form"
 	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/julienschmidt/httprouter"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -66,13 +68,16 @@ func HandleChallengeGET() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Println("Challenge!")
 
-		user, err := cookieProvider.Check(r)
+		selector, user, err := cookieProvider.Check(r)
 		if err == nil {
 			fmt.Println("Authenticated with Cookie")
+			err = cookieProvider.UpdateCookie(w, r, selector, user)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		} else {
 			// Can't authenticate with "Remember Me" cookie,
 			// so try with another provider:
-
 			user, err = provider.Check(r)
 			if err != nil {
 				// Authentication failed, or any other error
@@ -80,14 +85,13 @@ func HandleChallengeGET() httprouter.Handle {
 				provider.WriteError(w, r, err)
 				return
 			}
-			fmt.Println("Authenticated with Basic Auth")
-		}
+			fmt.Println("Authenticated with Form Auth")
 
-		// Authentication success, save the "Remember Me" cookie
-		// TODO: Implement Update method. Add should be used only for creating new cookies.
-		err = cookieProvider.Add(w, r, user)
-		if err != nil {
-			fmt.Println(err.Error())
+			// Save the RememberMe cookie
+			err = cookieProvider.SetCookie(w, r, user)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 
 		challenge, err := idp.NewChallenge(r, user)
@@ -183,9 +187,14 @@ func main() {
 		panic(err)
 	}
 
-	cookieProvider, err = cookie.NewCookieAuth(*cookieDBPath)
+	dbCookieStore, err := cookie.NewDBStore("sqlite3", *cookieDBPath)
 	if err != nil {
 		panic(err)
+	}
+
+	cookieProvider := &cookie.CookieAuth{
+		Store:  dbCookieStore,
+		MaxAge: time.Minute * 1,
 	}
 
 	config := core.IDPConfig{
