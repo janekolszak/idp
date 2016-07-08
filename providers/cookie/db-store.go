@@ -106,6 +106,54 @@ func (s *DBStore) Get(selector string) (user, hash string, expiration time.Time,
 	return
 }
 
+func (s *DBStore) DeleteSelector(selector string) (err error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	stmt, err := tx.Prepare("DELETE FROM cookieauth WHERE selector=?")
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(selector)
+
+	return
+}
+
+func (s *DBStore) DeleteUser(user string) (err error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	stmt, err := tx.Prepare("DELETE FROM cookieauth WHERE user=?")
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(user)
+
+	return
+}
+
 func (s *DBStore) Close() error {
 	s.getStmt.Close()
 	return s.db.Close()
