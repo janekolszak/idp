@@ -4,8 +4,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -16,41 +17,16 @@ var (
 	users = []string{"user1", "user2", "user3", "user4"}
 )
 
-func TestNew(t *testing.T) {
-	assert := assert.New(t)
-
-	{
-		c, err := NewCookieAuth(testFileName)
-		assert.Nil(err)
-		defer c.Close()
-		assert.NotNil(c)
-	}
-
-	{
-		c, err := NewCookieAuth(testFileName)
-		assert.Nil(err)
-		defer c.Close()
-		assert.NotNil(c)
-	}
-
-	os.Remove(testFileName)
-
-	{
-		c, err := NewCookieAuth(testFileName)
-		assert.Nil(err)
-		defer c.Close()
-		assert.NotNil(c)
-	}
-
-}
-
 func TestAdd(t *testing.T) {
 	assert := assert.New(t)
 
-	c, err := NewCookieAuth(testFileName)
+	store, err := NewDBStore("sqlite3", testFileName)
 	assert.Nil(err)
-	defer c.Close()
-	assert.NotNil(c)
+	defer store.Close()
+
+	c := CookieAuth{
+		Store: store,
+	}
 
 	for _, user := range users {
 		w := httptest.NewRecorder()

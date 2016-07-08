@@ -34,22 +34,12 @@ func NewDBStore(driverName, databaseSourceName string) (*DBStore, error) {
 	}
 
 	// Prepare statements
-	s.getStmt, err = s.db.Prepare("SELECT validator, user FROM DBStore WHERE selector = ?")
+	s.getStmt, err = s.db.Prepare("SELECT validator, user FROM cookieauth WHERE selector = ?")
 	if err != nil {
 		return nil, err
 	}
 
 	return s, nil
-}
-
-func (s *DBStore) Close() error {
-	s.getStmt.Close()
-	return s.db.Close()
-}
-
-func (s *DBStore) Get(selector string) (user string, hash string, err error) {
-	err = s.getStmt.QueryRow(selector).Scan(&hash, &user)
-	return
 }
 
 func (s *DBStore) Upsert(selector, user, hash string) (err error) {
@@ -77,4 +67,14 @@ func (s *DBStore) Upsert(selector, user, hash string) (err error) {
 	}
 
 	return
+}
+
+func (s *DBStore) Get(selector string) (user string, hash string, err error) {
+	err = s.getStmt.QueryRow(selector).Scan(&hash, &user)
+	return
+}
+
+func (s *DBStore) Close() error {
+	s.getStmt.Close()
+	return s.db.Close()
 }
