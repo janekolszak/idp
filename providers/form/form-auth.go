@@ -30,7 +30,11 @@ func NewFormAuth(c Config) (*FormAuth, error) {
 }
 
 func (f *FormAuth) Check(r *http.Request) (user string, err error) {
-	r.ParseForm()
+	err = r.ParseForm()
+	if err != nil {
+		return
+	}
+
 	user = r.Form.Get(f.LoginUsernameField)
 	password := r.Form.Get(f.LoginPasswordField)
 
@@ -55,8 +59,7 @@ func (a *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error)
 		}
 	}
 	t := template.Must(template.New("tmpl").Parse(a.LoginForm))
-	t.Execute(w, msg)
-	return nil
+	return t.Execute(w, msg)
 }
 
 func (a *FormAuth) Write(w http.ResponseWriter, r *http.Request) error {
