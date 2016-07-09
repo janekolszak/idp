@@ -131,6 +131,14 @@ func TestPostSuccess(t *testing.T) {
 		LoginUsernameField: "username",
 		LoginPasswordField: "password",
 		UserStore:          userdb,
+
+		// Validation options:
+		MinUsernameLength: 1,
+		MaxUsernameLength: 100,
+		MinPasswordLength: 1,
+		MaxPasswordLength: 100,
+		UsernamePattern:   ".*",
+		PasswordPattern:   ".*",
 	})
 	assert.Nil(err)
 
@@ -153,6 +161,14 @@ func TestPostFail(t *testing.T) {
 		LoginUsernameField: "username",
 		LoginPasswordField: "password",
 		UserStore:          userdb,
+
+		// Validation options:
+		MinUsernameLength: 1,
+		MaxUsernameLength: 100,
+		MinPasswordLength: 1,
+		MaxPasswordLength: 100,
+		UsernamePattern:   ".*",
+		PasswordPattern:   ".*",
 	})
 	assert.Nil(err)
 

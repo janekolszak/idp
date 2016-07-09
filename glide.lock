@@ -1,10 +1,10 @@
-hash: 52a14b617f75d0b6eb0cf4cdd995a558a73d95c381f4ac666099da1203c0cb42
-updated: 2016-07-04T00:17:26.311027042+02:00
+hash: c62991a632f69318c279bf98f972020abff4a80f541b8eb1576378a9676b1441
+updated: 2016-07-09T10:46:30.368868831+02:00
 imports:
 - name: github.com/asaskevich/govalidator
-  version: df81827fdd59d8b4fb93d8910b286ab7a3919520
+  version: 7664702784775e51966f0885f5cd27435916517b
 - name: github.com/BurntSushi/toml
-  version: f0aeabca5a127c4078abb8c8d64298b147264b55
+  version: ffaa107fbd880f6d18cd6fec9b511668dcad8639
 - name: github.com/cenk/backoff
   version: cdf48bbc1eb78d1349cbda326a4a037f7ba565c6
 - name: github.com/davecgh/go-spew
@@ -12,7 +12,7 @@ imports:
   subpackages:
   - spew
 - name: github.com/dgrijalva/jwt-go
-  version: f0777076321ab64f6efc15a82d9d23b98539b943
+  version: 01aeca54ebda6e0fbfafd0a524d234159c05ec20
 - name: github.com/fsnotify/fsnotify
   version: a8a77c9133d2d6fd8334f3260d06f60e8d80a5fb
 - name: github.com/go-errors/errors
@@ -30,7 +30,7 @@ imports:
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/hashicorp/hcl
-  version: 61f5143284c041681f76a5b63efcb232aaa94737
+  version: 364df430845abef160a0bfb3a59979f746bf4956
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -45,7 +45,7 @@ imports:
 - name: github.com/julienschmidt/httprouter
   version: 77366a47451a56bb3ba682481eed85b64fea14e8
 - name: github.com/magiconair/properties
-  version: c265cfa48dda6474e208715ca93e987829f572f8
+  version: e2f061ecfdaca9f35b2e2c12346ffc526f138137
 - name: github.com/mattn/go-sqlite3
   version: 3b3f1d01b2696af5501697c35629048c227586ab
 - name: github.com/mendsley/gojwk
@@ -66,31 +66,31 @@ imports:
   version: 4d0a5450dd3b44e44f5169f90b3591566a6eef1d
   subpackages:
   - hash
+  - handler/core/strategy
+  - handler/oidc/strategy
+  - token/jwt
   - fosite-example/store
   - handler/core
   - handler/core/explicit
   - handler/core/implicit
   - handler/core/refresh
-  - handler/core/strategy
   - handler/oidc
   - token/hmac
-  - token/jwt
   - rand
-  - handler/oidc/strategy
 - name: github.com/ory-am/hydra
-  version: 266b32442870f379ce4d047d7a5c9f87f05b0e5b
+  version: 39d2802cc7342f70ad877e8ec769f174601e4ae6
   subpackages:
-  - sdk
   - client
-  - connection
   - jwk
-  - pkg
-  - policy
-  - warden
+  - oauth2
+  - sdk
   - firewall
   - herodot
+  - pkg
+  - connection
+  - policy
+  - warden
   - config
-  - oauth2
 - name: github.com/ory-am/ladon
   version: 63d3e27a44b7e60f0cfd8a38231ccbe13c74aee7
 - name: github.com/patrickmn/go-cache
@@ -110,7 +110,7 @@ imports:
 - name: github.com/spf13/cast
   version: 27b586b42e29bec072fe7379259cc719e1289da6
 - name: github.com/spf13/cobra
-  version: 6a8bd97bdb1fc0d08a83459940498ea49d3e8c93
+  version: a272c3cbd5ff80a5bf5c5603df50183f9f3f7324
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
@@ -128,22 +128,22 @@ imports:
   - assert
   - require
 - name: golang.org/x/crypto
-  version: 811831de4c4dd03a0b8737233af3b36852386373
+  version: d81fdb778bf2c40a91b24519d60cdc5767318829
   subpackages:
   - bcrypt
   - blowfish
   - pbkdf2
 - name: golang.org/x/net
-  version: b400c2eff1badec7022a8c8f5bea058b6315eed7
+  version: f841c39de738b1d0df95b5a7187744f0e03d8112
   subpackages:
   - context
 - name: golang.org/x/oauth2
-  version: df5b72659a3b1789a345ea643bb7c28442681652
+  version: 7357e96168422ba1e6e7f21075713b72d58764e7
   subpackages:
   - clientcredentials
   - internal
 - name: golang.org/x/sys
-  version: 62bee037599929a6e9146f29d10dd5208c43507d
+  version: a408501be4d17ee978c04a618e7a1b22af058c0e
   subpackages:
   - unix
 - name: google.golang.org/appengine
@@ -166,8 +166,6 @@ imports:
   version: 268038b363c7a8d7306b8e35bf77a1fde4b0c402
 - name: gopkg.in/fatih/pool.v2
   version: cba550ebf9bce999a02e963296d4bc7a486cb715
-- name: gopkg.in/yaml.v1
-  version: 9f9df34309c04878acc86042b16630b0f696e1de
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
 devImports: []

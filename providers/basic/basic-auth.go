@@ -29,6 +29,9 @@ func NewBasicAuth(htpasswdFileName string, realm string) (*BasicAuth, error) {
 }
 
 func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
+
+	// TODO: Pre-validate user and password
+
 	user, pass, ok := r.BasicAuth()
 	if !ok {
 		user = ""

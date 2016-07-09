@@ -182,7 +182,17 @@ func main() {
 		LoginForm:          loginform,
 		LoginUsernameField: "username",
 		LoginPasswordField: "password",
-		UserStore:          userdb,
+
+		// Validation options:
+		MinUsernameLength: 1,
+		MaxUsernameLength: 100,
+		MinPasswordLength: 1,
+		MaxPasswordLength: 100,
+		UsernamePattern:   ".*",
+		PasswordPattern:   ".*",
+
+		// Store for
+		UserStore: userdb,
 	})
 	if err != nil {
 		panic(err)
