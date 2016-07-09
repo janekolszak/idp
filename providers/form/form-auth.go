@@ -30,7 +30,11 @@ func NewFormAuth(c Config) (*FormAuth, error) {
 }
 
 func (f *FormAuth) Check(r *http.Request) (user string, err error) {
-	r.ParseForm()
+	err = r.ParseForm()
+	if err != nil {
+		return
+	}
+
 	user = r.Form.Get(f.LoginUsernameField)
 	password := r.Form.Get(f.LoginPasswordField)
 
