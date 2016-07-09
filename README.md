@@ -25,7 +25,7 @@ Start IdP and browse it's logs
 ``` bash
 cd example
 docker-compose up idp
-``` 
+```
 
 #### Console 3
 Perform some experiments like:
@@ -39,12 +39,9 @@ hydra token user --skip-tls-verify --no-open
 ## TODO:
 - Login/Logout endpoint
 - Digest Auth Provider
-- Form Provider (BasicAuth via HTML forms + storage backend)
 - API for getting keys from Hydra
-- Caching Client information
 - Encrypting cookies
 - Trusted clients that won't trigger asking user to agree upon scopes
-- Storage backend for the CookieProvider
 - Register user endpoint
 - Use hydra's client library
 - Handle expirtion of remember me cookies
