@@ -13,6 +13,8 @@ services:
     environment:
       - SYSTEM_SECRET=passwordtutorialpasswordtutorial
       - CONSENT_URL=http://localhost:3000
+      - HTTPS_TLS_KEY_PATH=/etc/hydra/key.pem
+      - HTTPS_TLS_CERT_PATH=/etc/hydra/cert.pem
     cpu_quota: 50000
 
   idp:
@@ -28,6 +30,7 @@ services:
       - hydravolume:/root
     ports:
       - "3000:3000"
+    cpu_quota: 50000
 
   idp-form:
     container_name: idp-form
@@ -42,6 +45,7 @@ services:
       - hydravolume:/root
     ports:
       - "3000:3000"
+    cpu_quota: 50000
 
 volumes:
   hydravolume:
