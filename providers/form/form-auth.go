@@ -55,8 +55,7 @@ func (a *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error)
 		}
 	}
 	t := template.Must(template.New("tmpl").Parse(a.LoginForm))
-	t.Execute(w, msg)
-	return nil
+	return t.Execute(w, msg)
 }
 
 func (a *FormAuth) Write(w http.ResponseWriter, r *http.Request) error {
