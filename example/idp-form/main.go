@@ -39,9 +39,11 @@ const (
 </head>
 <body>
 <form method="post">
-username <input type="text" name="username"><br>
-password <input type="password" name="password" autocomplete="off"><br>
+<p>Example App</p>
+<p>username <input type="text" name="username"></p>
+<p>password <input type="password" name="password" autocomplete="off"></p>
 <input type="submit">
+<a href="{{.RegisterURI}}">Register</a>
 <hr>
 {{.Msg}}
 
