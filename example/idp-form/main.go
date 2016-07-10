@@ -43,7 +43,7 @@ username <input type="text" name="username"><br>
 password <input type="password" name="password" autocomplete="off"><br>
 <input type="submit">
 <hr>
-{{.}}
+{{.Msg}}
 
 <body>
 </html>

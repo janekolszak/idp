@@ -1,30 +1,19 @@
 package form
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/userdb"
 )
 
-type Complexity struct {
-	MinLength int
-	MaxLength int
-	Patterns  []string
-}
-
-func (c *Complexity) Validate(s string) bool {
-	if !govalidator.IsByteLength(s, c.MinLength, c.MaxLength) {
-		return false
-	}
-	for _, p := range c.Patterns {
-		if !govalidator.Matches(s, p) {
-			return false
-		}
-	}
-	return true
+type LoginFormContext struct {
+	Msg         string
+	SubmitURI   string
+	RegisterURI string
 }
 
 type Config struct {
@@ -84,18 +73,24 @@ func (f *FormAuth) Check(r *http.Request) (user string, err error) {
 }
 
 func (f *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {
-	msg := ""
+	query := url.Values{}
+	query["challenge"] = []string{r.URL.Query().Get("challenge")}
+	context := LoginFormContext{
+		SubmitURI:   r.URL.RequestURI(),
+		RegisterURI: fmt.Sprintf("/register?%s", query.Encode()),
+	}
+
 	if r.Method == "POST" && err != nil {
 		switch err {
 		case core.ErrorAuthenticationFailure:
-			msg = "Authentication failed"
+			context.Msg = "Authentication failed"
 
 		default:
-			msg = "An error occurred"
+			context.Msg = "An error occurred"
 		}
 	}
 	t := template.Must(template.New("tmpl").Parse(f.LoginForm))
-	return t.Execute(w, msg)
+	return t.Execute(w, context)
 }
 
 func (f *FormAuth) Write(w http.ResponseWriter, r *http.Request) error {
