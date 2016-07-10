@@ -78,9 +78,6 @@ func HandleChallengeGET() httprouter.Handle {
 			}
 		}
 
-		// Authentication success, save the "Remember Me" cookie
-		// TODO: Implement Update method. Add should be used only for creating new cookies.
-
 		challenge, err := idp.NewChallenge(r, user)
 		if err != nil {
 			fmt.Println(err.Error())
