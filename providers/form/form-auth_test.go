@@ -133,7 +133,7 @@ func TestPostSuccess(t *testing.T) {
 		UserStore:          userdb,
 
 		// Validation options:
-		UserName: Complexity{
+		Username: Complexity{
 			MinLength: 1,
 			MaxLength: 100,
 			Patterns:  []string{".*"},
@@ -167,7 +167,7 @@ func TestPostFail(t *testing.T) {
 		UserStore:          userdb,
 
 		// Validation options:
-		UserName: Complexity{
+		Username: Complexity{
 			MinLength: 1,
 			MaxLength: 100,
 			Patterns:  []string{".*"},
