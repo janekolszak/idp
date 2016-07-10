@@ -7,7 +7,11 @@ services:
     container_name: db
     restart: always
     volumes:
-        - dbvolume:/var/lib/rethinkdb
+        - dbvolume:/data/rethinkdb_data
+    ports:
+      - "8080:8080"
+      - "28015:28015"
+      - "29015:29015"
     cpu_quota: 50000
 
   hydra:
@@ -16,6 +20,8 @@ services:
       context: ./hydra
     volumes:
       - hydravolume:/root
+    links:
+      - db
     ports:
       - "4444:4444"
     environment:
@@ -23,6 +29,7 @@ services:
       - CONSENT_URL=http://localhost:3000
       - HTTPS_TLS_KEY_PATH=/etc/hydra/key.pem
       - HTTPS_TLS_CERT_PATH=/etc/hydra/cert.pem
+      - DATABASE_URL=rethinkdb://db:28015/hydra
     cpu_quota: 50000
 
   idp:
@@ -32,8 +39,10 @@ services:
       dockerfile: idp-form-with-rethinkdb.dockerfile
     environment:
       - HYDRA_URL=https://hydra:4444
+      - DATABASE_URL=rethinkdb://db:28015/hydra
     links:
       - hydra
+      - db
     volumes:
       - hydravolume:/root
     ports:
