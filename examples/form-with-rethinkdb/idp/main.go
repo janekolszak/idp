@@ -198,7 +198,7 @@ func main() {
 		panic(err)
 	}
 
-	dbCookieStore, err := cookie.NewDBStore("sqlite3", *cookieDBPath)
+	dbCookieStore, err := cookie.NewRethinkDBStore("db:28015", "idp")
 	if err != nil {
 		panic(err)
 	}
