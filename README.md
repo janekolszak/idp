@@ -49,3 +49,4 @@ hydra token user --skip-tls-verify --no-open
 - Handle errors from hydra
 - Pass negative answer to hydra
 - Parsing configuration file in examples
+- Rethinkdb storages
