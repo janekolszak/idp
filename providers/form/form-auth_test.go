@@ -133,12 +133,16 @@ func TestPostSuccess(t *testing.T) {
 		UserStore:          userdb,
 
 		// Validation options:
-		MinUsernameLength: 1,
-		MaxUsernameLength: 100,
-		MinPasswordLength: 1,
-		MaxPasswordLength: 100,
-		UsernamePattern:   ".*",
-		PasswordPattern:   ".*",
+		UserName: Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
+		Password: Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
 	})
 	assert.Nil(err)
 
@@ -163,12 +167,16 @@ func TestPostFail(t *testing.T) {
 		UserStore:          userdb,
 
 		// Validation options:
-		MinUsernameLength: 1,
-		MaxUsernameLength: 100,
-		MinPasswordLength: 1,
-		MaxPasswordLength: 100,
-		UsernamePattern:   ".*",
-		PasswordPattern:   ".*",
+		UserName: Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
+		Password: Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
 	})
 	assert.Nil(err)
 

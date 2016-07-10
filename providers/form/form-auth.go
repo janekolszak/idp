@@ -1,24 +1,38 @@
 package form
 
 import (
-	"github.com/asaskevich/govalidator"
 	"html/template"
 	"net/http"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/userdb"
 )
+
+type Complexity struct {
+	MinLength int
+	MaxLength int
+	Patterns  []string
+}
+
+func (c *Complexity) Validate(s string) bool {
+	if !govalidator.IsByteLength(s, c.MinLength, c.MaxLength) {
+		return false
+	}
+	for _, p := range c.Patterns {
+		if !govalidator.Matches(s, p) {
+			return false
+		}
+	}
+	return true
+}
 
 type Config struct {
 	LoginForm          string
 	LoginUsernameField string
 	LoginPasswordField string
-	MinUsernameLength  int
-	MaxUsernameLength  int
-	UsernamePattern    string
-	MinPasswordLength  int
-	MaxPasswordLength  int
-	PasswordPattern    string
+	Username           Complexity
+	Password           Complexity
 	UserStore          userdb.Store
 }
 
@@ -33,12 +47,12 @@ func NewFormAuth(c Config) (*FormAuth, error) {
 		return nil, core.ErrorInvalidConfig
 	}
 
-	if c.UsernamePattern == "" {
-		c.UsernamePattern = ".*"
+	if len(c.Username.Patterns) == 0 {
+		c.Username.Patterns = []string{".*"}
 	}
 
-	if c.PasswordPattern == "" {
-		c.PasswordPattern = ".*"
+	if len(c.Password.Patterns) == 0 {
+		c.Password.Patterns = []string{".*"}
 	}
 
 	auth := FormAuth{Config: c}
@@ -47,15 +61,15 @@ func NewFormAuth(c Config) (*FormAuth, error) {
 
 func (f *FormAuth) Check(r *http.Request) (user string, err error) {
 	user = r.FormValue(f.LoginUsernameField)
-	if !govalidator.IsByteLength(user, f.Config.MinUsernameLength, f.Config.MaxUsernameLength) ||
-		!govalidator.Matches(user, f.Config.UsernamePattern) {
+	if !f.Config.Username.Validate(user) {
+		user = ""
 		err = core.ErrorBadRequest
 		return
 	}
 
 	password := r.FormValue(f.LoginPasswordField)
-	if !govalidator.IsByteLength(password, f.Config.MinPasswordLength, f.Config.MaxPasswordLength) ||
-		!govalidator.Matches(password, f.Config.PasswordPattern) {
+	if !f.Config.Password.Validate(password) {
+		user = ""
 		err = core.ErrorBadRequest
 		return
 	}
