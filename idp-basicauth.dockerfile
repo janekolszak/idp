@@ -15,7 +15,7 @@ WORKDIR /go/src/github.com/janekolszak/idp
 
 RUN go get github.com/Masterminds/glide
 RUN glide install
-RUN go install github.com/janekolszak/idp/example/idp;
+RUN go install github.com/janekolszak/idp/examples/basic-auth/idp;
 
 
 
