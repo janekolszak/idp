@@ -10,8 +10,9 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/helpers"
-	"github.com/janekolszak/idp/providers/basic"
 	"github.com/janekolszak/idp/providers/cookie"
+	"github.com/janekolszak/idp/providers/form"
+	"github.com/janekolszak/idp/userdb/memory"
 	"github.com/julienschmidt/httprouter"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -31,6 +32,22 @@ const (
 	</p>
  	</body></html>
 	`
+
+	loginform = `
+<html>
+<head>
+</head>
+<body>
+<form method="post">
+username <input type="text" name="username"><br>
+password <input type="password" name="password" autocomplete="off"><br>
+<input type="submit">
+<hr>
+{{.}}
+
+<body>
+</html>
+`
 )
 
 var (
@@ -69,7 +86,7 @@ func HandleChallengeGET() httprouter.Handle {
 				provider.WriteError(w, r, err)
 				return
 			}
-			fmt.Println("Authenticated with Basic Auth")
+			fmt.Println("Authenticated with Form Auth")
 
 			// Save the RememberMe cookie
 			err = cookieProvider.SetCookie(w, r, user)
@@ -77,9 +94,6 @@ func HandleChallengeGET() httprouter.Handle {
 				fmt.Println(err.Error())
 			}
 		}
-
-		// Authentication success, save the "Remember Me" cookie
-		// TODO: Implement Update method. Add should be used only for creating new cookies.
 
 		challenge, err := idp.NewChallenge(r, user)
 		if err != nil {
@@ -154,20 +168,48 @@ func main() {
 	hydraConfig := helpers.NewHydraConfig(*configPath)
 
 	// Setup the providers
-	var err error
-	provider, err = basic.NewBasicAuth(*htpasswdPath, "localhost")
+	userdb, err := memory.NewMemStore()
 	if err != nil {
 		panic(err)
 	}
 
-	dbCookieStore, err := cookie.NewDBStore("sqlite3", *cookieDBPath)
+	err = userdb.LoadHtpasswd(*htpasswdPath)
+	if err != nil {
+		panic(err)
+	}
+
+	provider, err = form.NewFormAuth(form.Config{
+		LoginForm:          loginform,
+		LoginUsernameField: "username",
+		LoginPasswordField: "password",
+
+		// Validation options:
+		Username: form.Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
+		Password: form.Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
+
+		// Store for
+		UserStore: userdb,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	dbCookieStore, err := cookie.NewRethinkDBStore("db:28015", "idp")
 	if err != nil {
 		panic(err)
 	}
 
 	cookieProvider = &cookie.CookieAuth{
 		Store:  dbCookieStore,
-		MaxAge: time.Second * 30,
+		MaxAge: time.Minute * 1,
 	}
 
 	config := core.IDPConfig{

@@ -37,15 +37,14 @@ hydra token user --skip-tls-verify --no-open
 ```
 
 ## TODO:
+- Rethinkdb storages
 - Login/Logout endpoint
-- Digest Auth Provider
-- API for getting keys from Hydra
-- Encrypting cookies
-- Trusted clients that won't trigger asking user to agree upon scopes
 - Register user endpoint
+- Encrypting cookies
 - Use hydra's client library
 - Handle expirtion of remember me cookies
-- Handle maxage of remember me cookies
 - Handle errors from hydra
-- Pass negative answer to hydra
-- Parsing configuration file in examples
+- Parsing configuration file in examples or env variables
+- Trusted clients that won't trigger asking user to agree upon scopes
+- Digest Auth Provider
+

@@ -1,5 +1,5 @@
-hash: c62991a632f69318c279bf98f972020abff4a80f541b8eb1576378a9676b1441
-updated: 2016-07-09T10:46:30.368868831+02:00
+hash: 30bb09ae36ffddfb612d65ea95455c3ebaf58a71613cc0c3eb6414ed5c9b1603
+updated: 2016-07-10T13:14:51.929624894+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7664702784775e51966f0885f5cd27435916517b
@@ -7,6 +7,8 @@ imports:
   version: ffaa107fbd880f6d18cd6fec9b511668dcad8639
 - name: github.com/cenk/backoff
   version: cdf48bbc1eb78d1349cbda326a4a037f7ba565c6
+- name: github.com/dancannon/gorethink
+  version: 61cfdef59cb67a9bf9ab2311bd5eb69e132b6bf4
 - name: github.com/davecgh/go-spew
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
@@ -78,7 +80,7 @@ imports:
   - token/hmac
   - rand
 - name: github.com/ory-am/hydra
-  version: 39d2802cc7342f70ad877e8ec769f174601e4ae6
+  version: 1e48e1819672fada95d8b24251d12cd883ba61fc
   subpackages:
   - client
   - jwk
@@ -128,7 +130,7 @@ imports:
   - assert
   - require
 - name: golang.org/x/crypto
-  version: d81fdb778bf2c40a91b24519d60cdc5767318829
+  version: c2f4947f41766b144bb09066e919466da5eddeae
   subpackages:
   - bcrypt
   - blowfish

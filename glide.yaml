@@ -23,3 +23,5 @@ import:
 - package: github.com/ory-am/hydra
 - package: github.com/asaskevich/govalidator
   version: ~4.0.0
+- package: github.com/dancannon/gorethink
+  version: ~2.1.0
