@@ -184,12 +184,16 @@ func main() {
 		LoginPasswordField: "password",
 
 		// Validation options:
-		MinUsernameLength: 1,
-		MaxUsernameLength: 100,
-		MinPasswordLength: 1,
-		MaxPasswordLength: 100,
-		UsernamePattern:   ".*",
-		PasswordPattern:   ".*",
+		Username: form.Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
+		Password: form.Complexity{
+			MinLength: 1,
+			MaxLength: 100,
+			Patterns:  []string{".*"},
+		},
 
 		// Store for
 		UserStore: userdb,
