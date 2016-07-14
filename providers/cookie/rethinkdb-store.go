@@ -120,7 +120,6 @@ func (s *RethinkDBStore) DeleteAll() (err error) {
 	return
 }
 
-// func (s *RethinkDBStore) Close() error {
-// 	s.getStmt.Close()
-// 	return s.db.Close()
-// }
+func (s *RethinkDBStore) Close() error {
+	return s.session.Close()
+}

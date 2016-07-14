@@ -206,6 +206,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer dbCookieStore.Close()
 
 	cookieProvider = &cookie.CookieAuth{
 		Store:  dbCookieStore,

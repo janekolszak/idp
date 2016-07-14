@@ -12,5 +12,4 @@ RUN glide install
 RUN go install .
 
 ENTRYPOINT /go/bin/hydra host --dangerous-auto-logon
-
 EXPOSE 4444
