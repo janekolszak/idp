@@ -39,7 +39,8 @@ services:
       dockerfile: idp-form-with-rethinkdb.dockerfile
     environment:
       - HYDRA_URL=https://hydra:4444
-      - DATABASE_URL=rethinkdb://db:28015/hydra
+      - DATABASE_URL=db:28015
+      - DATABASE_NAME=IDP
     links:
       - hydra
       - db

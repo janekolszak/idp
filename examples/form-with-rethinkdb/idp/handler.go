@@ -49,7 +49,8 @@ func (h *IdpHandler) Attach(router *httprouter.Router) {
 
 func (h *IdpHandler) HandleChallenge() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		fmt.Println("Challenge!")
+		fmt.Println("-> HandleChallenge")
+		defer fmt.Println("<- HandleChallenge")
 
 		selector, user, err := h.CookieProvider.Check(r)
 		if err == nil {
@@ -100,13 +101,14 @@ func (h *IdpHandler) HandleChallenge() httprouter.Handle {
 
 func (h *IdpHandler) HandleConsentGET() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Println("-> HandleConsentGET")
+		defer fmt.Println("<- HandleConsentGET")
+
 		challenge, err := h.IDP.GetChallenge(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		fmt.Println("Data ", challenge.User)
 
 		h.consentTemplate.Execute(w, challenge)
 	}
@@ -115,7 +117,9 @@ func (h *IdpHandler) HandleConsentGET() httprouter.Handle {
 func (h *IdpHandler) HandleConsentPOST() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-		fmt.Println("Consent POST!")
+		fmt.Println("-> HandleConsentPOST")
+		defer fmt.Println("<- HandleConsentPOST")
+
 		challenge, err := h.IDP.GetChallenge(r)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -124,9 +128,8 @@ func (h *IdpHandler) HandleConsentPOST() httprouter.Handle {
 		}
 
 		answer := r.FormValue("answer")
+		fmt.Println("Answer: ", answer)
 		if answer != "y" {
-			// No challenge token
-			// TODO: Handle negative answer
 			challenge.RefuseAccess(w, r)
 			return
 		}

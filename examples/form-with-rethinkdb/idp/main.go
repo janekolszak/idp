@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -100,13 +101,13 @@ func main() {
 		panic(err)
 	}
 
-	dbCookieStore, err := cookie.NewDBStore("sqlite3", *cookieDBPath)
+	cookieStore, err := cookie.NewRethinkDBStore(os.Getenv("DATABASE_URL"), os.Getenv("DATABASE_NAME"))
 	if err != nil {
 		panic(err)
 	}
 
 	cookieProvider := &cookie.CookieAuth{
-		Store:  dbCookieStore,
+		Store:  cookieStore,
 		MaxAge: time.Minute * 1,
 	}
 
