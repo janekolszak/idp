@@ -25,3 +25,4 @@ import:
   version: ~4.0.0
 - package: github.com/dancannon/gorethink
   version: ~2.1.0
+- package: github.com/boj/rethinkstore

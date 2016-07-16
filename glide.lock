@@ -1,14 +1,16 @@
-hash: 30bb09ae36ffddfb612d65ea95455c3ebaf58a71613cc0c3eb6414ed5c9b1603
-updated: 2016-07-10T13:14:51.929624894+02:00
+hash: 8b6aab4638c962e15d7dc8d70b63e836087ee0f968b3e158b2f432110d8d21a9
+updated: 2016-07-16T13:32:35.706671707+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7664702784775e51966f0885f5cd27435916517b
+- name: github.com/boj/rethinkstore
+  version: e43a395bab9ceb1a1724b3808d0f650d6d9c20ec
 - name: github.com/BurntSushi/toml
-  version: ffaa107fbd880f6d18cd6fec9b511668dcad8639
+  version: bec2dacf4b590d26237cfebff4471e21ce543494
 - name: github.com/cenk/backoff
   version: cdf48bbc1eb78d1349cbda326a4a037f7ba565c6
 - name: github.com/dancannon/gorethink
-  version: 61cfdef59cb67a9bf9ab2311bd5eb69e132b6bf4
+  version: d970d3cce3e907bd864200d4fb7410bca05b9264
 - name: github.com/davecgh/go-spew
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
@@ -20,7 +22,7 @@ imports:
 - name: github.com/go-errors/errors
   version: a41850380601eeb43f4350f7d17c6bbd8944aaf8
 - name: github.com/golang/protobuf
-  version: 3852dcfda249c2097355a6aabb199a28d97b30df
+  version: 874264fbbb43f4d91e999fecb4b40143ed611400
   subpackages:
   - proto
 - name: github.com/gorilla/context
@@ -32,7 +34,7 @@ imports:
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/hashicorp/hcl
-  version: 364df430845abef160a0bfb3a59979f746bf4956
+  version: d8c773c4cba11b11539e3d45f93daeaa5dcf1fa1
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -45,15 +47,15 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/julienschmidt/httprouter
-  version: 77366a47451a56bb3ba682481eed85b64fea14e8
+  version: fb79d6a91d3e4a9ecb6d945b218d78fc0d9b1939
 - name: github.com/magiconair/properties
-  version: e2f061ecfdaca9f35b2e2c12346ffc526f138137
+  version: af14024f63beeb153d0048591b39c5788f21cc24
 - name: github.com/mattn/go-sqlite3
   version: 3b3f1d01b2696af5501697c35629048c227586ab
 - name: github.com/mendsley/gojwk
   version: 4d5ec6e58103388d6cb0d7d72bc72649be4f0504
 - name: github.com/mitchellh/mapstructure
-  version: d2dd0262208475919e1a362f675cfc0e7c10e905
+  version: 21a35fb16463dfb7c8eee579c65d995d95e64d1e
 - name: github.com/moul/http2curl
   version: b1479103caacaa39319f75e7f57fc545287fca0d
 - name: github.com/oleiade/reflections
@@ -80,7 +82,7 @@ imports:
   - token/hmac
   - rand
 - name: github.com/ory-am/hydra
-  version: 1e48e1819672fada95d8b24251d12cd883ba61fc
+  version: 9945c118da162ccaaa4418d76d20252cbe1b8aa3
   subpackages:
   - client
   - jwk
@@ -108,11 +110,11 @@ imports:
 - name: github.com/satori/go.uuid
   version: 879c5887cd475cd7864858769793b2ceb0d44feb
 - name: github.com/Sirupsen/logrus
-  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+  version: a283a10442df8dc09befd873fab202bf8a253d6a
 - name: github.com/spf13/cast
   version: 27b586b42e29bec072fe7379259cc719e1289da6
 - name: github.com/spf13/cobra
-  version: a272c3cbd5ff80a5bf5c5603df50183f9f3f7324
+  version: b24564e919247d7c870fe0ed3738c98d8741aca4
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
@@ -130,22 +132,22 @@ imports:
   - assert
   - require
 - name: golang.org/x/crypto
-  version: c2f4947f41766b144bb09066e919466da5eddeae
+  version: 10c26747e67d76ad4fafe6087c6f4073c3b22942
   subpackages:
   - bcrypt
   - blowfish
   - pbkdf2
 - name: golang.org/x/net
-  version: f841c39de738b1d0df95b5a7187744f0e03d8112
+  version: e90d6d0afc4c315a0d87a568ae68577cc15149a0
   subpackages:
   - context
 - name: golang.org/x/oauth2
-  version: 7357e96168422ba1e6e7f21075713b72d58764e7
+  version: 4470bd844ebb05a09d21d3f54d5824a81b5f45af
   subpackages:
   - clientcredentials
   - internal
 - name: golang.org/x/sys
-  version: a408501be4d17ee978c04a618e7a1b22af058c0e
+  version: b518c298ac9dc94b6ac0757394f50d10c5dfa25a
   subpackages:
   - unix
 - name: google.golang.org/appengine
@@ -159,7 +161,7 @@ imports:
   - internal/log
   - internal/remote_api
 - name: gopkg.in/dancannon/gorethink.v2
-  version: 61cfdef59cb67a9bf9ab2311bd5eb69e132b6bf4
+  version: d970d3cce3e907bd864200d4fb7410bca05b9264
   subpackages:
   - encoding
   - ql2
@@ -169,5 +171,5 @@ imports:
 - name: gopkg.in/fatih/pool.v2
   version: cba550ebf9bce999a02e963296d4bc7a486cb715
 - name: gopkg.in/yaml.v2
-  version: a83829b6f1293c91addabc89d0571c246397bbf4
+  version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
 devImports: []
