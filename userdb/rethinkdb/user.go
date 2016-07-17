@@ -3,13 +3,22 @@ package rethinkdb
 import "time"
 
 type User struct {
-	ID               string    `json:"id" gorethink:"id"`
+	ID               string    `json:"id,omitempty" gorethink:"id,omitempty"`
+	Username         string    `json:"username" gorethink:"username"`
+	Password         []byte    `json:"password,omitempty" gorethink:"password,omitempty"`
 	FirstName        string    `json:"firstName" gorethink:"firstName"`
 	LastName         string    `json:"lastName" gorethink:"lastName"`
-	Username         string    `json:"username" gorethink:"username"`
 	Email            string    `json:"email" gorethink:"email"`
 	IsVerified       bool      `json:"isVerified" gorethink:"isVerified"`
 	RegistrationTime time.Time `json:"registrationTime" gorethink:"registrationTime"`
+}
+
+func (u *User) GetUsername() string {
+	return u.Username
+}
+
+func (u *User) GetPassword() []byte {
+	return u.Password
 }
 
 func (u *User) GetFirstName() string {
@@ -18,10 +27,6 @@ func (u *User) GetFirstName() string {
 
 func (u *User) GetLastName() string {
 	return u.LastName
-}
-
-func (u *User) GetUsername() string {
-	return u.Username
 }
 
 func (u *User) GetEmail() string {

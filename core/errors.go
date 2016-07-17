@@ -21,4 +21,5 @@ var (
 	ErrorBadPrivateKey         = errors.New("cannot conver to private key")
 	ErrorNotInCache            = errors.New("cache doesn't have the requested data")
 	ErrorSessionExpired        = errors.New("session expired")
+	ErrorInternalError         = errors.New("server internal error")
 )
