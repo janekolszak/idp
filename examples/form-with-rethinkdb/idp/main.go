@@ -114,14 +114,15 @@ func main() {
 	}
 
 	// challengeCookieStore := sessions.NewFilesystemStore("", []byte("something-very-secret"))
-	// challengeCookieStore := sessions.NewCookieStore([]byte("something-very-secret"))
+	challengeCookieStore := sessions.NewCookieStore([]byte("something-very-secret"))
 
-	challengeCookieStore, err := rethinkstore.NewRethinkStore(os.Getenv("DATABASE_URL"), os.Getenv("DATABASE_NAME"), "challenges", 5, 5, []byte("something-very-secret"))
-	if err != nil {
-		panic(err)
-	}
-	defer challengeCookieStore.Close()
-	challengeCookieStore.MaxAge(60 * 5) // 5 min
+	// TODO: Uncomment when rethinkstore is fixed
+	// challengeCookieStore, err := rethinkstore.NewRethinkStore(os.Getenv("DATABASE_URL"), os.Getenv("DATABASE_NAME"), "challenges", 5, 5, []byte("something-very-secret"))
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer challengeCookieStore.Close()
+	// challengeCookieStore.MaxAge(60 * 5) // 5 min
 
 	idp := core.NewIDP(&core.IDPConfig{
 		ClusterURL:            *hydraURL,
