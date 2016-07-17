@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/boj/rethinkstore"
-	// "github.com/gorilla/sessions"
+	// "github.com/boj/rethinkstore"
+	"github.com/gorilla/sessions"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/cookie"
