@@ -8,9 +8,10 @@ type Store interface {
 }
 
 type UserInfo interface {
+	GetUsername() string
+	GetPassword() string
 	GetFirstName() string
 	GetLastName() string
-	GetUsername() string
 	GetEmail() string
 	GetIsVerified() bool
 	GetRegistrationTime() time.Time
