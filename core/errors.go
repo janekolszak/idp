@@ -12,7 +12,7 @@ var (
 	ErrorBadChallengeToken     = errors.New("bad challenge token format")
 	ErrorNoChallengeCookie     = errors.New("challenge token isn't stored in a cookie")
 	ErrorBadChallengeCookie    = errors.New("bad format of the challenge cookie")
-	ErrorChallengeExpired      = errors.New("bad format of the challenge cookie")
+	ErrorChallengeExpired      = errors.New("challenge expired")
 	ErrorNoKey                 = errors.New("there's no key in the cache")
 	ErrorNoSuchClient          = errors.New("there's no OIDC Client with such id")
 	ErrorBadKey                = errors.New("bad key stored in the cache ")

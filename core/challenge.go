@@ -2,9 +2,10 @@ package core
 
 import (
 	"encoding/gob"
+	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
-	hclient "github.com/ory-am/hydra/client"
 	// "github.com/gorilla/sessions"
+	hclient "github.com/ory-am/hydra/client"
 	"net/http"
 	"time"
 )
@@ -35,16 +36,38 @@ func init() {
 
 // Saves the challenge to it's session store
 func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
+	session, err := c.idp.config.ChallengeStore.New(r, SessionCookieName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("MaxAge", session.Options.MaxAge)
+	session.Options = c.idp.createChallengeCookieOptions
+	fmt.Println("MaxAge", session.Options.MaxAge)
+
+	session.Values[SessionCookieName] = c
+	return c.idp.config.ChallengeStore.Save(r, w, session)
+}
+
+func (c *Challenge) Delete(w http.ResponseWriter, r *http.Request) error {
 	session, err := c.idp.config.ChallengeStore.Get(r, SessionCookieName)
 	if err != nil {
 		return err
 	}
-	session.Values[SessionCookieName] = c
-	return session.Save(r, w)
+
+	session.Options = c.idp.deleteChallengeCookieOptions
+	return c.idp.config.ChallengeStore.Save(r, w, session)
 }
 
-func (c *Challenge) RefuseAccess(w http.ResponseWriter, r *http.Request) {
+func (c *Challenge) RefuseAccess(w http.ResponseWriter, r *http.Request) error {
+	err := c.Delete(w, r)
+	if err != nil {
+		return err
+	}
+
 	http.Redirect(w, r, c.Redirect+"&consent=false", http.StatusFound)
+
+	return nil
 }
 
 func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) error {
@@ -72,14 +95,8 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	// Remove the cookie
-	session, err := c.idp.config.ChallengeStore.Get(r, SessionCookieName)
-	if err != nil {
-		return err
-	}
-	delete(session.Values, SessionCookieName)
-	session.Options.MaxAge = -1
-	err = session.Save(r, w)
+	// Delete the cookie
+	err = c.Delete(w, r)
 	if err != nil {
 		return err
 	}

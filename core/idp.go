@@ -44,6 +44,11 @@ type IDP struct {
 
 	// Cache for all private and public keys
 	cache *cache.Cache
+
+	// Prepared cookie options for creating and deleting cookies
+	// TODO: Is this the best way to do this?
+	createChallengeCookieOptions *sessions.Options
+	deleteChallengeCookieOptions *sessions.Options
 }
 
 func NewIDP(config *IDPConfig) *IDP {
@@ -53,6 +58,18 @@ func NewIDP(config *IDPConfig) *IDP {
 	// TODO: Pass TTL and refresh period from config
 	idp.cache = cache.New(config.KeyCacheExpiration, config.CacheCleanupInterval)
 	idp.cache.OnEvicted(func(key string, value interface{}) { idp.refreshCache(key) })
+
+	idp.createChallengeCookieOptions = new(sessions.Options)
+	idp.createChallengeCookieOptions.Path = "/"      // TODO: More specific?
+	idp.createChallengeCookieOptions.MaxAge = 60 * 5 // 5min
+	idp.createChallengeCookieOptions.Secure = false  // TODO: Change to true
+	idp.createChallengeCookieOptions.HttpOnly = false
+
+	idp.deleteChallengeCookieOptions = new(sessions.Options)
+	idp.deleteChallengeCookieOptions.Path = "/"     // TODO: More specific?
+	idp.deleteChallengeCookieOptions.MaxAge = -1    // Mark for deletion
+	idp.deleteChallengeCookieOptions.Secure = false // TODO: Change to true
+	idp.deleteChallengeCookieOptions.HttpOnly = false
 
 	return idp
 }

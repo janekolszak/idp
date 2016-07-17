@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/gorilla/sessions"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/providers/cookie"
 	"github.com/julienschmidt/httprouter"
@@ -52,6 +53,8 @@ func (h *IdpHandler) HandleChallenge() httprouter.Handle {
 		fmt.Println("-> HandleChallenge")
 		defer fmt.Println("<- HandleChallenge")
 
+		fmt.Println(sessions.GetRegistry(r))
+
 		selector, user, err := h.CookieProvider.Check(r)
 		if err == nil {
 			fmt.Println("Authenticated with Cookie")
@@ -88,12 +91,16 @@ func (h *IdpHandler) HandleChallenge() httprouter.Handle {
 			return
 		}
 
+		fmt.Println("Challenge: ", challenge)
+
 		err = challenge.Save(w, r)
 		if err != nil {
 			fmt.Println(err.Error())
 			h.Provider.WriteError(w, r, err)
 			return
 		}
+
+		fmt.Println("Registry: ", sessions.GetRegistry(r))
 
 		http.Redirect(w, r, "/consent", http.StatusFound)
 	}
@@ -104,8 +111,11 @@ func (h *IdpHandler) HandleConsentGET() httprouter.Handle {
 		fmt.Println("-> HandleConsentGET")
 		defer fmt.Println("<- HandleConsentGET")
 
+		fmt.Println("Registry: ", sessions.GetRegistry(r))
+
 		challenge, err := h.IDP.GetChallenge(r)
 		if err != nil {
+			fmt.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -130,7 +140,11 @@ func (h *IdpHandler) HandleConsentPOST() httprouter.Handle {
 		answer := r.FormValue("answer")
 		fmt.Println("Answer: ", answer)
 		if answer != "y" {
-			challenge.RefuseAccess(w, r)
+			err = challenge.RefuseAccess(w, r)
+			if err != nil {
+				fmt.Println(err.Error())
+				h.Provider.WriteError(w, r, err)
+			}
 			return
 		}
 

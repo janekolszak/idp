@@ -12,7 +12,6 @@ services:
       - "8080:8080"
       - "28015:28015"
       - "29015:29015"
-    cpu_quota: 50000
 
   hydra:
     container_name: hydra
