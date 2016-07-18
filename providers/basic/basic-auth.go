@@ -58,6 +58,7 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 }
 
 func (c *BasicAuth) Register(r *http.Request) (user string, err error) {
+	err = core.ErrorNotImplemented
 	return
 }
 
