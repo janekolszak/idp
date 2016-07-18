@@ -57,6 +57,11 @@ func (c *BasicAuth) Check(r *http.Request) (user string, err error) {
 	return
 }
 
+func (c *BasicAuth) Register(r *http.Request) (user string, err error) {
+	err = core.ErrorNotImplemented
+	return
+}
+
 func (c *BasicAuth) WriteError(w http.ResponseWriter, r *http.Request, _ error) error {
 	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm=%q`, c.Realm))
 	http.Error(w, "authorization failed", http.StatusUnauthorized)

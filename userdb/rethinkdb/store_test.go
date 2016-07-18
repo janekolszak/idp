@@ -1,12 +1,12 @@
 package rethinkdb
 
 import (
-	"github.com/janekolszak/idp/core"
-
-	"github.com/stretchr/testify/assert"
-	r "gopkg.in/dancannon/gorethink.v2"
 	"os"
 	"testing"
+
+	"github.com/janekolszak/idp/core"
+	"github.com/stretchr/testify/assert"
+	r "gopkg.in/dancannon/gorethink.v2"
 )
 
 const (
@@ -47,7 +47,6 @@ func TestMain(m *testing.M) {
 
 func TestNewStore(t *testing.T) {
 	assert := assert.New(t)
-	assert.Nil(Cleanup())
 
 	store, err := NewStore(session)
 	assert.Nil(err)
