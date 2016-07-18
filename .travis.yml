@@ -13,7 +13,7 @@ install:
   - glide install
 
 before_script:
-  - rethinkdb --daemon
+  - rethinkdb create && rethinkdb serve --daemon && sleep 2
 
 script:
   - go build github.com/janekolszak/idp/examples/basic-auth/idp
