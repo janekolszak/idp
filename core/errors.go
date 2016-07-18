@@ -22,4 +22,6 @@ var (
 	ErrorNotInCache            = errors.New("cache doesn't have the requested data")
 	ErrorSessionExpired        = errors.New("session expired")
 	ErrorInternalError         = errors.New("server internal error")
+	ErrorPasswordMismatch      = errors.New("passwords don't match")
+	ErrorComplexityFailed      = errors.New("complexity failed")
 )

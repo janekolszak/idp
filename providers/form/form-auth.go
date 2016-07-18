@@ -20,9 +20,14 @@ type Config struct {
 	LoginForm          string
 	LoginUsernameField string
 	LoginPasswordField string
-	Username           Complexity
-	Password           Complexity
-	UserStore          userdb.Store
+
+	RegisterUsernameField        string
+	RegisterPasswordField        string
+	RegisterPasswordConfirmField string
+
+	Username  Complexity
+	Password  Complexity
+	UserStore userdb.Store
 }
 
 type FormAuth struct {
@@ -69,6 +74,32 @@ func (f *FormAuth) Check(r *http.Request) (user string, err error) {
 		err = core.ErrorAuthenticationFailure
 	}
 
+	return
+}
+
+func (f *FormAuth) Register(r *http.Request) (user string, err error) {
+	user = r.FormValue(f.RegisterUsernameField)
+	password := r.FormValue(f.RegisterPasswordField)
+	confirm := r.FormValue(f.RegisterPasswordConfirmField)
+
+	if password != confirm {
+		err = core.ErrorPasswordMismatch
+	}
+
+	if !f.Config.Password.Validate(password) {
+		err = core.ErrorComplexityFailed
+	}
+
+	if !f.Config.Username.Validate(user) {
+		err = core.ErrorComplexityFailed
+	}
+
+	if err != nil {
+		user = ""
+		return
+	}
+
+	err = f.UserStore.Add(user, password)
 	return
 }
 
