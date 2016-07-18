@@ -13,12 +13,13 @@ install:
   - glide install
 
 before_script:
-  - rethinkdb create && rethinkdb serve --daemon && sleep 2
+  - rethinkdb --daemon
 
 script:
   - go build github.com/janekolszak/idp/examples/basic-auth/idp
   - go build github.com/janekolszak/idp/examples/form-auth/idp
   - go test $(glide nv)
+
 #   - go test github.com/janekolszak/idp/helpers
 #   - go test github.com/janekolszak/idp/providers/basic
 #   - go test github.com/janekolszak/idp/providers/cookie
