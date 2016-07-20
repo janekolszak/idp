@@ -49,3 +49,6 @@ hydra token user --skip-tls-verify --no-open
 - Digest Auth Provider
 - Providers should return user id, not username
 - Request removing bad cookies in responses
+- Verify email
+- Reset password
+- Use worker pool in sending emails etc.
