@@ -1,4 +1,4 @@
-package rethinkdb
+package verifier
 
 import (
 	"github.com/janekolszak/idp/core"

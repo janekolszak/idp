@@ -1,10 +1,10 @@
-package rethinkdb
+package verifier
 
 import (
 	"os"
 	"testing"
 
-	// "github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/userdb/rethinkdb"
 	"github.com/stretchr/testify/assert"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
@@ -17,7 +17,7 @@ const (
 
 var (
 	session  *r.Session
-	testUser = &User{
+	testUser = &rethinkdb.User{
 		FirstName: "Joe",
 		LastName:  "Doe",
 		Username:  "joe",
