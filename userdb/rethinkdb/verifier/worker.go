@@ -34,10 +34,21 @@ func NewWorker(session *r.Session) (*Worker, error) {
 
 // Start the Worker that sends the verification emails.
 // VW will block waiting for new Verifications.
-func (w *Worker) Start() {
+func (w *Worker) Start() error {
+	cursor, err := r.Table(w.table).Filter(map[string]interface{}{"sentCount": 0}).Changes(r.ChangesOpts{IncludeInitial: true}).Run(w.session)
+	if err != nil {
+		return err
+	}
+	// defer cursor.Close()
+
+	dataChannel := make(chan VerificationChange)
+	cursor.Listen(dataChannel)
+
 	w.ctrl = make(chan bool, 1)
 	w.waitGroup.Add(1)
-	go w.run()
+	go w.run(dataChannel)
+
+	return nil
 }
 
 // Stops the Worker goroutine
@@ -46,24 +57,13 @@ func (w *Worker) Stop() {
 	w.waitGroup.Wait()
 }
 
-func (w *Worker) run() {
+func (w *Worker) run(dataChannel <-chan VerificationChange) {
 	defer close(w.ctrl)
 	defer w.waitGroup.Done()
 
-	cursor, err := r.Table(w.table).Filter(map[string]interface{}{"sentCount": 0}).Changes(r.ChangesOpts{IncludeInitial: true}).Run(w.session)
-
-	if err != nil {
-		return
-	}
-
-	defer cursor.Close()
-
-	ch := make(chan VerificationChange)
-	cursor.Listen(ch)
-
 	for {
 		select {
-		case c, ok := <-ch:
+		case c, ok := <-dataChannel:
 			if !ok {
 				// For example database closing
 				return

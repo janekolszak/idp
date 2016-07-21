@@ -31,7 +31,10 @@ func TestWorkerSimple(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(w)
 
-	w.Start()
+	err = w.Start()
+	assert.Nil(err)
+
 	verifier.PushVerification("userID", "email")
+
 	w.Stop()
 }
