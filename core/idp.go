@@ -18,8 +18,11 @@ import (
 const (
 	VerifyPublicKey   = "VerifyPublic"
 	ConsentPrivateKey = "ConsentPrivate"
-	ClientInfo        = "ClientInfo"
 )
+
+func ClientInfoKey(clientID string) string {
+	return "ClientInfo:" + clientID
+}
 
 var encryptionkey = "something-very-secret"
 
@@ -74,36 +77,53 @@ func NewIDP(config *IDPConfig) *IDP {
 	return idp
 }
 
+func (idp *IDP) CacheConsentKey() error {
+	consentKey, err := idp.getConsentKey()
+
+	duration := cache.DefaultExpiration
+	if err != nil {
+		// re-cache the result even if there's an error, but
+		// do it with a shorter timeout. This will ensure we
+		// try to refresh the key once that timeout expires,
+		// otherwise we'll _never_ refresh the key again.
+		duration = idp.config.CacheCleanupInterval
+	}
+
+	idp.cache.Set(ConsentPrivateKey, consentKey, duration)
+	return err
+}
+
+func (idp *IDP) CacheVerificationKey() error {
+	verifyKey, err := idp.getVerificationKey()
+
+	duration := cache.DefaultExpiration
+	if err != nil {
+		// re-cache the result even if there's an error, but
+		// do it with a shorter timeout. This will ensure we
+		// try to refresh the key once that timeout expires,
+		// otherwise we'll _never_ refresh the key again.
+		duration = idp.config.CacheCleanupInterval
+	}
+
+	idp.cache.Set(VerifyPublicKey, verifyKey, duration)
+	return err
+}
+
 // Called when any key expires
 func (idp *IDP) refreshCache(key string) {
 	switch key {
 	case VerifyPublicKey:
-		verifyKey, err := idp.getVerificationKey()
-		if err != nil {
-			return
-		}
-		idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
+		idp.CacheVerificationKey()
 		return
 
 	case ConsentPrivateKey:
-		consentKey, err := idp.getConsentKey()
-		if err != nil {
-			return
-		}
-		idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
-		return
-
-	case ClientInfo:
-
-		clients, err := idp.hc.Client.GetClients()
-		if err != nil {
-			return
-		}
-		idp.cache.Set(ClientInfo, clients, idp.config.ClientCacheExpiration)
-
+		idp.CacheConsentKey()
 		return
 
 	default:
+		// Will get here for client IDs.
+		// Fine to just let them expire, the next request from that
+		// client will trigger a refresh
 		return
 	}
 }
@@ -152,26 +172,17 @@ func (idp *IDP) Connect() error {
 		return err
 	}
 
-	verifyKey, err := idp.getVerificationKey()
+	err = idp.CacheVerificationKey()
 	if err != nil {
 		return err
 	}
 
-	consentKey, err := idp.getConsentKey()
+	err = idp.CacheConsentKey()
 	if err != nil {
 		return err
 	}
 
-	clients, err := idp.hc.Client.GetClients()
-	if err != nil {
-		return err
-	}
-
-	idp.cache.Set(VerifyPublicKey, verifyKey, cache.DefaultExpiration)
-	idp.cache.Set(ConsentPrivateKey, consentKey, cache.DefaultExpiration)
-	idp.cache.Set(ClientInfo, clients, idp.config.ClientCacheExpiration)
-
-	return err
+	return nil
 }
 
 // Parse and verify the challenge JWT
@@ -225,22 +236,29 @@ func (idp *IDP) GetVerificationKey() (*rsa.PublicKey, error) {
 }
 
 func (idp *IDP) GetClient(clientID string) (*hclient.Client, error) {
-	data, ok := idp.cache.Get(ClientInfo)
-	if !ok {
-		return nil, ErrorNotInCache
-	}
-
-	clients, ok := data.(map[string]*hclient.Client)
-	if !ok {
-		return nil, ErrorNotInCache
-	}
-
-	client, ok := clients[clientID]
-	if !ok {
+	clientKey := ClientInfoKey(clientID)
+	data, ok := idp.cache.Get(clientKey)
+	if ok {
+		if data != nil {
+			client := data.(*hclient.Client)
+			return client, nil
+		}
+		fmt.Println("client nil from cache")
 		return nil, ErrorNoSuchClient
 	}
 
-	return client, nil
+	client, err := idp.hc.Client.GetClient(clientID)
+	if err != nil {
+		// Either the client isn't registered in hydra, or maybe hydra is
+		// having some problem. Either way, ensure we don't hit hydra again
+		// for this client if someone (maybe an attacker) retries quickly.
+		idp.cache.Set(clientKey, nil, idp.config.ClientCacheExpiration)
+		return nil, err
+	}
+
+	c := client.(*hclient.Client)
+	idp.cache.Set(clientKey, client, idp.config.ClientCacheExpiration)
+	return c, nil
 }
 
 func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge, err error) {
@@ -273,7 +291,6 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 	}
 
 	challenge.Redirect = claims["redir"].(string)
-
 	challenge.User = user
 	challenge.idp = idp
 
