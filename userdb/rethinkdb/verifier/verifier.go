@@ -31,20 +31,24 @@ type Verifier struct {
 	table   string
 }
 
+func setupDatabase(session *r.Session, table string) {
+	// Discard error (database exists)
+	db := session.Database()
+	r.DBCreate(db).RunWrite(session)
+	r.DB(db).TableCreate(table).RunWrite(session)
+
+	// Index for fetching users by credentials used in the login
+	r.Table(table).IndexCreate("lastSentTime").Exec(session)
+
+	r.Table(table).IndexWait().RunWrite(session)
+}
+
 func NewVerifier(session *r.Session) (*Verifier, error) {
 	v := new(Verifier)
 	v.session = session
 	v.table = "verifyEmails"
 
-	// Discard error (database exists)
-	db := session.Database()
-	r.DBCreate(db).RunWrite(session)
-	r.DB(db).TableCreate(v.table).RunWrite(session)
-
-	// Index for fetching users by credentials used in the login
-	r.Table(v.table).IndexCreate("lastSentTime").Exec(session)
-
-	r.Table(v.table).IndexWait().RunWrite(session)
+	setupDatabase(session, v.table)
 
 	return v, nil
 }
