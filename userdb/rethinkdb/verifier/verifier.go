@@ -15,7 +15,12 @@ type Verification struct {
 	// User whose email we validate
 	UserID string `json:"userID" gorethink:"userID"`
 
+	// Username will be passed to an email template
+	Username string `json:"username" gorethink:"username"`
+
+	// Which email to verify
 	Email string `json:"email" gorethink:"email"`
+
 	// This field holds how many times the verification email was resent
 	SentCount int `json:"sentCount" gorethink:"sentCount"`
 
@@ -55,9 +60,10 @@ func NewVerifier(session *r.Session) (*Verifier, error) {
 
 // Pushes the verification to the database.
 // Later a Verify Worker will pop the verification and send the email.
-func (v *Verifier) PushVerification(userID string, email string) (code string, err error) {
+func (v *Verifier) PushVerification(userID, username, email string) (code string, err error) {
 	verification := Verification{
 		UserID:    userID,
+		Username:  username,
 		SentCount: 0,
 	}
 
@@ -98,19 +104,4 @@ func (v *Verifier) Count() (uint, error) {
 	}
 
 	return uint(count), nil
-}
-
-// Start the Verify Worker that sends the verification emails.
-// VW will block waiting for new Verifications.
-func (v *Verifier) Start() {
-
-}
-
-// Stops the Verify Worker
-func (v *Verifier) Stop() {
-
-}
-
-func (v *Verifier) Run() {
-
 }
