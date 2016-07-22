@@ -26,3 +26,5 @@ import:
 - package: github.com/dancannon/gorethink
   version: ~2.1.0
 - package: github.com/boj/rethinkstore
+- package: gopkg.in/gomail.v2
+  version: ~2.0.0
