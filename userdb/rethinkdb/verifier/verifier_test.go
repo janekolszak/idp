@@ -13,6 +13,8 @@ const (
 	RETHINKDB_ADDRESS = "localhost:28015"
 	TEST_DATABASE     = "verifyuserstest"
 	TEST_USER_ID      = "testUserID"
+	TEST_USER_NAME    = "testUser Name"
+	TEST_USER_EMAIL   = "joe@doe"
 )
 
 var (
@@ -21,7 +23,7 @@ var (
 		FirstName: "Joe",
 		LastName:  "Doe",
 		Username:  "joe",
-		Email:     "joe@example.com",
+		Email:     TEST_USER_EMAIL,
 	}
 	testUserPassword = "testPassword"
 )
@@ -43,6 +45,8 @@ func TestMain(m *testing.M) {
 	}
 	defer session.Close()
 
+	SetupWorkerTests()
+
 	os.Exit(m.Run())
 }
 
@@ -63,7 +67,7 @@ func TestVerifierPush(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(verifier)
 
-	id, err := verifier.PushVerification("userID", "joe@example.com")
+	id, err := verifier.PushVerification(TEST_USER_ID, TEST_USER_NAME, TEST_USER_EMAIL)
 	assert.Nil(err)
 	assert.NotEqual(id, "")
 
@@ -80,7 +84,7 @@ func TestVerifierVerify(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(verifier)
 
-	code, err := verifier.PushVerification(TEST_USER_ID, "joe@example.com")
+	code, err := verifier.PushVerification(TEST_USER_ID, TEST_USER_NAME, TEST_USER_EMAIL)
 	assert.Nil(err)
 	assert.NotEqual(code, "")
 
@@ -95,7 +99,7 @@ func TestVerifierVerify(t *testing.T) {
 	count, err = verifier.Count()
 	assert.Nil(err)
 	assert.Equal(int(count), 0, "Should be equal")
-	// id, err = verifier.PushVerification(TEST_USER_ID, "joe@example.com")
+	// id, err = verifier.PushVerification(TEST_USER_ID,TEST_USER_NAME, TEST_USER_EMAIL)
 	// assert.Nil(err)
 	// assert.NotEqual(id, "")
 }
