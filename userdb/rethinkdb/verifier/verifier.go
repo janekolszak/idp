@@ -64,6 +64,7 @@ func (v *Verifier) PushVerification(userID, username, email string) (code string
 	verification := Verification{
 		UserID:    userID,
 		Username:  username,
+		Email:     email,
 		SentCount: 0,
 	}
 
