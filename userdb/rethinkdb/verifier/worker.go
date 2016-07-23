@@ -1,11 +1,14 @@
 package verifier
 
 import (
-	"bytes"
+	// "bytes"
 	"fmt"
+	"github.com/nu7hatch/gouuid"
 	r "gopkg.in/dancannon/gorethink.v2"
+	gomail "gopkg.in/gomail.v2"
 	"html/template"
-	"net/smtp"
+	"io"
+	"net/url"
 	"sync"
 	// "time"
 )
@@ -17,11 +20,16 @@ type VerificationChange struct {
 }
 
 type WorkerOpts struct {
-	Session       *r.Session
-	HostAddress   string
-	Sender        string
-	SmtpAuth      smtp.Auth
-	EmailTemplate *template.Template
+	Session         *r.Session
+	Host            string
+	Port            int
+	User            string
+	Password        string
+	From            string
+	Subject         string
+	ContentType     string
+	EndpointAddress string
+	EmailTemplate   *template.Template
 }
 
 // Gets Verifications and sends emails.
@@ -29,7 +37,12 @@ type WorkerOpts struct {
 type Worker struct {
 	opt WorkerOpts
 
-	table     string
+	table  string
+	url    *url.URL
+	msg    *gomail.Message
+	dialer *gomail.Dialer
+
+	// Process control
 	ctrl      chan bool
 	waitGroup sync.WaitGroup
 }
@@ -39,6 +52,19 @@ func NewWorker(opt WorkerOpts) (*Worker, error) {
 	w.opt = opt
 	w.table = "verifyEmails"
 
+	var err error
+	w.url, err = url.Parse(opt.EndpointAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// Prepare message
+	w.msg = gomail.NewMessage()
+	w.msg.SetHeader("From", opt.From)
+	w.msg.SetHeader("Subject", opt.Subject)
+
+	// Dialer will send emails
+	w.dialer = gomail.NewDialer(opt.Host, opt.Port, opt.User, opt.Password)
 	setupDatabase(w.opt.Session, w.table)
 
 	return w, nil
@@ -99,10 +125,29 @@ func (w *Worker) run(dataChannel <-chan VerificationChange) {
 }
 
 func (w *Worker) sendVerificationEmail(verification *Verification) error {
-	var buffer bytes.Buffer
-	w.opt.EmailTemplate.Execute(&buffer, verification)
+	parameters := url.Values{}
+	parameters.Add("code", verification.ID)
+	w.url.RawQuery = parameters.Encode()
 
-	err := smtp.SendMail(w.opt.HostAddress, w.opt.SmtpAuth, w.opt.Sender, []string{verification.Email}, buffer.Bytes())
+	w.msg.SetHeader("To", verification.Email)
+
+	id, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	// <[uid]@[sendingdomain.com]>
+	w.msg.SetHeader("Message-Id", "<"+id.String()+"@"+w.url.Host+">")
+
+	w.msg.AddAlternativeWriter(w.opt.ContentType, func(writer io.Writer) error {
+		data := map[string]string{
+			"Username": verification.Username,
+			"Email":    verification.Email,
+			"URL":      w.url.String(),
+		}
+		return w.opt.EmailTemplate.Execute(writer, data)
+	})
+
+	err = w.dialer.DialAndSend(w.msg)
 	if err != nil {
 		// Failed to send the email
 		return err
