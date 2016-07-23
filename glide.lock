@@ -1,5 +1,5 @@
-hash: 4f8bf89463601793dd9e44f55e15f1f84d4da36a17a44bbca1e239012aeae5c8
-updated: 2016-07-22T06:42:26.291238764+02:00
+hash: 563c3b32e3563d1ce1d04751b2aac9e12f34173474551a03d78cb5bd0d64976a
+updated: 2016-07-23T10:57:24.741718602+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7664702784775e51966f0885f5cd27435916517b
@@ -10,7 +10,7 @@ imports:
 - name: github.com/cenk/backoff
   version: cdf48bbc1eb78d1349cbda326a4a037f7ba565c6
 - name: github.com/dancannon/gorethink
-  version: d970d3cce3e907bd864200d4fb7410bca05b9264
+  version: c5ed2858e1bf5840d4d1e8897467dd433a80a64d
 - name: github.com/davecgh/go-spew
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
@@ -58,6 +58,8 @@ imports:
   version: 21a35fb16463dfb7c8eee579c65d995d95e64d1e
 - name: github.com/moul/http2curl
   version: b1479103caacaa39319f75e7f57fc545287fca0d
+- name: github.com/nu7hatch/gouuid
+  version: 179d4d0c4d8d407a32af483c2354df1d2c91e6c3
 - name: github.com/oleiade/reflections
   version: 632977f98cd34d217c4b57d0840ec188b3d3dcaf
 - name: github.com/ory-am/common
@@ -114,7 +116,7 @@ imports:
 - name: github.com/spf13/cast
   version: 27b586b42e29bec072fe7379259cc719e1289da6
 - name: github.com/spf13/cobra
-  version: dbb7c2d02e284aa24423e3e6e105969dffe6e4d6
+  version: f62e98d28ab7ad31d707ba837a966378465c7b57
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
@@ -160,8 +162,10 @@ imports:
   - internal/datastore
   - internal/log
   - internal/remote_api
+- name: gopkg.in/alexcesaro/quotedprintable.v3
+  version: 2caba252f4dc53eaf6b553000885530023f54623
 - name: gopkg.in/dancannon/gorethink.v2
-  version: d970d3cce3e907bd864200d4fb7410bca05b9264
+  version: c5ed2858e1bf5840d4d1e8897467dd433a80a64d
   subpackages:
   - encoding
   - ql2
