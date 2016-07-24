@@ -25,4 +25,5 @@ var (
 	ErrorPasswordMismatch      = errors.New("passwords don't match")
 	ErrorComplexityFailed      = errors.New("complexity failed")
 	ErrorNotImplemented        = errors.New("not implemented")
+	ErrorNoSuchEntry           = errors.New("there's no entry for a gived id")
 )

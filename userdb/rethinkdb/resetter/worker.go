@@ -1,4 +1,4 @@
-package verifier
+package resetter
 
 import (
 	"github.com/janekolszak/idp/helpers"
@@ -35,7 +35,7 @@ type Worker struct {
 	emailer *helpers.Emailer
 
 	// Process control
-	ctrl          chan bool
+	stopChannel   chan bool
 	cleanupTicker *time.Ticker
 	waitGroup     sync.WaitGroup
 }
@@ -62,7 +62,7 @@ func NewWorker(opt WorkerOpts) (*Worker, error) {
 // Start the Worker that sends the verification emails.
 // VW will block waiting for new Requests.
 func (w *Worker) Start() error {
-	cursor, err := r.Table(w.table).Filter(map[string]interface{}{"sentCount": 0}).Changes(r.ChangesOpts{IncludeInitial: true}).Run(w.opt.Session)
+	cursor, err := r.Table(w.table).Filter(map[string]interface{}{"isSent": false}).Changes(r.ChangesOpts{IncludeInitial: true}).Run(w.opt.Session)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (w *Worker) Start() error {
 
 	w.cleanupTicker = time.NewTicker(w.opt.CleanupInterval)
 
-	w.ctrl = make(chan bool, 1)
+	w.stopChannel = make(chan bool, 1)
 	w.waitGroup.Add(1)
 	go w.run(dataChannel)
 
@@ -82,13 +82,13 @@ func (w *Worker) Start() error {
 
 // Stops the Worker goroutine
 func (w *Worker) Stop() {
-	w.ctrl <- true
+	w.stopChannel <- true
 	w.cleanupTicker.Stop()
 	w.waitGroup.Wait()
 }
 
 func (w *Worker) run(dataChannel <-chan RequestChange) {
-	defer close(w.ctrl)
+	defer close(w.stopChannel)
 	defer w.waitGroup.Done()
 
 	for {
@@ -117,7 +117,7 @@ func (w *Worker) run(dataChannel <-chan RequestChange) {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-		case <-w.ctrl:
+		case <-w.stopChannel:
 			// Stopping
 			return
 		default:
@@ -125,32 +125,30 @@ func (w *Worker) run(dataChannel <-chan RequestChange) {
 	}
 }
 
-func (w *Worker) serve(verification *Request) error {
+func (w *Worker) serve(request *Request) error {
 	parameters := url.Values{}
-	parameters.Add("code", verification.ID)
+	parameters.Add("code", request.ID)
 	w.url.RawQuery = parameters.Encode()
 
 	data := map[string]string{
-		"Username": verification.Username,
-		"Email":    verification.Email,
+		"Username": request.Username,
+		"Email":    request.Email,
 		"URL":      w.url.String(),
 	}
 
-	err := w.emailer.Send(verification.Email, data)
+	err := w.emailer.Send(request.Email, data)
 	if err != nil {
 		return err
 	}
 
-	// Increment sent emails counter
-	_, err = r.Table(w.table).Get(verification.ID).Update(map[string]interface{}{
-		"sentCount":    r.Row.Field("sentCount").Add(1).Default(0),
-		"lastSentTime": r.Now()}).RunWrite(w.opt.Session)
+	// Mark as sent
+	_, err = r.Table(w.table).Get(request.ID).Update(map[string]interface{}{"isSent": true}).RunWrite(w.opt.Session)
 
 	return err
 }
 
 // Deletes expired entries
 func (w *Worker) deleteExpired(now time.Time) error {
-	_, err := r.Table(w.table).Between(r.MinVal, now.Add(-w.opt.RequestMaxAge), r.BetweenOpts{Index: "lastSentTime"}).Delete().Run(w.opt.Session)
+	_, err := r.Table(w.table).Between(r.MinVal, now.Add(-w.opt.RequestMaxAge), r.BetweenOpts{Index: "toc"}).Delete().Run(w.opt.Session)
 	return err
 }

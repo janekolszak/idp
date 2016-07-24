@@ -67,7 +67,7 @@ func TestVerifierPush(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(verifier)
 
-	id, err := verifier.PushVerification(TEST_USER_ID, TEST_USER_NAME, TEST_USER_EMAIL)
+	id, err := verifier.Push(TEST_USER_ID, TEST_USER_NAME, TEST_USER_EMAIL)
 	assert.Nil(err)
 	assert.NotEqual(id, "")
 
@@ -84,7 +84,7 @@ func TestVerifierVerify(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(verifier)
 
-	code, err := verifier.PushVerification(TEST_USER_ID, TEST_USER_NAME, TEST_USER_EMAIL)
+	code, err := verifier.Push(TEST_USER_ID, TEST_USER_NAME, TEST_USER_EMAIL)
 	assert.Nil(err)
 	assert.NotEqual(code, "")
 
@@ -99,7 +99,7 @@ func TestVerifierVerify(t *testing.T) {
 	count, err = verifier.Count()
 	assert.Nil(err)
 	assert.Equal(int(count), 0, "Should be equal")
-	// id, err = verifier.PushVerification(TEST_USER_ID,TEST_USER_NAME, TEST_USER_EMAIL)
+	// id, err = verifier.Push(TEST_USER_ID,TEST_USER_NAME, TEST_USER_EMAIL)
 	// assert.Nil(err)
 	// assert.NotEqual(id, "")
 }
