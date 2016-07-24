@@ -7,8 +7,7 @@ import (
 	"os"
 	"time"
 
-	// "github.com/boj/rethinkstore"
-	"github.com/gorilla/sessions"
+	"github.com/boj/rethinkstore"
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/cookie"
@@ -124,16 +123,12 @@ func main() {
 		MaxAge: time.Minute * 1,
 	}
 
-	// challengeCookieStore := sessions.NewFilesystemStore("", []byte("something-very-secret"))
-	challengeCookieStore := sessions.NewCookieStore([]byte("something-very-secret"))
-
-	// TODO: Uncomment when rethinkstore is fixed
-	// challengeCookieStore, err := rethinkstore.NewRethinkStore(os.Getenv("DATABASE_URL"), os.Getenv("DATABASE_NAME"), "challenges", 5, 5, []byte("something-very-secret"))
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer challengeCookieStore.Close()
-	// challengeCookieStore.MaxAge(60 * 5) // 5 min
+	challengeCookieStore, err := rethinkstore.NewRethinkStore(os.Getenv("DATABASE_URL"), os.Getenv("DATABASE_NAME"), "challenges", 5, 5, []byte("something-very-secret"))
+	if err != nil {
+		panic(err)
+	}
+	defer challengeCookieStore.Close()
+	challengeCookieStore.MaxAge(60 * 5) // 5 min
 
 	idp := core.NewIDP(&core.IDPConfig{
 		ClusterURL:            *hydraURL,
