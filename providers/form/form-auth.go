@@ -77,31 +77,31 @@ func (f *FormAuth) Check(r *http.Request) (user string, err error) {
 	return
 }
 
-func (f *FormAuth) Register(r *http.Request) (user string, err error) {
-	user = r.FormValue(f.RegisterUsernameField)
-	password := r.FormValue(f.RegisterPasswordField)
-	confirm := r.FormValue(f.RegisterPasswordConfirmField)
+// func (f *FormAuth) Register(r *http.Request) (user string, err error) {
+// 	user = r.FormValue(f.RegisterUsernameField)
+// 	password := r.FormValue(f.RegisterPasswordField)
+// 	confirm := r.FormValue(f.RegisterPasswordConfirmField)
 
-	if password != confirm {
-		err = core.ErrorPasswordMismatch
-	}
+// 	if password != confirm {
+// 		err = core.ErrorPasswordMismatch
+// 	}
 
-	if !f.Config.Password.Validate(password) {
-		err = core.ErrorComplexityFailed
-	}
+// 	if !f.Config.Password.Validate(password) {
+// 		err = core.ErrorComplexityFailed
+// 	}
 
-	if !f.Config.Username.Validate(user) {
-		err = core.ErrorComplexityFailed
-	}
+// 	if !f.Config.Username.Validate(user) {
+// 		err = core.ErrorComplexityFailed
+// 	}
 
-	if err != nil {
-		user = ""
-		return
-	}
+// 	if err != nil {
+// 		user = ""
+// 		return
+// 	}
 
-	err = f.UserStore.Add(user, password)
-	return
-}
+// 	err = f.UserStore.Add(user, password)
+// 	return
+// }
 
 func (f *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {
 	query := url.Values{}

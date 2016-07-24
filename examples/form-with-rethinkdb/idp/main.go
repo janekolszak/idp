@@ -13,10 +13,9 @@ import (
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/cookie"
 	"github.com/janekolszak/idp/providers/form"
-	"github.com/janekolszak/idp/userdb/memory"
+	"github.com/janekolszak/idp/userdb/rethinkdb/store"
 	"github.com/julienschmidt/httprouter"
-
-	_ "github.com/mattn/go-sqlite3"
+	r "gopkg.in/dancannon/gorethink.v2"
 )
 
 const (
@@ -67,16 +66,28 @@ func main() {
 	// Read the configuration file
 	hydraConfig := helpers.NewHydraConfig(*configPath)
 
-	// Setup the providers
-	userdb, err := memory.NewMemStore()
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  os.Getenv("DATABASE_URL"),
+		Database: os.Getenv("DATABASE_NAME"),
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	err = userdb.LoadHtpasswd(*htpasswdPath)
+	// Setup the providers
+	userdb, err := store.NewStore(session)
 	if err != nil {
 		panic(err)
 	}
+
+	testUser := &store.User{
+		FirstName: "Joe",
+		LastName:  "Doe",
+		Username:  "u",
+		Email:     "joe@example.com",
+	}
+
+	userdb.Insert(testUser, "p")
 
 	provider, err := form.NewFormAuth(form.Config{
 		LoginForm:          loginform,

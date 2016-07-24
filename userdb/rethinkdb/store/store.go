@@ -1,4 +1,4 @@
-package rethinkdb
+package store
 
 import (
 	"github.com/janekolszak/idp/core"
