@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"path/filepath"
 
 	"github.com/janekolszak/idp/core"
 	"github.com/janekolszak/idp/userdb"
@@ -28,10 +29,14 @@ type Config struct {
 	Username  Complexity
 	Password  Complexity
 	UserStore userdb.Store
+
+	// Directory with all needed html templates
+	TemplateDir string
 }
 
 type FormAuth struct {
 	Config
+	templates *template.Template
 }
 
 func NewFormAuth(c Config) (*FormAuth, error) {
@@ -50,6 +55,15 @@ func NewFormAuth(c Config) (*FormAuth, error) {
 	}
 
 	auth := FormAuth{Config: c}
+
+	var err error
+	auth.templates, err = template.ParseGlob(filepath.Join(c.TemplateDir, "*.html"))
+
+	// auth.templates, err = template.ParseGlob( + )
+	if err != nil {
+		return nil, err
+	}
+
 	return &auth, nil
 }
 
