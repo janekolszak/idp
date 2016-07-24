@@ -11,7 +11,7 @@ type Provider interface {
 	Check(r *http.Request) (user string, err error)
 
 	// Register is called when a new user is being registered
-	Register(r *http.Request) (user string, err error)
+	// Register(r *http.Request) (user string, err error)
 
 	Write(w http.ResponseWriter, r *http.Request) error
 	WriteError(w http.ResponseWriter, r *http.Request, err error) error
