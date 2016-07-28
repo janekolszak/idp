@@ -10,6 +10,9 @@ RUN htpasswd -cbB ./htpasswd u p
 RUN htpasswd -bB  ./htpasswd user password
 RUN htpasswd -bB  ./htpasswd joe password
 
+ADD examples/form-with-rethinkdb/idp/templates /etc/idp/templates
+RUN ls  /etc/idp/templates
+
 ADD . /go/src/github.com/janekolszak/idp
 WORKDIR /go/src/github.com/janekolszak/idp
 

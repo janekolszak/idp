@@ -40,6 +40,7 @@ services:
       - HYDRA_URL=https://hydra:4444
       - DATABASE_URL=db:28015
       - DATABASE_NAME=IDP
+      - TEMPLATE_DIR=/etc/idp/templates
     links:
       - hydra
       - db

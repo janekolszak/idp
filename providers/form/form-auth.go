@@ -141,3 +141,7 @@ func (f *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error)
 func (f *FormAuth) Write(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
+
+func (f *FormAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
+	return f.templates.ExecuteTemplate(w, "register.html", nil)
+}
