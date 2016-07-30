@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/userdb"
+
 	"github.com/stretchr/testify/assert"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
@@ -16,7 +18,7 @@ const (
 
 var (
 	session  *r.Session
-	testUser = &User{
+	testUser = &userdb.User{
 		FirstName: "Joe",
 		LastName:  "Doe",
 		Username:  "joe",
@@ -124,7 +126,7 @@ func TestUpdate(t *testing.T) {
 	assert.Nil(err)
 	assert.NotEqual(id, "")
 
-	userUpdated := &User{
+	userUpdated := &userdb.User{
 		ID:        id,
 		FirstName: "Ferris",
 		LastName:  "Bueller",
