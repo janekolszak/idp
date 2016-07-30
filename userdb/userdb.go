@@ -27,3 +27,8 @@ type UserStore interface {
 	DeleteWithID(id string) error
 	SetIsVerifiedWithID(id string) error
 }
+
+type UserVerifier interface {
+	Push(userID, username, email string) (code string, err error)
+	Verify(code string) (userID string, err error)
+}

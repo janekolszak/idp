@@ -52,3 +52,4 @@ hydra token user --skip-tls-verify --no-open
 - Verify email
 - Reset password
 - Use worker pool in sending emails etc.
+- Email templates passed via files

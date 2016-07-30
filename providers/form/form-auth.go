@@ -27,9 +27,10 @@ type Config struct {
 	RegisterPasswordField        string
 	RegisterPasswordConfirmField string
 
-	Username  Complexity
-	Password  Complexity
-	UserStore userdb.UserStore
+	Username     Complexity
+	Password     Complexity
+	UserStore    userdb.UserStore
+	UserVerifier userdb.UserVerifier
 
 	// Directory with all needed html templates
 	TemplateDir string
@@ -104,7 +105,13 @@ func (f *FormAuth) Register(r *http.Request) (id string, err error) {
 		LastName:  data.LastName,
 	}
 
-	return f.UserStore.Insert(&user, data.Password)
+	id, err = f.UserStore.Insert(&user, data.Password)
+	if err != nil {
+		return
+	}
+
+	_, err = f.UserVerifier.Push(id, data.Username, data.Email)
+	return
 }
 
 func (f *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {

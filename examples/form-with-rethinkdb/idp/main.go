@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/boj/rethinkstore"
@@ -14,6 +16,7 @@ import (
 	"github.com/janekolszak/idp/providers/form"
 	"github.com/janekolszak/idp/userdb"
 	"github.com/janekolszak/idp/userdb/rethinkdb/store"
+	"github.com/janekolszak/idp/userdb/rethinkdb/verifier"
 	"github.com/julienschmidt/httprouter"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
@@ -89,6 +92,11 @@ func main() {
 
 	db.Insert(testUser, "p")
 
+	ver, err := verifier.NewVerifier(session)
+	if err != nil {
+		panic(err)
+	}
+
 	provider, err := form.NewFormAuth(form.Config{
 		LoginForm:          loginform,
 		LoginUsernameField: "username",
@@ -97,7 +105,8 @@ func main() {
 		TemplateDir: os.Getenv("TEMPLATE_DIR"),
 
 		// Store for
-		UserStore: db,
+		UserStore:    db,
+		UserVerifier: ver,
 
 		// Validation options:
 		Username: form.Complexity{
@@ -159,9 +168,42 @@ func main() {
 		StaticFiles:    *staticFiles,
 	})
 
+	emailPort, err := strconv.Atoi(os.Getenv("EMAIL_PORT"))
+	if err != nil {
+		panic(err)
+	}
+
+	testWorkerOpts := verifier.WorkerOpts{
+		Session:         session,
+		EndpointAddress: os.Getenv("CONSENT_URL") + "/verify",
+		RequestMaxAge:   time.Minute * 1,
+		CleanupInterval: time.Minute * 60,
+
+		EmailerOpts: helpers.EmailerOpts{
+			Host:         os.Getenv("EMAIL_HOST"),
+			Port:         emailPort,
+			User:         os.Getenv("EMAIL_USER"),
+			Password:     os.Getenv("EMAIL_PASS"),
+			From:         os.Getenv("EMAIL_FROM"),
+			TextTemplate: template.Must(template.New("tmpl").Parse("Hi! {{.Username}}, visit {{.URL}} to verify!")),
+			HtmlTemplate: template.Must(template.New("tmpl").Parse("Hi! {{.Username}}, click <a href={{.URL}}> here </a> to verify!")),
+			Domain:       "localhost:3000",
+		},
+	}
+	verifierWorker, err := verifier.NewWorker(testWorkerOpts)
+	if err != nil {
+		panic(err)
+	}
+	err = verifierWorker.Start()
+	if err != nil {
+		panic(err)
+	}
+
 	router := httprouter.New()
 	handler.Attach(router)
 	http.ListenAndServe(":3000", router)
+
+	verifierWorker.Stop()
 
 	idp.Close()
 }
