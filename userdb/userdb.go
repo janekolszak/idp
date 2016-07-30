@@ -18,9 +18,12 @@ type UserInfo interface {
 }
 
 type UserStore interface {
-	Get(username string) (UserInfo, error)
 	Check(username, password string) error
-	Insert(userinfo UserInfo) error
-	Update(userinfo UserInfo) error
-	Delete(username string) error
+	Insert(user *User, password string) (userid string, err error)
+	GetWithID(id string) (user *User, err error)
+	GetWithUsername(username string) (user *User, err error)
+	SetPasswordWithID(id, password string) error
+	Update(user *User) error
+	DeleteWithID(id string) error
+	SetIsVerifiedWithID(id string) error
 }

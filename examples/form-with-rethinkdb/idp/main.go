@@ -12,6 +12,7 @@ import (
 	"github.com/janekolszak/idp/helpers"
 	"github.com/janekolszak/idp/providers/cookie"
 	"github.com/janekolszak/idp/providers/form"
+	"github.com/janekolszak/idp/userdb"
 	"github.com/janekolszak/idp/userdb/rethinkdb/store"
 	"github.com/julienschmidt/httprouter"
 	r "gopkg.in/dancannon/gorethink.v2"
@@ -74,19 +75,19 @@ func main() {
 	}
 
 	// Setup the providers
-	userdb, err := store.NewStore(session)
+	db, err := store.NewStore(session)
 	if err != nil {
 		panic(err)
 	}
 
-	testUser := &store.User{
+	testUser := &userdb.User{
 		FirstName: "Joe",
 		LastName:  "Doe",
 		Username:  "u",
 		Email:     "joe@example.com",
 	}
 
-	userdb.Insert(testUser, "p")
+	db.Insert(testUser, "p")
 
 	provider, err := form.NewFormAuth(form.Config{
 		LoginForm:          loginform,
@@ -96,7 +97,7 @@ func main() {
 		TemplateDir: os.Getenv("TEMPLATE_DIR"),
 
 		// Store for
-		UserStore: userdb,
+		UserStore: db,
 
 		// Validation options:
 		Username: form.Complexity{

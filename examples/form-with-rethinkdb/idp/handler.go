@@ -182,5 +182,18 @@ func (h *IdpHandler) HandleRegisterPOST() httprouter.Handle {
 		fmt.Println("-> HandleRegisterPOST")
 		defer fmt.Println("<- HandleRegisterPOST")
 
+		userid, err := h.Provider.Register(r)
+		if err != nil {
+			fmt.Println(err.Error())
+			h.Provider.WriteError(w, r, err)
+			return
+		}
+
+		// TODO: Remove autologin
+		// Save the RememberMe cookie
+		err = h.CookieProvider.SetCookie(w, r, userid)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
