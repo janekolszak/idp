@@ -47,6 +47,9 @@ func (h *IdpHandler) Attach(router *httprouter.Router) {
 
 	router.GET("/register", h.HandleRegisterGET())
 	router.POST("/register", h.HandleRegisterPOST())
+
+	router.GET("/verify", h.HandleVerifyGET())
+
 	if h.StaticFiles != "" {
 		router.ServeFiles("/static/*filepath", http.Dir(h.StaticFiles))
 	}
@@ -195,5 +198,21 @@ func (h *IdpHandler) HandleRegisterPOST() httprouter.Handle {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+	}
+}
+
+func (h *IdpHandler) HandleVerifyGET() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Println("-> HandleVerifyGET")
+		defer fmt.Println("<- HandleVerifyGET")
+
+		userid, err := h.Provider.Verify(r)
+		if err != nil {
+			fmt.Println(err.Error())
+			h.Provider.WriteError(w, r, err)
+			return
+		}
+
+		h.Provider.WriteVerify(w, r, userid)
 	}
 }
