@@ -29,3 +29,4 @@ import:
 - package: gopkg.in/gomail.v2
   version: ~2.0.0
 - package: github.com/nu7hatch/gouuid
+- package: github.com/gorilla/schema

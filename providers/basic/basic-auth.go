@@ -73,5 +73,5 @@ func (c *BasicAuth) Write(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *BasicAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	return core.ErrorNotImplemented
 }

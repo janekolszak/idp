@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/janekolszak/idp/userdb/rethinkdb/store"
+	"github.com/janekolszak/idp/userdb"
 	"github.com/stretchr/testify/assert"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
@@ -19,7 +19,7 @@ const (
 
 var (
 	session  *r.Session
-	testUser = &store.User{
+	testUser = &userdb.User{
 		FirstName: "Joe",
 		LastName:  "Doe",
 		Username:  "joe",

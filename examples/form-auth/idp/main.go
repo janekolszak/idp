@@ -82,7 +82,8 @@ func main() {
 		LoginPasswordField: "password",
 
 		// Store for
-		UserStore: userdb,
+		UserStore:    userdb,
+		UserVerifier: nil,
 
 		// Validation options:
 		Username: form.Complexity{

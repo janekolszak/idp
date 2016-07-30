@@ -41,6 +41,12 @@ services:
       - DATABASE_URL=db:28015
       - DATABASE_NAME=IDP
       - TEMPLATE_DIR=/etc/idp/templates
+      - EMAIL_HOST=mailtrap.io
+      - EMAIL_PORT=2525
+      - EMAIL_USER=bffc19805c8b87
+      - EMAIL_PASS=5e86eb71d6ba55
+      - EMAIL_FROM=5a7ed0268f-6f6f88@inbox.mailtrap.io
+
     links:
       - hydra
       - db

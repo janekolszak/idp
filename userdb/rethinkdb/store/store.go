@@ -2,6 +2,7 @@ package store
 
 import (
 	"github.com/janekolszak/idp/core"
+	"github.com/janekolszak/idp/userdb"
 
 	"golang.org/x/crypto/bcrypt"
 	r "gopkg.in/dancannon/gorethink.v2"
@@ -34,7 +35,7 @@ func NewStore(session *r.Session) (*Store, error) {
 	return store, nil
 }
 
-func (s *Store) GetWithID(id string) (user *User, err error) {
+func (s *Store) GetWithID(id string) (user *userdb.User, err error) {
 	cursor, err := r.Table(table).Get(id).Run(s.session)
 	if err != nil {
 		return
@@ -46,12 +47,12 @@ func (s *Store) GetWithID(id string) (user *User, err error) {
 		return
 	}
 
-	user = new(User)
+	user = new(userdb.User)
 	err = cursor.One(user)
 	return
 }
 
-func (s *Store) GetWithUsername(username string) (user *User, err error) {
+func (s *Store) GetWithUsername(username string) (user *userdb.User, err error) {
 	cursor, err := r.Table(table).GetAllByIndex("username", username).Run(s.session)
 	if err != nil {
 		return
@@ -63,7 +64,7 @@ func (s *Store) GetWithUsername(username string) (user *User, err error) {
 		return
 	}
 
-	user = new(User)
+	user = new(userdb.User)
 	err = cursor.One(user)
 	return
 }
@@ -137,7 +138,8 @@ func (s *Store) UserExists(username, email string) error {
 	return nil
 }
 
-func (s *Store) Insert(user *User, password string) (id string, err error) {
+func (s *Store) Insert(user *userdb.User, password string) (id string, err error) {
+	// TODO: Race condition. Better remove the duplicated user at the end
 	err = s.UserExists(user.Username, user.Email)
 	if err != nil {
 		return
@@ -166,7 +168,7 @@ func (s *Store) SetPasswordWithID(id, password string) error {
 	return nil
 }
 
-func (s *Store) Update(user *User) error {
+func (s *Store) Update(user *userdb.User) error {
 	return r.Table(table).Get(user.ID).Update(user).Exec(s.session)
 }
 
