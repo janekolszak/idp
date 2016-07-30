@@ -71,3 +71,7 @@ func (c *BasicAuth) WriteError(w http.ResponseWriter, r *http.Request, _ error) 
 func (c *BasicAuth) Write(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
+
+func (c *BasicAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}

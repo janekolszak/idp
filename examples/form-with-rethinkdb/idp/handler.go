@@ -41,8 +41,12 @@ func CreateHandler(config HandlerConfig) (*IdpHandler, error) {
 func (h *IdpHandler) Attach(router *httprouter.Router) {
 	router.GET("/", h.HandleChallenge())
 	router.POST("/", h.HandleChallenge())
+
 	router.GET("/consent", h.HandleConsentGET())
 	router.POST("/consent", h.HandleConsentPOST())
+
+	router.GET("/register", h.HandleRegisterGET())
+	router.POST("/register", h.HandleRegisterPOST())
 	if h.StaticFiles != "" {
 		router.ServeFiles("/static/*filepath", http.Dir(h.StaticFiles))
 	}
@@ -155,5 +159,28 @@ func (h *IdpHandler) HandleConsentPOST() httprouter.Handle {
 			h.Provider.WriteError(w, r, err)
 			return
 		}
+	}
+}
+
+func (h *IdpHandler) HandleRegisterGET() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Println("-> HandleRegisterGET")
+		defer fmt.Println("<- HandleRegisterGET")
+
+		err := h.Provider.WriteRegister(w, r)
+		if err != nil {
+			// Server error
+			fmt.Println(err.Error())
+			h.Provider.WriteError(w, r, err)
+			return
+		}
+	}
+}
+
+func (h *IdpHandler) HandleRegisterPOST() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Println("-> HandleRegisterPOST")
+		defer fmt.Println("<- HandleRegisterPOST")
+
 	}
 }

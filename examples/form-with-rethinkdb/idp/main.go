@@ -93,6 +93,8 @@ func main() {
 		LoginUsernameField: "username",
 		LoginPasswordField: "password",
 
+		TemplateDir: os.Getenv("TEMPLATE_DIR"),
+
 		// Store for
 		UserStore: userdb,
 
