@@ -118,18 +118,19 @@ func (f *FormAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
 	return f.templates.ExecuteTemplate(w, "register.html", nil)
 }
 
-func (f *FormAuth) Verify(r *http.Request) (id string, err error) {
+func (f *FormAuth) Verify(r *http.Request) (userid string, err error) {
 	// Parse and validate posted form
 	data, err := NewVerifyGET(r)
 	if err != nil {
 		return
 	}
 
-	id, err = f.UserVerifier.Verify(data.Code)
+	userid, err = f.UserVerifier.Verify(data.Code)
 	if err != nil {
 		return
 	}
 
+	err = f.UserStore.SetIsVerifiedWithID(userid)
 	return
 }
 
