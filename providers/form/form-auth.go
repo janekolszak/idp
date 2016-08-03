@@ -114,6 +114,41 @@ func (f *FormAuth) Register(r *http.Request) (id string, err error) {
 	return
 }
 
+func (f *FormAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
+	return f.templates.ExecuteTemplate(w, "register.html", nil)
+}
+
+func (f *FormAuth) Verify(r *http.Request) (userid string, err error) {
+	// Parse and validate posted form
+	data, err := NewVerifyGET(r)
+	if err != nil {
+		return
+	}
+
+	userid, err = f.UserVerifier.Verify(data.Code)
+	if err != nil {
+		return
+	}
+
+	err = f.UserStore.SetIsVerifiedWithID(userid)
+	return
+}
+
+func (f *FormAuth) WriteVerify(w http.ResponseWriter, r *http.Request, userid string) error {
+	user, err := f.UserStore.GetWithID(userid)
+	if err != nil {
+		return err
+	}
+
+	data := map[string]string{
+		"Username":  user.Username,
+		"FirstName": user.FirstName,
+		"LastName":  user.LastName,
+		"Email":     user.Email,
+	}
+	return f.templates.ExecuteTemplate(w, "verify.html", data)
+}
+
 func (f *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error) error {
 	query := url.Values{}
 	query["challenge"] = []string{r.URL.Query().Get("challenge")}
@@ -137,8 +172,4 @@ func (f *FormAuth) WriteError(w http.ResponseWriter, r *http.Request, err error)
 
 func (f *FormAuth) Write(w http.ResponseWriter, r *http.Request) error {
 	return nil
-}
-
-func (f *FormAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
-	return f.templates.ExecuteTemplate(w, "register.html", nil)
 }

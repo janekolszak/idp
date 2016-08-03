@@ -75,3 +75,11 @@ func (c *BasicAuth) Write(w http.ResponseWriter, r *http.Request) error {
 func (c *BasicAuth) WriteRegister(w http.ResponseWriter, r *http.Request) error {
 	return core.ErrorNotImplemented
 }
+
+func (c *BasicAuth) Verify(r *http.Request) (string, error) {
+	return "", core.ErrorNotImplemented
+}
+
+func (c *BasicAuth) WriteVerify(w http.ResponseWriter, r *http.Request, userid string) error {
+	return core.ErrorNotImplemented
+}

@@ -43,3 +43,26 @@ func NewRegisterPOST(r *http.Request) (*RegisterPOST, error) {
 
 	return data, nil
 }
+
+type VerifyGET struct {
+	Code string `schema:"code"  valid:"required,uuidv4"`
+}
+
+func NewVerifyGET(r *http.Request) (*VerifyGET, error) {
+	data := new(VerifyGET)
+	err := decoder.Decode(data, r.URL.Query())
+	if err != nil {
+		return nil, err
+	}
+
+	valid, err := govalidator.ValidateStruct(data)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, core.ErrorBadRequest
+	}
+
+	return data, nil
+}
