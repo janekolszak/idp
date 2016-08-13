@@ -1,5 +1,5 @@
-hash: 901c5fd18a4f9b0cacfbf27d4b7875a21dd6e9bd06d99177863789eca8c7bc29
-updated: 2016-08-13T01:23:04.409385967+02:00
+hash: 7269b4831c07bf2e71db2216856ba27b1be3154a893068fb4b45624ed7447366
+updated: 2016-08-13T21:08:16.727961741+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7664702784775e51966f0885f5cd27435916517b
@@ -16,7 +16,7 @@ imports:
   subpackages:
   - spew
 - name: github.com/dgrijalva/jwt-go
-  version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
+  version: 268038b363c7a8d7306b8e35bf77a1fde4b0c402
 - name: github.com/fsnotify/fsnotify
   version: a8a77c9133d2d6fd8334f3260d06f60e8d80a5fb
 - name: github.com/go-errors/errors
@@ -48,18 +48,6 @@ imports:
   - json/token
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
-- name: github.com/janekolszak/idp
-  version: 813dc2a966211a26c4422aefb4cc96757f427f91
-  subpackages:
-  - core
-  - helpers
-  - providers/basic
-  - providers/cookie
-  - providers/form
-  - userdb/memory
-  - userdb
-  - userdb/rethinkdb/store
-  - userdb/rethinkdb/verifier
 - name: github.com/julienschmidt/httprouter
   version: 8c199fb6259ffc1af525cc3ad52ee60ba8359669
 - name: github.com/kr/fs
@@ -202,7 +190,7 @@ imports:
 - name: gopkg.in/fatih/pool.v2
   version: 20a0a429c5f93de45c90f5f09ea297c25e0929b3
 - name: gopkg.in/gomail.v2
-  version: 41f3572897373c5538c50a2402db15db079fa4fd
+  version: 81ebce5c23dfd25c6c67194b37d3dd3f338c98b1
 - name: gopkg.in/square/go-jose.v1
   version: a3927f83df1b1516f9e9dec71839c93e6bcf1db0
   subpackages:

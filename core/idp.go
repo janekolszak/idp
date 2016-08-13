@@ -274,7 +274,7 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 		// Most probably, token can't be verified or parsed
 		return
 	}
-	claims := token.Claims.(jwt.MapClaims)
+	claims := token.Claims
 
 	challenge = new(Challenge)
 	challenge.Expires = time.Unix(int64(claims["exp"].(float64)), 0)

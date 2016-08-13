@@ -18,7 +18,6 @@ RUN glide install
 RUN go install github.com/janekolszak/idp/examples/form-auth/idp;
 
 
-
 ENTRYPOINT /go/bin/idp -conf /root/.hydra.yml
 
 EXPOSE 3000
