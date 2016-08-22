@@ -165,6 +165,7 @@ func (idp *IDP) Connect() error {
 		hydra.ClientID(idp.config.ClientID),
 		hydra.ClientSecret(idp.config.ClientSecret),
 		hydra.ClusterURL(idp.config.ClusterURL),
+		// TODO: Remove
 		hydra.SkipTLSVerify(),
 	)
 
