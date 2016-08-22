@@ -13,7 +13,7 @@ import:
   version: v1.1.0
 - package: github.com/nu7hatch/gouuid
 - package: github.com/ory-am/hydra
-  version: v0.3.0
+  version: v0.4.1
   subpackages:
   - client
   - jwk

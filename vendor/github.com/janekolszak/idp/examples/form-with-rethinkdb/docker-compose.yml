@@ -1,0 +1,64 @@
+version: '2'
+
+services:
+
+  db:
+    image: rethinkdb:latest
+    container_name: db
+    restart: always
+    volumes:
+        - dbvolume:/data/rethinkdb_data
+    ports:
+      - "8080:8080"
+      - "28015:28015"
+      - "29015:29015"
+
+  hydra:
+    container_name: hydra
+    build:
+      context: ./hydra
+    volumes:
+      - hydravolume:/root
+    links:
+      - db
+    ports:
+      - "4444:4444"
+    environment:
+      - SYSTEM_SECRET=passwordtutorialpasswordtutorial
+      - CONSENT_URL=http://localhost:3000
+      - HTTPS_TLS_KEY_PATH=/etc/hydra/key.pem
+      - HTTPS_TLS_CERT_PATH=/etc/hydra/cert.pem
+      - DATABASE_URL=rethinkdb://db:28015/hydra
+    cpu_quota: 50000
+
+  idp:
+    container_name: idp
+    build:
+      context: ../../
+      dockerfile: idp-form-with-rethinkdb.dockerfile
+    environment:
+      - HYDRA_URL=https://hydra:4444
+      - DATABASE_URL=db:28015
+      - DATABASE_NAME=IDP
+      - TEMPLATE_DIR=/etc/idp/templates
+      - EMAIL_HOST=mailtrap.io
+      - EMAIL_PORT=2525
+      - EMAIL_USER=bffc19805c8b87
+      - EMAIL_PASS=5e86eb71d6ba55
+      - EMAIL_FROM=5a7ed0268f-6f6f88@inbox.mailtrap.io
+
+    links:
+      - hydra
+      - db
+    volumes:
+      - hydravolume:/root
+    ports:
+      - "3000:3000"
+    cpu_quota: 50000
+
+volumes:
+  hydravolume:
+    driver: local
+
+  dbvolume:
+    driver: local
