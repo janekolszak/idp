@@ -7,6 +7,43 @@ IDP handles:
 - Passing user's consent to Hydra
 - Retriving keys from Hydra and using them for JWT verification
 
+## Initialization
+
+```go
+import (
+	"github.com/boj/rethinkstore"
+	"github.com/janekolszak/idp"
+	"time"
+)
+
+func main() {
+	challengeCookieStore, err = rethinkstore.NewRethinkStore(/* RethinkDB address */, 
+	                                                         /* Database name */, 
+	                                                         "challengeCookies", 5, 5, []byte("something-very-secret"))
+	// Return on error
+	
+	// How long do Challenge cookies live?
+	challengeCookieStore.MaxAge(60 * 5) // 5 min
+
+	// Create 
+	IDP = idp.NewIDP(&idp.IDPConfig{
+		ClusterURL:            /* Hydra's address */,
+		ClientID:              /* IDP's client ID */,
+		ClientSecret:          /* IDP's client secret */,
+		KeyCacheExpiration:    time.Duration(/* Key expiration time */) * time.Second,
+		ClientCacheExpiration: time.Duration(/* Client info expiration */) * time.Second,
+		CacheCleanupInterval:  time.Duration(/* Cache cleanup interval. Eg. 30 */) * time.Second,
+		ChallengeStore:        challengeCookieStore,
+	})
+
+	// Connects with Hydra and fills caches
+	err = IDP.Connect()
+	// Return on error
+
+}
+
+```
+
 ## Usage
 
 ```go
