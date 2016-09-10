@@ -75,7 +75,7 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 
 	token := jwt.New(jwt.SigningMethodRS256)
 
-	claims := token.Claims
+	claims := token.Claims.(jwt.MapClaims)
 	claims["aud"] = c.Client.GetID()
 	claims["exp"] = now.Add(time.Minute * 5).Unix()
 	claims["iat"] = now.Unix()
