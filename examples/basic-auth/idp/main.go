@@ -8,10 +8,9 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
-	"github.com/janekolszak/idp/core"
-	"github.com/janekolszak/idp/helpers"
-	"github.com/janekolszak/idp/providers/basic"
-	"github.com/janekolszak/idp/providers/cookie"
+	"github.com/janekolszak/idp/examples/basic-auth/idp/helpers"
+	"github.com/janekolszak/idp/examples/basic-auth/idp/providers/basic"
+	"github.com/janekolszak/idp/examples/basic-auth/idp/providers/cookie"
 	"github.com/julienschmidt/httprouter"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -34,8 +33,8 @@ const (
 )
 
 var (
-	idp            *core.IDP
-	provider       core.Provider
+	idp            *idp.IDP
+	provider       idp.Provider
 	cookieProvider *cookie.CookieAuth
 
 	// Command line options
@@ -167,7 +166,7 @@ func main() {
 		MaxAge: time.Second * 30,
 	}
 
-	config := core.IDPConfig{
+	config := idp.IDPConfig{
 		ClusterURL:            *hydraURL,
 		ClientID:              hydraConfig.ClientID,
 		ClientSecret:          hydraConfig.ClientSecret,
@@ -179,7 +178,7 @@ func main() {
 		ChallengeStore: sessions.NewCookieStore([]byte("something-very-secret")),
 	}
 
-	idp = core.NewIDP(&config)
+	idp = idp.NewIDP(&config)
 
 	// Connect with Hydra
 	err = idp.Connect()
