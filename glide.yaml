@@ -1,0 +1,14 @@
+package: .
+import:
+- package: github.com/dgrijalva/jwt-go
+  version: ~3.0.0
+- package: github.com/gorilla/sessions
+- package: github.com/ory-am/hydra
+  version: ~0.4.3
+  subpackages:
+  - client
+  - jwk
+  - oauth2
+  - sdk
+- package: github.com/patrickmn/go-cache
+  version: ~2.0.0
