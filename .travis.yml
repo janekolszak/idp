@@ -17,8 +17,6 @@ before_script:
   - rethinkdb --daemon
 
 script:
-  - go build github.com/janekolszak/idp/examples/basic-auth/idp
-  - go build github.com/janekolszak/idp/examples/form-auth/idp
   - go test $(glide nv)
 
 

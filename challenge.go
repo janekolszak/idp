@@ -18,8 +18,6 @@ type Challenge struct {
 	// Parent IDP that got the challenge
 	idp *IDP
 
-	// TODO: Add sessions.Session field
-
 	Client   *hclient.Client
 	Expires  time.Time
 	Redirect string

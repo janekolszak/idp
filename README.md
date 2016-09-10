@@ -1,6 +1,6 @@
 # Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
 
-This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra). 
+This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra).
 IDP handles:
 - Storing challenge in a short lived cookie
 - Passing user's consent to Hydra
@@ -16,15 +16,15 @@ import (
 )
 
 func main() {
-	challengeCookieStore, err = rethinkstore.NewRethinkStore(/* RethinkDB address */, 
-	                                                         /* Database name */, 
+	challengeCookieStore, err = rethinkstore.NewRethinkStore(/* RethinkDB address */,
+	                                                         /* Database name */,
 	                                                         "challengeCookies", 5, 5, []byte("something-very-secret"))
 	// Return on error
-	
+
 	// How long do Challenge cookies live?
 	challengeCookieStore.MaxAge(60 * 5) // 5 min
 
-	// Create 
+	// Create the IDP
 	IDP = idp.NewIDP(&idp.IDPConfig{
 		ClusterURL:            /* Hydra's address */,
 		ClientID:              /* IDP's client ID */,
