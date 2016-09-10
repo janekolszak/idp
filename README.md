@@ -1,5 +1,4 @@
-# Identity Provider (IdP) for Hydra
-[![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp)
+# Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp)
 
 This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra). 
 IDP handles:
