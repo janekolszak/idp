@@ -1,55 +1,109 @@
-# Identity Provider (IdP) for Hydra
-[![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp)
-[![Coverage Status](https://coveralls.io/repos/github/janekolszak/idp/badge.svg?branch=master)](https://coveralls.io/github/janekolszak/idp?branch=master)
+# Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
 
-**Under development**
+This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra).
+IDP handles:
+- Storing challenge in a short lived cookie
+- Passing user's consent to Hydra
+- Retriving keys from Hydra and using them for JWT verification
 
-If you're looking for an example IdP integration with Hydra - it's [here](https://github.com/janekolszak/hydra-idp-go).
+## Initialization
 
-Let me know if you wan't to take part in the development to speed things up. Join the conversation on Gitter: [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
+```go
+import (
+	"github.com/janekolszak/idp"
+	"github.com/boj/rethinkstore"
+	"time"
+)
 
-## About
-Writing a general, all purpose Identity Provider is beyond me.
-Instead I want to provide this little playground with different tools that you can use to create your own ideal IdP.
+func main() {
+	challengeCookieStore, err = rethinkstore.NewRethinkStore(/* RethinkDB address */,
+	                                                         /* Database name */,
+	                                                         "challengeCookies", 5, 5, []byte("something-very-secret"))
+	// Return on error
 
-## Running the example:
-#### Console 1:
-Start Hydra and browse it's logs. Copy the client's credentials, you'll need them in Console 3.
-``` bash
-cd example
-docker-compose up hydra
+	// How long do Challenge cookies live?
+	challengeCookieStore.MaxAge(60 * 5) // 5 min
+
+	// Create the IDP
+	IDP = idp.NewIDP(&idp.IDPConfig{
+		ClusterURL:            /* Hydra's address */,
+		ClientID:              /* IDP's client ID */,
+		ClientSecret:          /* IDP's client secret */,
+		KeyCacheExpiration:    time.Duration(/* Key expiration time */) * time.Second,
+		ClientCacheExpiration: time.Duration(/* Client info expiration */) * time.Second,
+		CacheCleanupInterval:  time.Duration(/* Cache cleanup interval. Eg. 30 */) * time.Second,
+		ChallengeStore:        challengeCookieStore,
+	})
+
+	// Connects with Hydra and fills caches
+	err = IDP.Connect()
+	// Return on error
+
+}
+
 ```
 
-#### Console 2:
-Start IdP and browse it's logs
-``` bash
-cd example
-docker-compose up idp
-```
+## Usage
 
-#### Console 3
-Perform some experiments like:
-``` bash
-# Pass the credentials from Console 1
-hydra connect
-hydra token user --skip-tls-verify --no-open
-# Paste the link to Firefox
-```
+```go
 
-## TODO:
-- Rethinkdb storages
-- Login/Logout endpoint
-- Register user endpoint
-- Encrypting cookies
-- Use hydra's client library
-- Handle expirtion of remember me cookies
-- Handle errors from hydra
-- Parsing configuration file in examples or env variables
-- Trusted clients that won't trigger asking user to agree upon scopes
-- Digest Auth Provider
-- Providers should return user id, not username
-- Request removing bad cookies in responses
-- Verify email
-- Reset password
-- Use worker pool in sending emails etc.
-- Email templates passed via files
+func HandleChallengeGET(w http.ResponseWriter, r *http.Request) {
+	// 0. Render HTML page with a login form
+}
+
+func HandleChallengePOST(w http.ResponseWriter, r *http.Request) {
+	// 0. Parse and validate login data (username:password, login cookie etc)
+	//    Return on error
+
+	// 1. Verify user's credentials (eg. check username:password).
+	//    Return on error
+	//    Obtain userid
+
+	// 2. Create a Challenge
+	challenge, err := IDP.NewChallenge(r, userid)
+	//    Return on error
+
+	// 3. Save the Challenge to a cookie with a small TTL
+	err = challenge.Save(w, r)
+	//    Return on error
+
+	// 4. Redirect to the consent endpoint
+}
+
+// Displays Consent screen. Here user agrees for listed scopes
+func HandleConsentGET(w http.ResponseWriter, r *http.Request) {
+
+	// 0. Get the Challenge from the cookie
+	challenge, err := IDP.GetChallenge(r)
+	//    Return on error
+
+	// 1. Display consent screen
+	//    Use challenge.User to get user's ID
+	//    Use challenge.Scopes to display requested scopes
+
+	// 2. If any error occured delete the Challenge cookie (optional)
+	if err != nil {
+		err = challenge.Delete(c.Writer, c.Request)
+	}
+
+	// 3. Render the HTML consent page
+}
+
+func HandleConsentPOST(w http.ResponseWriter, r *http.Request) {
+	// 0. Get the Challenge from the cookie
+	challenge, err := model.IDP.GetChallenge(c.Request)
+	//    Return on error
+
+    // 1. Parse and validate consent data (eg. form answer=y or list of scopes)
+	//    Return on error
+
+	// 2. If user refused access
+	err = challenge.RefuseAccess(w, r)
+	//    Return
+
+	// 3. If userf agreed to grant access
+	err = challenge.GrantAccessToAll(w, r)
+	//    Return
+}
+
+```

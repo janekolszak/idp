@@ -28,4 +28,4 @@ _testmain.go
 
 .vscode
 
-example/idp/idp
+/vendor
