@@ -1,4 +1,4 @@
-package core
+package idp
 
 import (
 	"encoding/gob"
