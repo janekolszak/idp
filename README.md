@@ -10,8 +10,8 @@ IDP handles:
 
 ```go
 import (
-	"github.com/boj/rethinkstore"
 	"github.com/janekolszak/idp"
+	"github.com/boj/rethinkstore"
 	"time"
 )
 
