@@ -47,7 +47,6 @@ func main() {
 
 ```go
 
-
 func HandleChallengeGET(w http.ResponseWriter, r *http.Request) {
 	// 0. Render HTML page with a login form
 }
