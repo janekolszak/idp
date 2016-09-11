@@ -1,0 +1,66 @@
+title Handling Challenge 
+
+User->+Hydra: OAuth2 token request
+Hydra-->-User: Redirect to IDP
+User->+IDP: GET /login?challenge=...
+IDP-->-User: Login page
+User->+IDP: POST /login?challenge=...
+note right of IDP
+    Check credentials 
+    (eg. Basic Auth etc.)
+end note
+
+note right of IDP
+    Create the Challenge. 
+    It consists:
+    - User ID
+    - Requested scopes
+    - Who requests access
+    - Expiration
+    - Redirection URL
+end note
+IDP->Store: Save the Challenge
+
+IDP-->User: Challenge ID cookie 
+IDP-->-User: Redirect to IDP
+
+note right of User
+    Challenge ID is in the cookie. 
+
+    No query parameters used 
+    from now on.
+end note
+
+
+User->+IDP: GET /consent + COOKIE
+IDP->Store: Get Challenge with ID
+Store-->IDP: Challenge
+note right of IDP
+    Ask user if he grants 
+    requested scopes to 
+    the Client.
+    
+    Scopes and ClientID
+    are in the Challenge
+end note
+IDP-->-User: Consent page
+
+
+User->+IDP: POST /consent + COOKIE + ANSWER
+IDP->Store: Get Challenge with ID
+Store->IDP: Challenge
+note right of IDP
+    Create consent JWT.
+    It contains users ANSWER.
+end note
+IDP->Store: Delete
+
+IDP-->-User: Redirect to Hydra
+
+User->+Hydra: GET /hydra?consent=...
+note right of Hydra
+    Verify consent JWT and 
+    apply users answer
+end note
+Hydra-->-User: Tokens or Error
+
