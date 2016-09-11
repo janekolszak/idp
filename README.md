@@ -1,10 +1,20 @@
 # Identity Provider (IdP) for Hydra [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
 
 This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra).
-IDP handles:
+IdP handles:
 - Storing challenge in a short lived cookie
 - Passing user's consent to Hydra
 - Retriving keys from Hydra and using them for JWT verification
+
+## About
+
+Let's say we have an Identity Provider with:
+- */login* endpoint that accepts Hydra's challenges
+- */consent* endpoint that handles getting consent from the user
+
+This is how challenge request is hadled with the IdP library:
+
+![Sequence Diagram](https://raw.githubusercontent.com/janekolszak/idp/master/doc/sequenceDiagram.png)
 
 ## Initialization
 
