@@ -1,16 +1,16 @@
 title Handling Challenge 
 
 User->+Hydra: OAuth2 token request
-Hydra-->-User: Redirect to IDP
-User->+IDP: GET /login?challenge=...
-IDP-->-User: Login page
-User->+IDP: POST /login?challenge=...
-note right of IDP
+Hydra-->-User: Redirect to IdP
+User->+IdP: GET /login?challenge=...
+IdP-->-User: Login page
+User->+IdP: POST /login?challenge=...
+note right of IdP
     Check credentials 
     (eg. Basic Auth etc.)
 end note
 
-note right of IDP
+note right of IdP
     Create the Challenge. 
     It consists:
     - User ID
@@ -19,10 +19,10 @@ note right of IDP
     - Expiration
     - Redirection URL
 end note
-IDP->Store: Save the Challenge
+IdP->Store: Save the Challenge
 
-IDP-->User: Challenge ID cookie 
-IDP-->-User: Redirect to IDP
+IdP-->User: Challenge ID cookie 
+IdP-->-User: Redirect to IdP
 
 note right of User
     Challenge ID is in the cookie. 
@@ -32,10 +32,10 @@ note right of User
 end note
 
 
-User->+IDP: GET /consent + COOKIE
-IDP->Store: Get Challenge with ID
-Store-->IDP: Challenge
-note right of IDP
+User->+IdP: GET /consent + COOKIE
+IdP->Store: Get Challenge with ID
+Store-->IdP: Challenge
+note right of IdP
     Ask user if he grants 
     requested scopes to 
     the Client.
@@ -43,19 +43,19 @@ note right of IDP
     Scopes and ClientID
     are in the Challenge
 end note
-IDP-->-User: Consent page
+IdP-->-User: Consent page
 
 
-User->+IDP: POST /consent + COOKIE + ANSWER
-IDP->Store: Get Challenge with ID
-Store->IDP: Challenge
-note right of IDP
+User->+IdP: POST /consent + COOKIE + ANSWER
+IdP->Store: Get Challenge with ID
+Store->IdP: Challenge
+note right of IdP
     Create consent JWT.
     It contains users ANSWER.
 end note
-IDP->Store: Delete
+IdP->Store: Delete
 
-IDP-->-User: Redirect to Hydra
+IdP-->-User: Redirect to Hydra
 
 User->+Hydra: GET /hydra?consent=...
 note right of Hydra
