@@ -1,12 +1,12 @@
 hash: cbbf95a9c265c217542faee93c7f2bfe26a7364b4ea356db186f3de09d38d701
-updated: 2016-09-11T00:27:01.696996933+02:00
+updated: 2016-09-17T12:35:19.820575535+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7664702784775e51966f0885f5cd27435916517b
 - name: github.com/cenk/backoff
   version: 8edc80b07f38c27352fb186d971c628a6c32552b
 - name: github.com/davecgh/go-spew
-  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
 - name: github.com/dgrijalva/jwt-go
@@ -16,11 +16,11 @@ imports:
 - name: github.com/go-errors/errors
   version: a41850380601eeb43f4350f7d17c6bbd8944aaf8
 - name: github.com/golang/protobuf
-  version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
   - proto
 - name: github.com/gorilla/context
-  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+  version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
 - name: github.com/gorilla/securecookie
   version: c13558c2b1c44da35e0eb043053609a5ba3a1f19
 - name: github.com/gorilla/sessions
@@ -28,7 +28,7 @@ imports:
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/hashicorp/hcl
-  version: 99df0eb941dd8ddbc83d3f3605a34f6a686ac85e
+  version: ef8133da8cda503718a74741312bf50821e6de79
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -41,7 +41,7 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/julienschmidt/httprouter
-  version: d8ff598a019f2c7bad0980917a588193cf26666e
+  version: 8c199fb6259ffc1af525cc3ad52ee60ba8359669
 - name: github.com/kr/fs
   version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - name: github.com/magiconair/properties
@@ -104,7 +104,7 @@ imports:
   subpackages:
   - difflib
 - name: github.com/Sirupsen/logrus
-  version: 3ec0642a7fb6488f65b06f9040adc67e3990296a
+  version: 4b6ea7319e214d98c938f12692336f7ca9348d6b
 - name: github.com/spf13/afero
   version: 20500e2abd0d1f4564a499e83d11d6c73cd58c27
   subpackages:
@@ -117,7 +117,7 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
-  version: 6fd2ff4ff8dfcdf5556fbdc0ac0284408274b1a7
+  version: c7e63cf4530bcd3ba943729cee0efeff2ebea63f
 - name: github.com/spf13/viper
   version: 16990631d4aa7e38f73dbbbf37fa13e67c648531
 - name: github.com/square/go-jose
@@ -131,7 +131,7 @@ imports:
   - assert
   - require
 - name: golang.org/x/crypto
-  version: aa2481cbfe81d911eb62b642b7a6b5ec58bbea71
+  version: 81372b2fc2f10bef2a7f338da115c315a56b2726
   subpackages:
   - bcrypt
   - blowfish
@@ -141,7 +141,7 @@ imports:
   - pbkdf2
   - ssh
 - name: golang.org/x/net
-  version: cfe3c2a7525b50c3d707256e371c90938cfef98a
+  version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
   - publicsuffix
@@ -151,16 +151,16 @@ imports:
   - clientcredentials
   - internal
 - name: golang.org/x/sys
-  version: 30de6d19a3bd89a5f38ae4028e23aaa5582648af
+  version: 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 1e65e9bf72c307081cea196f47ef37aed17eb316
+  version: 04b8648d973c126ae60143b3e1473bc1576c7597
   subpackages:
   - transform
   - unicode/norm
 - name: google.golang.org/appengine
-  version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
+  version: 78199dcb0669fc381c22e919e1e97eba879e8f60
   subpackages:
   - internal
   - internal/base
@@ -178,5 +178,5 @@ imports:
 - name: gopkg.in/fatih/pool.v2
   version: 20a0a429c5f93de45c90f5f09ea297c25e0929b3
 - name: gopkg.in/yaml.v2
-  version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
+  version: 31c299268d302dd0aa9a0dcf765a3d58971ac83f
 testImports: []
