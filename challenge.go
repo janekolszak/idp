@@ -39,9 +39,22 @@ func init() {
 	gob.Register(&Challenge{})
 }
 
-// Saves the challenge to it's session store
+// Saves the Challenge to it's session store
 func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
 	session, err := c.idp.config.ChallengeStore.New(r, SessionCookieName)
+	if err != nil {
+		return err
+	}
+
+	session.Options = c.idp.createChallengeCookieOptions
+	session.Values[SessionCookieName] = c
+
+	return c.idp.config.ChallengeStore.Save(r, w, session)
+}
+
+// Update the Challenge, e.g. add user representation
+func (c *Challenge) Update(w http.ResponseWriter, r *http.Request) error {
+	session, err := c.idp.config.ChallengeStore.Get(r, SessionCookieName)
 	if err != nil {
 		return err
 	}
