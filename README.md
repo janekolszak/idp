@@ -48,7 +48,7 @@ func main() {
 	})
 
 	// Connects with Hydra and fills caches
-	err = IDP.Connect()
+	err = IDP.Connect(true /*TLS verification*/)
 	// Return on error
 
 }
