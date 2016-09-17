@@ -1,3 +1,4 @@
+// Package for handling challenge requests from Hydra(https://github.com/ory-am/hydra).
 package idp
 
 import (
@@ -18,10 +19,17 @@ type Challenge struct {
 	// Parent IDP that got the challenge
 	idp *IDP
 
-	Client   *hclient.Client
-	Expires  time.Time
+	// Hydra's client
+	Client *hclient.Client
+
+	// Time of expiration
+	Expires time.Time
+
+	// Redirect URL
 	Redirect string
-	Scopes   []string
+
+	// Requested scopes
+	Scopes []string
 
 	// Set in the challenge endpoint, after authenticated.
 	User string
