@@ -3,7 +3,6 @@ package idp
 
 import (
 	"encoding/gob"
-	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	// "github.com/gorilla/sessions"
 	hclient "github.com/ory-am/hydra/client"
@@ -47,11 +46,9 @@ func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	fmt.Println("MaxAge", session.Options.MaxAge)
 	session.Options = c.idp.createChallengeCookieOptions
-	fmt.Println("MaxAge", session.Options.MaxAge)
-
 	session.Values[SessionCookieName] = c
+
 	return c.idp.config.ChallengeStore.Save(r, w, session)
 }
 

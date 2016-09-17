@@ -13,4 +13,6 @@ var (
 	ErrorNoSuchClient       = errors.New("there's no OIDC Client with such id")
 	ErrorBadKey             = errors.New("bad key stored in the cache ")
 	ErrorNotInCache         = errors.New("cache doesn't have the requested data")
+	ErrorBadSigningMethod   = errors.New("bad signing method")
+	ErrorInvalidToken       = errors.New("invalid token")
 )

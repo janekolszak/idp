@@ -2,7 +2,6 @@ package idp
 
 import (
 	"crypto/rsa"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -208,7 +207,7 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(challengeString, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodRSA)
 		if !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, ErrorBadSigningMethod
 		}
 
 		return idp.getVerificationKey()
@@ -219,7 +218,7 @@ func (idp *IDP) getChallengeToken(challengeString string) (*jwt.Token, error) {
 	}
 
 	if !token.Valid {
-		return nil, fmt.Errorf("Empty token")
+		return nil, ErrorInvalidToken
 	}
 
 	return token, nil
@@ -261,7 +260,6 @@ func (idp *IDP) getClient(clientID string) (*hclient.Client, error) {
 			client := data.(*hclient.Client)
 			return client, nil
 		}
-		fmt.Println("client nil from cache")
 		return nil, ErrorNoSuchClient
 	}
 
@@ -345,7 +343,6 @@ func (idp *IDP) GetChallenge(r *http.Request) (*Challenge, error) {
 
 // Closes connection to Hydra, cleans cache etc.
 func (idp *IDP) Close() {
-	fmt.Println("IDP closed")
 	idp.client = nil
 
 	// Removes all keys from the cache
