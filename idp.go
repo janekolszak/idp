@@ -175,15 +175,22 @@ func (idp *IDP) downloadConsentKey() (*rsa.PrivateKey, error) {
 }
 
 // Connect to Hydra
-func (idp *IDP) Connect() error {
+func (idp *IDP) Connect(skipTLSVerify bool) error {
 	var err error
-	idp.hc, err = hydra.Connect(
-		hydra.ClientID(idp.config.ClientID),
-		hydra.ClientSecret(idp.config.ClientSecret),
-		hydra.ClusterURL(idp.config.ClusterURL),
-		// TODO: Remove
-		hydra.SkipTLSVerify(),
-	)
+	if skipTLSVerify {
+		idp.hc, err = hydra.Connect(
+			hydra.ClientID(idp.config.ClientID),
+			hydra.ClientSecret(idp.config.ClientSecret),
+			hydra.ClusterURL(idp.config.ClusterURL),
+			hydra.SkipTLSVerify(),
+		)
+	} else {
+		idp.hc, err = hydra.Connect(
+			hydra.ClientID(idp.config.ClientID),
+			hydra.ClientSecret(idp.config.ClientSecret),
+			hydra.ClusterURL(idp.config.ClusterURL),
+		)
+	}
 
 	if err != nil {
 		return err
