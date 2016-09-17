@@ -73,20 +73,19 @@ func NewIDP(config *IDPConfig) *IDP {
 	var idp = new(IDP)
 	idp.config = config
 
-	// TODO: Pass TTL and refresh period from config
 	idp.cache = cache.New(config.KeyCacheExpiration, config.CacheCleanupInterval)
 	idp.cache.OnEvicted(func(key string, value interface{}) { idp.refreshCache(key) })
 
 	idp.createChallengeCookieOptions = new(sessions.Options)
 	idp.createChallengeCookieOptions.Path = "/"      // TODO: More specific?
 	idp.createChallengeCookieOptions.MaxAge = 60 * 5 // 5min
-	idp.createChallengeCookieOptions.Secure = false  // TODO: Change to true
+	idp.createChallengeCookieOptions.Secure = true   // Send only via https
 	idp.createChallengeCookieOptions.HttpOnly = false
 
 	idp.deleteChallengeCookieOptions = new(sessions.Options)
-	idp.deleteChallengeCookieOptions.Path = "/"     // TODO: More specific?
-	idp.deleteChallengeCookieOptions.MaxAge = -1    // Mark for deletion
-	idp.deleteChallengeCookieOptions.Secure = false // TODO: Change to true
+	idp.deleteChallengeCookieOptions.Path = "/"    // TODO: More specific?
+	idp.deleteChallengeCookieOptions.MaxAge = -1   // Mark for deletion
+	idp.deleteChallengeCookieOptions.Secure = true // Send only via https
 	idp.deleteChallengeCookieOptions.HttpOnly = false
 
 	return idp
