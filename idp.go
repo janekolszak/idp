@@ -66,7 +66,6 @@ type IDP struct {
 	cache *cache.Cache
 
 	// Prepared cookie options for creating and deleting cookies
-	// TODO: Is this the best way to do this?
 	createChallengeCookieOptions *sessions.Options
 	deleteChallengeCookieOptions *sessions.Options
 }
