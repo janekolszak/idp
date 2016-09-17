@@ -96,7 +96,7 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["aud"] = c.Client.GetID()
-	claims["exp"] = now.Add(time.Minute * 5).Unix()
+	claims["exp"] = now.Add(time.Minute * 4).Unix()
 	claims["iat"] = now.Unix()
 	claims["scp"] = c.Scopes
 	claims["sub"] = c.User

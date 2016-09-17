@@ -43,6 +43,7 @@ func main() {
 		KeyCacheExpiration:    time.Duration(/* Key expiration time */) * time.Second,
 		ClientCacheExpiration: time.Duration(/* Client info expiration */) * time.Second,
 		CacheCleanupInterval:  time.Duration(/* Cache cleanup interval. Eg. 30 */) * time.Second,
+		ChallengeExpiration:   time.Duration(/* Challenge cookie expiration. Eg. 10 */) * time.Minutes,
 		ChallengeStore:        challengeCookieStore,
 	})
 

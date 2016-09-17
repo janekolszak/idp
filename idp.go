@@ -45,6 +45,9 @@ type IDPConfig struct {
 	// Internal cache cleanup interval
 	CacheCleanupInterval time.Duration `yaml:"cache_cleanup_interval"`
 
+	// Expiration time of internal clientid cache
+	ChallengeExpiration time.Duration `yaml:"challenge_expiration"`
+
 	// Gorilla sessions Store for storing the Challenge.
 	ChallengeStore sessions.Store
 }
@@ -77,13 +80,13 @@ func NewIDP(config *IDPConfig) *IDP {
 	idp.cache.OnEvicted(func(key string, value interface{}) { idp.refreshCache(key) })
 
 	idp.createChallengeCookieOptions = new(sessions.Options)
-	idp.createChallengeCookieOptions.Path = "/"      // TODO: More specific?
-	idp.createChallengeCookieOptions.MaxAge = 60 * 5 // 5min
-	idp.createChallengeCookieOptions.Secure = true   // Send only via https
+	idp.createChallengeCookieOptions.Path = "/"
+	idp.createChallengeCookieOptions.MaxAge = int64(config.ChallengeExpiration.Seconds())
+	idp.createChallengeCookieOptions.Secure = true // Send only via https
 	idp.createChallengeCookieOptions.HttpOnly = false
 
 	idp.deleteChallengeCookieOptions = new(sessions.Options)
-	idp.deleteChallengeCookieOptions.Path = "/"    // TODO: More specific?
+	idp.deleteChallengeCookieOptions.Path = "/"
 	idp.deleteChallengeCookieOptions.MaxAge = -1   // Mark for deletion
 	idp.deleteChallengeCookieOptions.Secure = true // Send only via https
 	idp.deleteChallengeCookieOptions.HttpOnly = false
