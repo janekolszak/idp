@@ -47,6 +47,7 @@ func (c *Challenge) Save(w http.ResponseWriter, r *http.Request) error {
 	return c.idp.config.ChallengeStore.Save(r, w, session)
 }
 
+// Deletes the challenge from the store
 func (c *Challenge) Delete(w http.ResponseWriter, r *http.Request) error {
 	session, err := c.idp.config.ChallengeStore.Get(r, SessionCookieName)
 	if err != nil {
@@ -57,6 +58,7 @@ func (c *Challenge) Delete(w http.ResponseWriter, r *http.Request) error {
 	return c.idp.config.ChallengeStore.Save(r, w, session)
 }
 
+// User refused access to requested scopes, forward the desicion to Hydra via redirection.
 func (c *Challenge) RefuseAccess(w http.ResponseWriter, r *http.Request) error {
 	err := c.Delete(w, r)
 	if err != nil {
@@ -68,10 +70,9 @@ func (c *Challenge) RefuseAccess(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// User granted access to requested scopes, forward the desicion to Hydra via redirection.
 func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) error {
 	now := time.Now()
-
-	// TODO: Validate Challenge before using the data
 
 	token := jwt.New(jwt.SigningMethodRS256)
 

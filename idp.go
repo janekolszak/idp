@@ -26,16 +26,31 @@ func ClientInfoKey(clientID string) string {
 
 var encryptionkey = "something-very-secret"
 
+// Identity Provider's options
 type IDPConfig struct {
-	ClientID              string        `yaml:"client_id"`
-	ClientSecret          string        `yaml:"client_secret"`
-	ClusterURL            string        `yaml:"hydra_address"`
-	KeyCacheExpiration    time.Duration `yaml:"key_cache_expiration"`
+	// Client id issued by Hydra
+	ClientID string `yaml:"client_id"`
+
+	// Client secret issued by Hydra
+	ClientSecret string `yaml:"client_secret"`
+
+	// Hydra's address
+	ClusterURL string `yaml:"hydra_address"`
+
+	// Expiration time of internal key cache
+	KeyCacheExpiration time.Duration `yaml:"key_cache_expiration"`
+
+	// Expiration time of internal clientid cache
 	ClientCacheExpiration time.Duration `yaml:"client_cache_expiration"`
-	CacheCleanupInterval  time.Duration `yaml:"cache_cleanup_interval"`
-	ChallengeStore        sessions.Store
+
+	// Internal cache cleanup interval
+	CacheCleanupInterval time.Duration `yaml:"cache_cleanup_interval"`
+
+	// Gorilla sessions Store for storing the Challenge.
+	ChallengeStore sessions.Store
 }
 
+// Identity Provider helper
 type IDP struct {
 	config *IDPConfig
 
@@ -54,6 +69,7 @@ type IDP struct {
 	deleteChallengeCookieOptions *sessions.Options
 }
 
+// Create the Identity Provider helper
 func NewIDP(config *IDPConfig) *IDP {
 	var idp = new(IDP)
 	idp.config = config
@@ -159,6 +175,7 @@ func (idp *IDP) getConsentKey() (*rsa.PrivateKey, error) {
 	return rsaKey, nil
 }
 
+// Connect to Hydra
 func (idp *IDP) Connect() error {
 	var err error
 	idp.hc, err = hydra.Connect(
@@ -262,6 +279,7 @@ func (idp *IDP) GetClient(clientID string) (*hclient.Client, error) {
 	return c, nil
 }
 
+// Create a new Challenge. The request will contain all the necessary information from Hydra, passed in the URL.
 func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge, err error) {
 	tokenStr := r.FormValue("challenge")
 	if tokenStr == "" {
@@ -304,6 +322,7 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 	return
 }
 
+// Get the Challenge from a cookie, using Gorilla sessions
 func (idp *IDP) GetChallenge(r *http.Request) (*Challenge, error) {
 	session, err := idp.config.ChallengeStore.Get(r, SessionCookieName)
 	if err != nil {
@@ -324,6 +343,7 @@ func (idp *IDP) GetChallenge(r *http.Request) (*Challenge, error) {
 	return challenge, nil
 }
 
+// Closes connection to Hydra, cleans cache etc.
 func (idp *IDP) Close() {
 	fmt.Println("IDP closed")
 	idp.client = nil
