@@ -92,7 +92,7 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 	claims["sub"] = c.User
 
 	// Sign and get the complete encoded token as a string
-	key, err := c.idp.GetConsentKey()
+	key, err := c.idp.getConsentKey()
 	if err != nil {
 		return err
 	}
