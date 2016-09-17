@@ -80,7 +80,7 @@ func NewIDP(config *IDPConfig) *IDP {
 
 	idp.createChallengeCookieOptions = new(sessions.Options)
 	idp.createChallengeCookieOptions.Path = "/"
-	idp.createChallengeCookieOptions.MaxAge = int64(config.ChallengeExpiration.Seconds())
+	idp.createChallengeCookieOptions.MaxAge = int(config.ChallengeExpiration.Seconds())
 	idp.createChallengeCookieOptions.Secure = true // Send only via https
 	idp.createChallengeCookieOptions.HttpOnly = false
 
