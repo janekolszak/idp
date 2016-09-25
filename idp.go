@@ -147,7 +147,7 @@ func (idp *IDP) refreshCache(key string) {
 // Downloads the hydra's public key
 func (idp *IDP) downloadVerificationKey() (*rsa.PublicKey, error) {
 
-	jwk, err := idp.hc.JWK.GetKey(hoauth2.ConsentChallengeKey, "public")
+	jwk, err := idp.hc.JSONWebKeys.GetKey(hoauth2.ConsentChallengeKey, "public")
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (idp *IDP) downloadVerificationKey() (*rsa.PublicKey, error) {
 
 // Downloads the private key used for signing the consent
 func (idp *IDP) downloadConsentKey() (*rsa.PrivateKey, error) {
-	jwk, err := idp.hc.JWK.GetKey(hoauth2.ConsentEndpointKey, "private")
+	jwk, err := idp.hc.JSONWebKeys.GetKey(hoauth2.ConsentEndpointKey, "private")
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func (idp *IDP) getClient(clientID string) (*hclient.Client, error) {
 		return nil, ErrorNoSuchClient
 	}
 
-	client, err := idp.hc.Client.GetClient(clientID)
+	client, err := idp.hc.Clients.GetClient(clientID)
 	if err != nil {
 		// Either the client isn't registered in hydra, or maybe hydra is
 		// having some problem. Either way, ensure we don't hit hydra again
