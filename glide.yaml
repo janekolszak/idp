@@ -4,7 +4,7 @@ import:
   version: ~3.0.0
 - package: github.com/gorilla/sessions
 - package: github.com/ory-am/hydra
-  version: ~0.5.6
+  version: ~0.5.7
   subpackages:
   - client
   - jwk

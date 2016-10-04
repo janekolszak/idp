@@ -1,5 +1,5 @@
-hash: ba6fa7954f03622c08847ce7ccd9984fe5b08b75eaa2a50c85cc824448eb7232
-updated: 2016-09-25T14:50:44.578539049+02:00
+hash: e86f3750be875ff21152f8406757516a6b2bbf02768a4b7b00b798fca627c513
+updated: 2016-10-04T18:39:23.718631751+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7664702784775e51966f0885f5cd27435916517b
@@ -12,7 +12,7 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/fsnotify/fsnotify
-  version: f12c6236fe7b5cf6bcf30e5935d08cb079d78334
+  version: c07fd863aee264025aa0ef438bf9d2046c803493
 - name: github.com/go-errors/errors
   version: a41850380601eeb43f4350f7d17c6bbd8944aaf8
 - name: github.com/golang/protobuf
@@ -22,7 +22,7 @@ imports:
 - name: github.com/gorilla/context
   version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
 - name: github.com/gorilla/securecookie
-  version: c13558c2b1c44da35e0eb043053609a5ba3a1f19
+  version: fa5329f913702981df43dcb2a380bac429c810b5
 - name: github.com/gorilla/sessions
   version: ca9ada44574153444b00d3fd9c8559e4cc95f896
 - name: github.com/hailocab/go-hostpool
@@ -61,7 +61,7 @@ imports:
   - pkg
   - rand/sequence
 - name: github.com/ory-am/fosite
-  version: aa1b8548678e5807399d35b5bcad4f62a83cf6e4
+  version: e61a25f3e3d3f067141c3f6464ab4213f4e14d45
   subpackages:
   - fosite-example/pkg
   - handler/oauth2
@@ -71,7 +71,7 @@ imports:
   - token/hmac
   - token/jwt
 - name: github.com/ory-am/hydra
-  version: 06077e99c5f33966f92158d186165f11d4dce0b4
+  version: 05b5f841ef24dbd9242ad667d53a9cea98e5088f
   subpackages:
   - client
   - config
@@ -100,7 +100,7 @@ imports:
 - name: github.com/pkg/errors
   version: 17b591df37844cde689f4d5813e5cea0927d8dd2
 - name: github.com/pkg/sftp
-  version: 8197a2e580736b78d704be0fc47b2324c0591a32
+  version: 4d0e916071f68db74f8a73926335f809396d6b42
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -113,7 +113,7 @@ imports:
   - mem
   - sftp
 - name: github.com/spf13/cast
-  version: 60e7a69a428e9ac1cf7e0c865fc2fe810d34363e
+  version: 2580bc98dc0e62908119e4737030cc2fdfc45e4c
 - name: github.com/spf13/cobra
   version: 9c28e4bbd74e5c3ed7aacbc552b2cab7cfdfe744
 - name: github.com/spf13/jwalterweatherman
@@ -121,7 +121,7 @@ imports:
 - name: github.com/spf13/pflag
   version: c7e63cf4530bcd3ba943729cee0efeff2ebea63f
 - name: github.com/spf13/viper
-  version: e26d6aedc15334f7c2bca88e37037f717659d9b8
+  version: 382f87b929b84ce13e9c8a375a4b217f224e6c65
 - name: github.com/square/go-jose
   version: e18a7432cde1d90f722109d29224965a1eec5c79
   subpackages:
@@ -133,7 +133,7 @@ imports:
   - assert
   - require
 - name: golang.org/x/crypto
-  version: 8e06e8ddd9629eb88639aba897641bff8031f1d3
+  version: 2cbd8ea802d1adf67a6ef1df6b9ade342c37241d
   subpackages:
   - bcrypt
   - blowfish
@@ -157,12 +157,12 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: a7c023693a94aedd6b6df43ae7526bfe9d2b7d22
+  version: 098f51fb687dbaba1f6efabeafbb6461203f9e21
   subpackages:
   - transform
   - unicode/norm
 - name: google.golang.org/appengine
-  version: 45688856612892bdabe348fff413e5075ac72f46
+  version: 926995697fa8241be2dc73eb318666e24f44ed51
   subpackages:
   - internal
   - internal/base
@@ -180,5 +180,5 @@ imports:
 - name: gopkg.in/fatih/pool.v2
   version: 20a0a429c5f93de45c90f5f09ea297c25e0929b3
 - name: gopkg.in/yaml.v2
-  version: 31c299268d302dd0aa9a0dcf765a3d58971ac83f
+  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
 testImports: []
