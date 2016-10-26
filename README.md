@@ -36,7 +36,7 @@ func main() {
 	challengeCookieStore.MaxAge(60 * 5) // 5 min
 
 	// Create the IDP
-	IDP = idp.NewIDP(&idp.IDPConfig{
+	IDP := idp.NewIDP(&idp.IDPConfig{
 		ClusterURL:            /* Hydra's address */,
 		ClientID:              /* IDP's client ID */,
 		ClientSecret:          /* IDP's client secret */,
@@ -103,10 +103,10 @@ func HandleConsentGET(w http.ResponseWriter, r *http.Request) {
 
 func HandleConsentPOST(w http.ResponseWriter, r *http.Request) {
 	// 0. Get the Challenge from the cookie
-	challenge, err := model.IDP.GetChallenge(c.Request)
+	challenge, err := IDP.GetChallenge(c.Request)
 	//    Return on error
 
-    // 1. Parse and validate consent data (eg. form answer=y or list of scopes)
+	// 1. Parse and validate consent data (eg. form answer=y or list of scopes)
 	//    Return on error
 
 	// 2. If user refused access
