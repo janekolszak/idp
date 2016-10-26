@@ -3,15 +3,15 @@
 
 This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra).
 IdP handles:
-- Storing challenge in a short lived cookie
+- Storing challenge in a short lived cookie instead of ugly query parameters
 - Passing user's consent to Hydra
 - Retriving keys from Hydra and using them for JWT verification
 
 ## About
 
 Let's say we have an Identity Provider with:
-- */login* endpoint that accepts Hydra's challenges
-- */consent* endpoint that handles getting consent from the user
+- **/login** endpoint that accepts Hydra's challenges
+- **/consent** endpoint that handles getting consent from the user
 
 This is how challenge request is hadled with the IdP library:
 
