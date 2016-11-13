@@ -32,7 +32,7 @@ func main() {
 	challengeCookieStore, err = pgstore.NewPGStore("postgres://user:pass@address/dbname")
 	// Return on error
 
-	  // Create the IDP
+	// Create the IDP
 	IDP := idp.NewIDP(&idp.IDPConfig{
 		ClusterURL:            /* Hydra's address */,
 		ClientID:              /* IDP's client ID */,
