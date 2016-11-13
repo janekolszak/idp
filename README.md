@@ -1,11 +1,13 @@
 # Identity Provider (IdP) for Hydra
 [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp) [![Code Climate](https://codeclimate.com/github/janekolszak/idp/badges/gpa.svg)](https://codeclimate.com/github/janekolszak/idp) [![GoDoc](https://godoc.org/github.com/janekolszak/idp?status.svg)](https://godoc.org/github.com/janekolszak/idp) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
 
-This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra).
-IdP handles:
-- Storing challenge in a short lived cookie instead of ugly query parameters
+This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra), it handles:
+- Storing challenge in a short lived cookie instead of query parameters
 - Passing user's consent to Hydra
 - Retriving keys from Hydra and using them for JWT verification
+- Caching keys and client info
+
+**IdP uses [Gorilla sessions](http://www.gorillatoolkit.org/pkg/sessions) as the Store. There are many Gorilla sessions backend implementations out there.**
 
 ## About
 
@@ -13,29 +15,24 @@ Let's say we have an Identity Provider with:
 - **/login** endpoint that accepts Hydra's challenges
 - **/consent** endpoint that handles getting consent from the user
 
-This is how challenge request is hadled with the IdP library:
+This is how challenge request could be hadled with the IdP library:
 
 ![Sequence Diagram](https://raw.githubusercontent.com/janekolszak/idp/master/doc/sequenceDiagram.png)
 
 ## Initialization
-
+There are many implementations of Gorilla sessions. Let's use Postgres as the backend: 
 ```go
 import (
 	"github.com/janekolszak/idp"
-	"github.com/boj/rethinkstore"
+	"github.com/antonlindstrom/pgstore"
 	"time"
 )
 
 func main() {
-	challengeCookieStore, err = rethinkstore.NewRethinkStore(/* RethinkDB address */,
-	                                                         /* Database name */,
-	                                                         "challengeCookies", 5, 5, []byte("something-very-secret"))
+	challengeCookieStore, err = pgstore.NewPGStore(postgres://user:pass@address/dbname)
 	// Return on error
 
-	// How long do Challenge cookies live?
-	challengeCookieStore.MaxAge(60 * 5) // 5 min
-
-	// Create the IDP
+	  // Create the IDP
 	IDP := idp.NewIDP(&idp.IDPConfig{
 		ClusterURL:            /* Hydra's address */,
 		ClientID:              /* IDP's client ID */,
