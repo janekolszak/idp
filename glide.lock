@@ -1,5 +1,5 @@
-hash: fb9b34362c6bd03ddb2919a83947c19f6cfc3535e11811a070de73bb5ddcda54
-updated: 2016-10-26T21:15:57.463149967+02:00
+hash: 0229ca729e2d077de78a8112282b1aeb52a767105745a2cdc33a317a7fd14c3a
+updated: 2016-11-17T23:02:17.797026535+01:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
@@ -12,11 +12,11 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/fsnotify/fsnotify
-  version: bd2828f9f176e52d7222e565abb2d338d3f3c103
+  version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/go-errors/errors
   version: a41850380601eeb43f4350f7d17c6bbd8944aaf8
 - name: github.com/go-sql-driver/mysql
-  version: b81e73ccadaaf2c4545a06da826f1ba95dbd2214
+  version: 665b83488b90b902ce0a305ef6652e599771cdf9
 - name: github.com/golang/protobuf
   version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
   subpackages:
@@ -30,7 +30,7 @@ imports:
 - name: github.com/hailocab/go-hostpool
   version: e80d13ce29ede4452c43dea11e79b9bc8a15b478
 - name: github.com/hashicorp/hcl
-  version: 99ce73d4fe576449f7a689d4fc2b2ad09a86bdaa
+  version: c3e054bfd4dcf77b9965ed2b79b22afa2f41d4eb
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -45,15 +45,13 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/jmoiron/sqlx
-  version: 05b81a7d5d38058e42148dc01f17daf4acba4640
+  version: 5f97679e23f75f42b265fec8d3bdb1c8de90b79d
   subpackages:
   - reflectx
 - name: github.com/julienschmidt/httprouter
   version: 8c199fb6259ffc1af525cc3ad52ee60ba8359669
-- name: github.com/kr/fs
-  version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - name: github.com/lib/pq
-  version: ae8357db35d721c58dcdc911318b55bef6b1b001
+  version: d8eeeb8bae8896dd8e1b7e514ab0d396c4f12a1b
   subpackages:
   - oid
 - name: github.com/magiconair/properties
@@ -61,7 +59,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: f3009df150dadf309fdee4a54ed65c124afad715
 - name: github.com/moul/http2curl
-  version: c984a4ec331f8ef0e5cd782975a97c92bd8ab40c
+  version: 4e24498b31dba4683efb9d35c1c8a91e2eda28c8
 - name: github.com/oleiade/reflections
   version: ec27669d960a245738b87ffa688dac28fa288c33
 - name: github.com/ory-am/common
@@ -71,7 +69,7 @@ imports:
   - pkg
   - rand/sequence
 - name: github.com/ory-am/fosite
-  version: 66170ae25a3ac26abcd2ab27d687434d4e2a60a7
+  version: 895d16935bd97831eecff66b1d775af9b91a2506
   subpackages:
   - handler/oauth2
   - handler/openid
@@ -79,7 +77,7 @@ imports:
   - token/hmac
   - token/jwt
 - name: github.com/ory-am/hydra
-  version: c743e3738735b31803505dbe4f95ac3c17983a6c
+  version: 00bdd28ef47ed1b766b01637f7256befdec4aaaf
   subpackages:
   - client
   - config
@@ -93,7 +91,7 @@ imports:
   - sdk
   - warden
 - name: github.com/ory-am/ladon
-  version: 26796832b64dc1d8c8a0b69f5969fd6794a6b6f1
+  version: dbcb044925c356166431290a4f1564e210749a65
 - name: github.com/patrickmn/go-cache
   version: 1881a9bccb818787f68c52bfba648c6cf34c34fa
 - name: github.com/pborman/uuid
@@ -104,8 +102,6 @@ imports:
   version: 45932ad32dfdd20826f5671da37a5f3ce9f26a8d
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
-- name: github.com/pkg/sftp
-  version: 4d0e916071f68db74f8a73926335f809396d6b42
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -113,20 +109,19 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: 4b6ea7319e214d98c938f12692336f7ca9348d6b
 - name: github.com/spf13/afero
-  version: 52e4a6cfac46163658bd4f123c49b6ee7dc75f78
+  version: 06b7e5f50606ecd49148a01a6008942d9b669217
   subpackages:
   - mem
-  - sftp
 - name: github.com/spf13/cast
-  version: 2580bc98dc0e62908119e4737030cc2fdfc45e4c
+  version: 24b6558033ffe202bf42f0f3b870dcc798dd2ba8
 - name: github.com/spf13/cobra
-  version: 6e91dded25d73176bf7f60b40dd7aa1f0bf9be8d
+  version: 9495bc009a56819bdb0ddbc1a373e29c140bc674
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
   version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - name: github.com/spf13/viper
-  version: 80ab6657f9ec7e5761f6603320d3d58dfe6970f6
+  version: 651d9d916abc3c3d6a91a12549495caba5edffd2
 - name: github.com/square/go-jose
   version: aa2e30fdd1fe9dd3394119af66451ae790d50e0d
   subpackages:
@@ -137,35 +132,31 @@ imports:
   - assert
   - require
 - name: golang.org/x/crypto
-  version: ca7e7f10cb9fd9c1a6ff7f60436c086d73714180
+  version: 9477e0b78b9ac3d0b03822fd95422e2fe07627cd
   subpackages:
   - bcrypt
   - blowfish
-  - curve25519
-  - ed25519
-  - ed25519/internal/edwards25519
   - pbkdf2
-  - ssh
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
 - name: golang.org/x/oauth2
-  version: 25b4fb1468cb89700c7c060cb99f30581a61f5e3
+  version: d5040cddfc0da40b408c9a1da4728662435176a9
   subpackages:
   - clientcredentials
   - internal
 - name: golang.org/x/sys
-  version: c200b10b5d5e122be351b67af224adc6128af5bf
+  version: b699b7032584f0953262cb2788a0ca19bb494703
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 16e1d1f27f7aba51c74c0aeb7a7ee31a75c5c63c
+  version: a263ba8db058568bb9beba166777d9c9dbe75d68
   subpackages:
   - transform
   - unicode/norm
 - name: google.golang.org/appengine
-  version: 46239ca616842c00f41b8cbc6bbf2bd6ffbfcdad
+  version: ca59ef35f409df61fa4a5f8290ff289b37eccfb8
   subpackages:
   - internal
   - internal/base
