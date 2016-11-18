@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	challengeCookieStore, err = pgstore.NewPGStore("postgres://user:pass@address/dbname")
+	challengeCookieStore, err = pgstore.NewPGStore("postgres://user:pass@address/dbname", []byte("secret"))
 	// Return on error
 
 	// Create the IDP
