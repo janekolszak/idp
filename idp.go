@@ -316,6 +316,7 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 	}
 
 	challenge.Redirect = claims["redir"].(string)
+	challenge.JTI = claims["jti"].(string)
 	challenge.User = user
 	challenge.idp = idp
 

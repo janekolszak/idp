@@ -24,6 +24,9 @@ type Challenge struct {
 	// Time of expiration
 	Expires time.Time
 
+	// Unique JWT id
+	JTI string
+
 	// Redirect URL
 	Redirect string
 
@@ -99,6 +102,7 @@ func (c *Challenge) GrantAccessToAll(w http.ResponseWriter, r *http.Request) err
 	claims["exp"] = now.Add(time.Minute * 4).Unix()
 	claims["iat"] = now.Unix()
 	claims["scp"] = c.Scopes
+	claims["jti"] = c.JTI
 	claims["sub"] = c.User
 
 	// Sign and get the complete encoded token as a string
