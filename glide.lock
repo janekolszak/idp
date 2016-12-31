@@ -1,5 +1,5 @@
-hash: 39979f4a44cfb0e9e5ce0b0a7fd6955a20d91072bb40180eae11d0715edd1db4
-updated: 2016-12-30T19:55:45.541087818+01:00
+hash: 24854274caec6cc17cce1797d851b90e62d4511959e99c39892cdc5ead09de34
+updated: 2016-12-31T18:11:12.959588886+01:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
@@ -78,7 +78,7 @@ imports:
   - token/hmac
   - token/jwt
 - name: github.com/ory-am/hydra
-  version: fcdf6643845ff8b743a910295c5761dfd389a8a3
+  version: 5b425372b0e54a2e9ff00aa555083b8b6034ee6a
   subpackages:
   - client
   - config
@@ -157,7 +157,7 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: a49bea13b776691cb1b49873e5d8df96ec74831a
+  version: fd889fe3a20f4878f5f47672fd3ca5b86db005e2
   subpackages:
   - transform
   - unicode/norm
