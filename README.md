@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	challengeCookieStore, err = pgstore.NewPGStore("postgres://user:pass@address/dbname", []byte("secret"))
+	challengeCookieStore, err := pgstore.NewPGStore("postgres://user:pass@address/dbname", []byte("secret"))
 	// Return on error
 
 	// Create the IDP
@@ -37,10 +37,10 @@ func main() {
 		ClusterURL:            /* Hydra's address */,
 		ClientID:              /* IDP's client ID */,
 		ClientSecret:          /* IDP's client secret */,
-		KeyCacheExpiration:    time.Duration(/* Key expiration time */) * time.Second,
-		ClientCacheExpiration: time.Duration(/* Client info expiration */) * time.Second,
-		CacheCleanupInterval:  time.Duration(/* Cache cleanup interval. Eg. 30 */) * time.Second,
-		ChallengeExpiration:   time.Duration(/* Challenge cookie expiration. Eg. 10 */) * time.Minutes,
+		KeyCacheExpiration:    /* Key expiration time */ * time.Second,
+		ClientCacheExpiration: /* Client info expiration */ * time.Second,
+		CacheCleanupInterval:  /* Cache cleanup interval. Eg. 30 */ * time.Second,
+		ChallengeExpiration:   /* Challenge cookie expiration. Eg. 10 */ * time.Minute,
 		ChallengeStore:        challengeCookieStore,
 	})
 
