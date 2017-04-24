@@ -1,5 +1,5 @@
-hash: 4f6b3ce19298b8a7ebdc133f27f41cb8097fcf8498963b8ec48d84475ca508e4
-updated: 2017-04-14T20:53:43.674906124+02:00
+hash: 9610a4e0c3008b6c2685ae2a4930af1377fbe9e943789d84e3d03abe27c3f58a
+updated: 2017-04-24T18:19:40.322341712+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
@@ -16,7 +16,7 @@ imports:
 - name: github.com/go-errors/errors
   version: 8fa88b06e5974e97fbf9899a7f86a344bfd1f105
 - name: github.com/go-redis/redis
-  version: 62ecc61210cb7dd8ca9aebb8bebbc849c358383b
+  version: d0dd05b65910c3c658378f2ddd17cc96df56b17d
   subpackages:
   - internal
   - internal/consistenthash
