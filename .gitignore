@@ -28,4 +28,5 @@ _testmain.go
 
 .vscode
 
+/.idea/
 /vendor
