@@ -1,10 +1,11 @@
-package: .
+package: github.com/janekolszak/idp
 import:
 - package: github.com/dgrijalva/jwt-go
   version: ~3.0.0
 - package: github.com/gorilla/sessions
-- package: github.com/ory-am/hydra
-  version: ~0.7.11
+  version: ~1.1.0
+- package: github.com/ory/hydra
+  version: ~0.8.5
   subpackages:
   - client
   - jwk
