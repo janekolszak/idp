@@ -1,7 +1,7 @@
 # Identity Provider (IdP) for Hydra
 [![Build Status](https://travis-ci.org/janekolszak/idp.svg?branch=master)](https://travis-ci.org/janekolszak/idp) [![Code Climate](https://codeclimate.com/github/janekolszak/idp/badges/gpa.svg)](https://codeclimate.com/github/janekolszak/idp) [![GoDoc](https://godoc.org/github.com/janekolszak/idp?status.svg)](https://godoc.org/github.com/janekolszak/idp) [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/janekolszak/idp)
 
-This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory-am/hydra), it handles:
+This is a helper library for handling *challenge* requests from [Hydra](https://github.com/ory/hydra), it handles:
 - Storing challenge in a short lived cookie instead of query parameters
 - Passing user's consent to Hydra
 - Retriving keys from Hydra and using them for JWT verification

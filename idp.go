@@ -7,10 +7,10 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
-	hclient "github.com/ory-am/hydra/client"
-	hjwk "github.com/ory-am/hydra/jwk"
-	hoauth2 "github.com/ory-am/hydra/oauth2"
-	hydra "github.com/ory-am/hydra/sdk"
+	hclient "github.com/ory/hydra/client"
+	hjwk "github.com/ory/hydra/jwk"
+	hoauth2 "github.com/ory/hydra/oauth2"
+	hydra "github.com/ory/hydra/sdk"
 	"github.com/patrickmn/go-cache"
 )
 
