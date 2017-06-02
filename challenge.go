@@ -1,11 +1,11 @@
-// Package for handling challenge requests from Hydra(https://github.com/ory-am/hydra).
+// Package for handling challenge requests from Hydra(https://github.com/ory/hydra).
 package idp
 
 import (
 	"encoding/gob"
 	jwt "github.com/dgrijalva/jwt-go"
 	// "github.com/gorilla/sessions"
-	hclient "github.com/ory-am/hydra/client"
+	hclient "github.com/ory/hydra/client"
 	"net/http"
 	"time"
 )
