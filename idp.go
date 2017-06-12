@@ -1,6 +1,7 @@
 package idp
 
 import (
+	"context"
 	"crypto/rsa"
 	"net/http"
 	"time"
@@ -260,7 +261,7 @@ func (idp *IDP) getVerificationKey() (*rsa.PublicKey, error) {
 	return key, nil
 }
 
-func (idp *IDP) getClient(clientID string) (*hclient.Client, error) {
+func (idp *IDP) getClient(ctx context.Context, clientID string) (*hclient.Client, error) {
 	clientKey := ClientInfoKey(clientID)
 	data, ok := idp.cache.Get(clientKey)
 	if ok {
@@ -271,7 +272,7 @@ func (idp *IDP) getClient(clientID string) (*hclient.Client, error) {
 		return nil, ErrorNoSuchClient
 	}
 
-	client, err := idp.hc.Clients.GetClient(clientID)
+	client, err := idp.hc.Clients.GetClient(ctx, clientID)
 	if err != nil {
 		// Either the client isn't registered in hydra, or maybe hydra is
 		// having some problem. Either way, ensure we don't hit hydra again
@@ -286,7 +287,7 @@ func (idp *IDP) getClient(clientID string) (*hclient.Client, error) {
 }
 
 // Create a new Challenge. The request will contain all the necessary information from Hydra, passed in the URL.
-func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge, err error) {
+func (idp *IDP) NewChallenge(ctx context.Context, r *http.Request, user string) (challenge *Challenge, err error) {
 	tokenStr := r.FormValue("challenge")
 	if tokenStr == "" {
 		// No challenge token
@@ -310,7 +311,7 @@ func (idp *IDP) NewChallenge(r *http.Request, user string) (challenge *Challenge
 	}
 
 	// Get data from the challenge jwt
-	challenge.Client, err = idp.getClient(claims["aud"].(string))
+	challenge.Client, err = idp.getClient(ctx, claims["aud"].(string))
 	if err != nil {
 		return nil, err
 	}
